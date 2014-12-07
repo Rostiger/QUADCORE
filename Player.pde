@@ -5,12 +5,6 @@ class Player {
 	float xPos, yPos, size, hSize ,vSize, hpHSize, hpVSize, hSpeed, vSpeed, centerX, centerY, minCharge, maxCharge, drawScale;
 	boolean hit, respawn, dead, invincible, knockBack, hasMultiShot, hasShield, hasLockDown;
 	
-	//keys
-	boolean 
-		hasGamePad, upPressed, downPressed, leftPressed, rightPressed, shootPressed, shootWasPressed,
-		shootReleased, useItemPressed, useItemWasPressed, useItemReleased, startPressed;
-	char space = ' ';
-
 	// stats
 	int bullets, kills, deaths, shots, items, score, nodesOwned, nodesCaptured, nodesLost, wins;
 	boolean hasDiedOnce;
@@ -44,10 +38,13 @@ class Player {
 	//shaking
 	Shake shake = new Shake();
 	boolean shaking;
+
+	public Input input;
 	
 	Player(int _id) {
 
 		id = _id;
+		input = new Input(id);
 
 		// set player variables
 		size = CELL_SIZE;
@@ -86,19 +83,6 @@ class Player {
 		showItem = false;
 		shaking = false;
 
-		//keys
-		upPressed = false;
-		downPressed = false;
-		leftPressed = false;
-		rightPressed = false;
-		shootPressed = false;
-		shootReleased = false;
-		shootWasPressed = false;
-		useItemPressed = false;
-		useItemWasPressed = false;
-		useItemReleased = false;
-		startPressed = false;
-
 		//stats
 		bullets = 0;
 		score = 0;
@@ -133,22 +117,7 @@ class Player {
 
 	void update() {
 
-		getGamePadInput();
-
-		// take care of button presses/states
-		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
-		else {
-			if (shootWasPressed) shootReleased = true;
-			else shootReleased = false;
-			shootWasPressed = false;
-		}
-
-		if (useItemPressed) { useItemWasPressed = true; useItemReleased = false; }
-		else {
-			if (useItemWasPressed) useItemReleased = true;
-			else useItemReleased = false;
-			useItemWasPressed = false;
-		}
+		input.update();
 
 		// if the player died fade the alpha to 0
 		if (dead) {
@@ -197,7 +166,7 @@ class Player {
 				if (!hud.visible) {
 					if (countDown) { respawnCounter--; countDown = false; }
 				} else countDown = true;
-			} else if (shootReleased && !gManager.matchOver) {
+			} else if (input.shootReleased && !gManager.matchOver) {
 				spawn();
 				respawnCounter = respawnTime;
 			}
@@ -216,7 +185,7 @@ class Player {
 			if(!gManager.matchOver && !respawn && !dead) shoot();
 
 			// lock down nodes
-			if (useItemPressed && hasLockDown) lockDown();
+			if (input.useItemPressed && hasLockDown) lockDown();
 		}
 				
 		//check how many nodes the player owns (must be more than one)
@@ -503,10 +472,10 @@ class Player {
 
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine vertical speed
-		if (upPressed || (boosting && yDir == -1)) {
+		if (input.upPressed || (boosting && yDir == -1)) {
 			if (vSpeed > -_maxSpeed) vSpeed -= _acc;
 			else vSpeed = -_maxSpeed;
-		} else if (downPressed || (boosting && yDir == 1)) {
+		} else if (input.downPressed || (boosting && yDir == 1)) {
 			if (vSpeed < _maxSpeed) vSpeed += _acc;
 			else vSpeed = _maxSpeed;
 		} else {
@@ -519,10 +488,10 @@ class Player {
 
 	float getHSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine horizontal speed
-		if (leftPressed || (boosting && xDir == -1)) {
+		if (input.leftPressed || (boosting && xDir == -1)) {
 			if (hSpeed > -_maxSpeed) hSpeed -= _acc;
 			else hSpeed = -_maxSpeed;
-		} else if (rightPressed || (boosting && xDir == 1)) {
+		} else if (input.rightPressed || (boosting && xDir == 1)) {
 			if (hSpeed < _maxSpeed) hSpeed += _acc;
 			else hSpeed = _maxSpeed;
 		} else {
@@ -542,7 +511,7 @@ class Player {
 		// boost triggering
 		// check if the player has a boost counter higher than 0
 		// and hasn't boosted last update
-		if (useItemPressed && !respawn) {
+		if (input.useItemPressed && !respawn) {
 			// only boost if the player isn't already boosting and
 			// doesn have the multishot item
 			if (hasBoost && !boosting) {
@@ -622,22 +591,22 @@ class Player {
 
 	void face() {
 		// this class determines which direction the player is facing and sets the player cursor appropriately
-		if (upPressed) {
+		if (input.upPressed) {
 			yDir = -1;
-			if (!leftPressed && !rightPressed) xDir = 0;
+			if (!input.leftPressed && !input.rightPressed) xDir = 0;
 		}
-		else if (downPressed) {
+		else if (input.downPressed) {
 			yDir = 1;
-			if (!leftPressed && !rightPressed) xDir = 0;
+			if (!input.leftPressed && !input.rightPressed) xDir = 0;
 		}
 		
-		if (leftPressed) {
+		if (input.leftPressed) {
 			xDir = -1;
-			if (!upPressed && !downPressed) yDir = 0;
+			if (!input.upPressed && !input.downPressed) yDir = 0;
 		}
-		else if (rightPressed) {
+		else if (input.rightPressed) {
 			xDir = 1;
-			if (!upPressed && !downPressed) yDir = 0;
+			if (!input.upPressed && !input.downPressed) yDir = 0;
 		}
 
 		//evaluate the position of the cursor depending on the player direction
@@ -653,14 +622,14 @@ class Player {
 	void shoot() {
 		//shoot bullets!
 
-		if (shootReleased) {
+		if (input.shootReleased) {
 		    oManager.addBullet(id,xPosCursor,yPosCursor,xDir,yDir,charge);
 		    shot01.trigger();
 		    shots++;
 			charge = minCharge;
-			shootReleased = false;
+			input.shootReleased = false;
 			chargeDelay = initChargeDelay;
-		} else if (shootWasPressed) {
+		} else if (input.shootWasPressed) {
 			if (chargeDelay > 0) chargeDelay -= dt;
 			else {
 				if (charge < maxCharge) charge += 1.01 * dt;
@@ -669,7 +638,7 @@ class Player {
 		}
 
 		// use multishot item!
-		if (useItemPressed && hasMultiShot) {
+		if (input.useItemPressed && hasMultiShot) {
 			multiShot01.trigger();
 			for (int xD=-1;xD<=1;xD++) {
 				for (int yD=-1;yD<=1;yD++) {
@@ -765,196 +734,6 @@ class Player {
 				spawnKill = collision.checkBoxCollision(xPos,yPos,hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
  			}
  			if (spawnKill) p.hp -= p.hp;
-		}
-	}
-
-	void getGamePadInput() {
-		// game pad inputs
-		for (int i=0;i<gPads.size();i++) {
-			if (i == id) {
-				
-				hasGamePad = true;
-
-				if (gPads.get(i).getSlider("LS_Y").getValue() < -0.2 || 
-					// gPads[id].getHat("DPAD").getY() < -0.2 ||
-					gPads.get(i).getButton("DP_UP").pressed()) {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: downPressed = true; break;
-							case 1: upPressed = true; break;
-							case 2: leftPressed = true; break;
-							case 3: rightPressed = true; break;
-						}
-					} else upPressed = true;
-				
-				} else {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: downPressed = false; break;
-							case 1: upPressed = false; break;
-							case 2: leftPressed = false; break;
-							case 3: rightPressed = false; break;
-						}
-					} else upPressed = false;
-				}
-
-				if (gPads.get(i).getSlider("LS_Y").getValue() > 0.2 || 
-					// gPads[id].getHat("DPAD").getY() > 0.2 ||
-					gPads.get(i).getButton("DP_DOWN").pressed()) {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: upPressed = true; break;
-							case 1: downPressed = true; break;
-							case 2: rightPressed = true; break;
-							case 3: leftPressed = true; break;
-						}
-					} else downPressed = true;
-
-				} else {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: upPressed = false; break;
-							case 1: downPressed = false; break;
-							case 2: rightPressed = false; break;
-							case 3: leftPressed = false; break;
-						}
-					} else downPressed = false;
-
-				}
-
-				if (gPads.get(i).getSlider("LS_X").getValue() < -0.2 || 
-					// gPads[id].getHat("DPAD").getX() < -0.2 ||
-					gPads.get(i).getButton("DP_LEFT").pressed()) {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: rightPressed = true; break;
-							case 1: leftPressed = true; break;
-							case 2: downPressed = true; break;
-							case 3: upPressed = true; break;
-						}
-					} else leftPressed = true;
-
-				} else {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: rightPressed = false; break;
-							case 1: leftPressed = false; break;
-							case 2: downPressed = false; break;
-							case 3: upPressed = false; break;
-						}
-					} else leftPressed = false;
-
-				}
-
-				if (gPads.get(i).getSlider("LS_X").getValue() > 0.2 || 
-					// gPads[id].getHat("DPAD").getX() > 0.2 ||
-					gPads.get(i).getButton("DP_RIGHT").pressed()) {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: leftPressed = true; break;
-							case 1: rightPressed = true; break;
-							case 2: upPressed = true; break;
-							case 3: downPressed = true; break;
-						}
-					} else rightPressed = true;
-
-				} else {
-
-					if (TOP_VIEW) {
-						switch (id) {
-							case 0: leftPressed = false; break;
-							case 1: rightPressed = false; break;
-							case 2: upPressed = false; break;
-							case 3: downPressed = false; break;
-						}
-					} else rightPressed = false;
-				}
-				shootPressed = gPads.get(i).getButton("BT_A").pressed();
-				useItemPressed = gPads.get(i).getButton("BT_B").pressed();
-				startPressed = gPads.get(i).getButton("BT_C").pressed();
-			}
-		}
-	}
-
-	void checkKeyPress() {
-		switch(id) {
-			case 0:
-				if (keyCode == UP) upPressed = true;
-				if (keyCode == DOWN) downPressed = true;
-				if (keyCode == LEFT) leftPressed = true;
-				if (keyCode == RIGHT) rightPressed = true;
-				if (key == '/') shootPressed = true;
-				if (keyCode == SHIFT) useItemPressed = true;
-			break;
-			case 1:
-				if (key == 'w') upPressed = true;
-				if (key == 's') downPressed = true;
-				if (key == 'a') leftPressed = true;
-				if (key == 'd') rightPressed = true;
-				if (key == 'f') shootPressed = true;
-				if (key == 'r') useItemPressed = true;
-			break;
-			case 2:
-				if (key == 'i') upPressed = true;
-				if (key == 'k') downPressed = true;
-				if (key == 'j') leftPressed = true;
-				if (key == 'l') rightPressed = true;
-				if (key == 'h') shootPressed = true;
-				if (key == 'y') useItemPressed = true;
-			break;
-			case 3:
-				if (key == '8') upPressed = true;
-				if (key == '5') downPressed = true;
-				if (key == '4') leftPressed = true;
-				if (key == '6') rightPressed = true;
-				if (key == '0') shootPressed = true;
-				if (key == 'g') useItemPressed = true;
-			break;
-		}
-	}
-
-	void checkKeyRelease() {
-
-		switch(id) {
-			case 0:
-				if (keyCode == UP) upPressed = false;
-				if (keyCode == DOWN) downPressed = false;
-				if (keyCode == LEFT) leftPressed = false;
-				if (keyCode == RIGHT) rightPressed = false;
-				if (key == '/') shootPressed = false;
-				if (keyCode == SHIFT) useItemPressed = false;
-			break;
-			case 1:
-				if (key == 'w') upPressed = false;
-				if (key == 's') downPressed = false;
-				if (key == 'a') leftPressed = false;
-				if (key == 'd') rightPressed = false;
-				if (key == 'f') shootPressed = false;
-				if (key == 'r') useItemPressed = false;
-			break;
-			case 2:
-				if (key == 'i') upPressed = false;
-				if (key == 'k') downPressed = false;
-				if (key == 'j') leftPressed = false;
-				if (key == 'l') rightPressed = false;
-				if (key == 'h') shootPressed = false;
-				if (key == 'y') useItemPressed = false;
-			break;
-			case 3:
-				if (key == '8') upPressed = false;
-				if (key == '5') downPressed = false;
-				if (key == '4') leftPressed = false;
-				if (key == '6') rightPressed = false;
-				if (key == '0') shootPressed = false;
-				if (key == 'g') useItemPressed = false;
-			break;
 		}
 	}
 
