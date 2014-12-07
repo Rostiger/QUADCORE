@@ -100,7 +100,7 @@ class GameManager {
 			for (Player p : players) {
 				p.update();
 				// restart the game when the game is over and start was pressed
-				if (matchOver && p.startPressed) reset();
+				if (matchOver && p.input.startPressed) reset();
 			}
 		}
 
@@ -112,8 +112,8 @@ class GameManager {
 		//check keyPresses for all players if the aren't using a gamepad
 		if (players != null) {
 			for (Player p : players) {
-				if (p.hasGamePad) continue;
-				else p.checkKeyPress();
+				if (p.input.hasGamePad) continue;
+				else p.input.checkKeyPress();
 			}
 		}
 
@@ -130,8 +130,8 @@ class GameManager {
 		//check keyReleases for all players if the aren't using a gamepad
 		if (players != null) {
 			for (Player p : players) {
-				if (p.hasGamePad) continue;
-				else p.checkKeyRelease();
+				if (p.input.hasGamePad) continue;
+				else p.input.checkKeyRelease();
 			}
 		}
 

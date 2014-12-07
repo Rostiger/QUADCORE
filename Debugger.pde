@@ -84,7 +84,7 @@ class Debugger {
 
 				if (invincibility) p.invincible = true;
 				if (canShoot && !gManager.matchOver && !p.respawn && !p.dead) {
-					p.shootReleased = true;
+//					p.input.shootReleased = true;
 					p.shoot();
 				}
 
