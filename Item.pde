@@ -88,7 +88,7 @@ class Item {
 				if (p.respawn || p.dead) continue;
 
 				// check for collisions
-				pickUp = collision.checkBoxCollision(xPos,yPos,hSize,vSize,p.xPos,p.yPos,p.hSize,p.vSize);
+				pickUp = collision.checkBoxCollision(xPos,yPos,hSize,vSize,p.pos.x,p.pos.y,p.siz.x,p.siz.y);
 
 				if (pickUp) {
 					if (itemName == "BOOST") { 

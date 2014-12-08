@@ -21,13 +21,13 @@ class ObjectManager {
 		deleteBullets(100);
 	}
 
-	void addBullet(int _playerId, float _xPosPlayer, float _yPosPlayer, int _xDir, int _yDir, float _charge) {
-		Bullet b = new Bullet(_playerId,_xPosPlayer,_yPosPlayer,_xDir,_yDir,_charge);
+	void addBullet(int _playerId, PVector _pos, PVector _dir, float _charge) {
+		Bullet b = new Bullet(_playerId, _pos, _dir, _charge);
 		bullets.add(b);
 	}
 
-	void addSolid(int _id, float _xPos, float _yPos) {
-        Solid s = new Solid(_id,_xPos,_yPos);
+	void addSolid(int _id, PVector _pos) {
+        Solid s = new Solid(_id, _pos);
 		solids.add(s);
 	}
 
@@ -68,7 +68,7 @@ class ObjectManager {
 	void deleteBullets(int maxArraySize) {
 		for (int i=0;i<bullets.size();i++) {
 			Bullet b = bullets.get(i);
-			if (b.delete) bullets.remove(i);
+			if (b.destroy) bullets.remove(i);
 		}
 
 		 while(bullets.size() > maxArraySize) bullets.remove(0);
@@ -77,7 +77,7 @@ class ObjectManager {
 	void deleteSolids() {
 		for (int i=0;i<solids.size();i++) {
 			Solid s = solids.get(i);
-			if (s.delete) solids.remove(i);
+			if (s.destroy) solids.remove(i);
 		}
 	}
 }

@@ -9,8 +9,8 @@ class GameManager {
 
 	int maxPlayers = 4;
 	Player[] players = new Player[maxPlayers];
-	float[] playerStartPosX = new float[maxPlayers];
-	float[] playerStartPosY = new float[maxPlayers];
+	PVector[] playerStartPos = new PVector[maxPlayers];
+
 	int winnerID;
 	int prevLevelID;
 	int nextLevelID;
@@ -49,19 +49,9 @@ class GameManager {
 		prevLevelID = nextLevelID;
 
 		// add inactive players if they aren't there already
-		for (int i=0; i<maxPlayers; i++) {
-			if (players[i] != null) continue;
-			else {
-				Player p = new Player(i);
-				players[i] = p;
-			}
-		}
-
-		//reset the players
-		for (Player p : players) {
-				p.reset();
-		}
-
+		addPlayers();
+		resetPlayers();
+		
 		// reset the game state
 		gameOver = false;
 		matchOver = false;
@@ -72,11 +62,24 @@ class GameManager {
 		collision = new Collision();
 	}
 
-	void setPlayerStartPosition(int _id, float _xPos, float _yPos) {
+	void setPlayerStartPosition(int _id, PVector _pos) {
 		// when the level is parsed, the position for every player is stored in
 		// an array, so it can be used when the player joins the game
-		playerStartPosX[_id] = _xPos;
-		playerStartPosY[_id] = _yPos;
+		playerStartPos[_id] = new PVector( _pos.x, _pos.y );
+	}
+
+	void addPlayers() {
+		for (int i=0; i<maxPlayers; i++) {
+			if (players[i] != null) continue;
+			else {
+				Player p = new Player(i);
+				players[i] = p;
+			}
+		}
+	}
+
+	void resetPlayers() {
+		for (Player p : players) p.reset();
 	}
 
 	void update() {

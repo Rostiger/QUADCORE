@@ -83,7 +83,7 @@ class Node {
 				}
 
 				// check for the collision
-				boolean collides = collision.checkBoxCollision(nPos.x,nPos.y,nSize.x,nSize.y,p.xPos,p.yPos,p.hSize,p.vSize);
+				boolean collides = collision.checkBoxCollision(nPos.x,nPos.y,nSize.x,nSize.y,p.pos.x,p.pos.y,p.siz.x,p.siz.y);
 
 				// make sure the previous owner isn't on the node
 				if (occupiedByPlayer == p.id && (!collides)) occupiedByPlayer = 100;

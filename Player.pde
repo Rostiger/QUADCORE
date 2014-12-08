@@ -1,8 +1,10 @@
-class Player {
+class Player extends GameObject {
 
 	//properties
-	int id, xDir, yDir, hp, defaultHp, shieldHp, defaultShieldHp, alpha;
-	float xPos, yPos, size, hSize ,vSize, hpHSize, hpVSize, hSpeed, vSpeed, centerX, centerY, minCharge, maxCharge, drawScale;
+	PVector dir, speed, sizCore;
+
+	int id, hp, defaultHp, shieldHp, defaultShieldHp, alpha;
+	float minCharge, maxCharge, drawScale;
 	boolean hit, respawn, dead, invincible, knockBack, hasMultiShot, hasShield, hasLockDown;
 	
 	// stats
@@ -10,12 +12,13 @@ class Player {
 	boolean hasDiedOnce;
 
 	//counters
-	int initRespawnTime, respawnTime, respawnCounter, invincibility, invincibilityTime, trailCount, blink;
+	int respawnDuration, respawnTime, respawnDurationMultiplier;
+	int invincibleDuration, invincibleTime;
+	int trailCount, blink;
 	float charge, chargeDelay, initChargeDelay;
-	boolean countDown;
 
 	//cursor
-	float xPosCursor, yPosCursor, hSizeCursor, vSizeCursor;
+	PVector cursorPos, cursorSiz;
 
 	// boosting
 	boolean hasBoost, boosting;
@@ -47,27 +50,19 @@ class Player {
 		input = new Input(id);
 
 		// set player variables
-		size = CELL_SIZE;
-		if (size > 0)	{ hSize = size; vSize = size; }
-		else 			{ hSize = 0; vSize = 0; }
-
-		setStartPosition();
-
-		// set cursor variables
-		xPosCursor = xPos;
-		yPosCursor = yPos;
-
-		// player center
-		centerX = xPos + hSize / 2;
-		centerY = yPos + vSize / 2;
+		pos 		= new PVector( gManager.playerStartPos[id].x, gManager.playerStartPos[id].y );
+		cen 		= new PVector( pos.x + siz.x / 2, pos.y + siz.x / 2);
+		sizCore		= new PVector( siz.x, siz.y );
+		cursorPos 	= new PVector( pos.x, pos.y );
+		cursorSiz 	= new PVector( siz.x, siz.y );
+		speed 		= new PVector( 0,0 );
+		dir 		= new PVector( 0,1 );
 
 		//properties
 		defaultHp = 10;
 		hp = defaultHp;
 		shieldHp = 0;
 		defaultShieldHp = 10;
-		xDir = 0;
-		yDir = 1;
 		alpha = 255;
 		drawScale = 1;
 
@@ -93,7 +88,7 @@ class Player {
 		nodesCaptured = 0;
 		nodesLost = 0;
 		wins = 0;
-		hasDiedOnce = false;
+		wasKilledOnce = false;
 
 		//counters
 		maxCharge = CELL_SIZE;
@@ -101,17 +96,17 @@ class Player {
 		charge = minCharge;
 		initChargeDelay = 10;
 		chargeDelay = initChargeDelay;
-		initRespawnTime = 2;
-		respawnTime = initRespawnTime;
-		respawnCounter = 0;
-		countDown = false;
-		invincibilityTime = 150;
-		invincibility = invincibilityTime;
+		respawnDuration = 2;
+		respawnTime = respawnDuration;
+		respawnDurationMultiplier = 2;
+
+		invincibleDuration = 150;
+		invincibleTime = invincibleDuration;
 		trailCount = 100000;
 		blink = 0;
 
 		// multishot display variables
-		msMaxSize = hSize / 6;
+		msMaxSize = siz.x / 6;
 		msIndicatorSize = msMaxSize;	
 	}
 
@@ -119,24 +114,27 @@ class Player {
 
 		input.update();
 
-		// if the player died fade the alpha to 0
-		if (dead) {
+		updateVectors();
 
-			if (alpha > 0) alpha -= 10 * dt;
-			else if (!respawn && !gManager.matchOver) respawn = true;
+		if (ALIVE) {
 
-		} else {
-			// decrease the player rectangle to display health state
-			hpHSize = hSize / 2 * hp / 10;
-			hpVSize = vSize / 2 * hp / 10;
+			if (KILLED) {
+
+				if (alpha > 0) alpha -= 10 * dt;
+				else if (!respawn && !gManager.matchOver) {
+					ALIVE = false;
+					KILLED = false;
+				}
+
+			}
 
 			// if hp goes under 0, kill the player
 			if (hp <= 0) {
-				dead = true;
+				KILLED = true;
 				die01.trigger();
 				deaths++;
-				hasDiedOnce = true;
-				respawnTime *= 2;
+				wasKilledOnce = true;
+				respawnDuration *= respawnDurationMultiplier;
 				gManager.activePlayers--;
 			}
 
@@ -145,34 +143,36 @@ class Player {
 			else hasShield = true;
 
 			//if the player is invincible, count down the timer and start blinking
-			if (invincible) {
-				if (invincibility > 0) {
-					blink(0,255,10);
-					// only count down if invincibility isn't switched on in the console
-					if (!debugger.invincibility) invincibility -= dt;
-				}
-				else {
-					invincible = false;
-					invincibility = invincibilityTime;
-					alpha = 255;
-				}
-			}		
-		}
+			if (INVINCIBLE) {
 
-		// if the player is dead, respawn with a delay
-		if (respawn) {
+				if (invincibleTime > 0) {
+
+					blink(0,255,10);
+					invincibility -= dt;
+				
+				} else {
+
+					if (!debugger.invincibility) INVINCIBLE = false;
+					invincibleTime = invincibleDuration;
+					alpha = 255;
+				
+				}
+			}
+		} else {
+
 			// count down until respawn is possible
-			if (respawnCounter > 0) {
-				if (!hud.visible) {
-					if (countDown) { respawnCounter--; countDown = false; }
-				} else countDown = true;
-			} else if (input.shootReleased && !gManager.matchOver) {
+			if (respawnTime > 0 && !canRespawn) respawnTime -= dtInSeconds;
+			else {
+				canRespawn = true;
+				respawnTime = respawnDuration;
+			}
+
+			if (input.shootReleased && !gManager.matchOver && canRespawn) {
 				spawn();
-				respawnCounter = respawnTime;
 			}
 
 			// let the player move around to change respawn position
-			if (hasDiedOnce) move();
+			if (wasKilledOnce) move();
 
 			drawRespawnIndicator();
 
@@ -186,7 +186,15 @@ class Player {
 
 			// lock down nodes
 			if (input.useItemPressed && hasLockDown) lockDown();
+		}		
+
+
 		}
+
+
+		}
+
+
 				
 		//check how many nodes the player owns (must be more than one)
 		if (nodesOwned == oManager.nodes.size() && nodesOwned != 0 && !gManager.matchOver) {
@@ -197,77 +205,82 @@ class Player {
 		}
 	}
 
+	void updateVectors() {
+
+		cen.x = pos.x + siz.x / 2;
+		cen.y = pos.y + siz.y / 2;
+
+		sizCore.x = siz.x / 2 * hp / 10;
+		sizCore.y = siz.y / 2 * hp / 10;
+
+		cursorSiz.x = charge / 4;
+		cursorSiz.y = charge / 4;
+
+	}
 	void draw() {
-
-
-		centerX = xPos + hSize / 2;
-		centerY = yPos + vSize / 2;
-
-		hSizeCursor = charge / 4;
-		vSizeCursor = charge / 4;
 
 		canvas.rectMode(CENTER);
 
 		// player background
-		canvas.strokeWeight(size / 32);	
+		canvas.strokeWeight(siz.x / 32);	
 		canvas.fill(colors.player[id],alpha/5);
 		canvas.stroke(colors.player[id],alpha/2);
 		canvas.pushMatrix();
 		canvas.scale(1.0);
-		canvas.rect(centerX,centerY,hSize,vSize);
+		canvas.rect(cen.x,cen.y,siz.x,siz.y);
 		canvas.popMatrix();
 
 		//draw the player core background
 		canvas.noStroke();
 		canvas.fill(colors.player[id],alpha/3);
-		canvas.rect(centerX,centerY,hSize/2,vSize/2);
+		canvas.rect(cen.x,cen.y,siz.x/2,siz.y/2);
 
-		// draw the multishot indicator
-		if (hasMultiShot) drawMultiShotIndicator();
+		// // draw the multishot indicator
+		// if (hasMultiShot) drawMultiShotIndicator();
 
-		// draw the boost indicator
-		if (hasBoost) drawBoostIndicator();
+		// // draw the boost indicator
+		// if (hasBoost) drawBoostIndicator();
 
-		// draw the boost trail
-		drawBoostTrail();
+		// // draw the boost trail
+		// drawBoostTrail();
 
 		// draw shield
-		if (hasShield) {
-			float offset = size / 16;
-			canvas.noFill();
-			canvas.stroke(colors.player[id],alpha);
-			float weight = map(shieldHp,0,defaultShieldHp,1,6);
-			canvas.strokeWeight(weight);
-			canvas.rect(centerX + offset,centerY + offset,hSize - offset * 2,vSize - offset * 2);
-		}
+		// if (hasShield) {
+		// 	float offset = size / 16;
+		// 	canvas.noFill();
+		// 	canvas.stroke(colors.player[id],alpha);
+		// 	float weight = map(shieldHp,0,defaultShieldHp,1,6);
+		// 	canvas.strokeWeight(weight);
+		// 	canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
+		// }
 
 		// draw the player core
 		canvas.noStroke();
 		canvas.fill(colors.player[id],alpha);
-		canvas.rect(centerX,centerY,hpHSize,hpVSize);
+		canvas.rect(cen.x,cen.y,sizCore.x,sizCore.x);
 
 		// draw the cursor
-		canvas.rect(xPosCursor,yPosCursor,hSizeCursor,vSizeCursor);
+		canvas.rect(cursorPos.x,cursorPos.y,cursorSiz.x,cursorSiz.y);
 		
 		// draw the item name on pickup
 		if (showItem) drawItemName();
 
 		if (debugger.debugDraw) {
-			canvas.fill(255,255,255,255);
-			canvas.rect(xPos,yPos,hSize / 4,vSize / 4);
-			canvas.rect(centerX,centerY,hSize / 4,vSize / 4);
-			canvas.textSize(debugger.fontSize);
-			canvas.textAlign(CENTER);
-			canvas.fill(colors.player[id],255);
-			int playerID = id;
-			float textPosY = centerY + vSize + debugger.fontSize;
-			canvas.text("ID: " + id,centerX,textPosY);
-			canvas.text("ALPHA: " + alpha,centerX,textPosY+debugger.fontSize);
-			// canvas.text("BOOSTING: " + strokeWidth,centerX,textPosY+debugger.fontSize*2);
-			// canvas.text("UP: " + upPressed,centerX,textPosY+debugger.fontSize);
-			// canvas.text("DOWN: " + downPressed,centerX,textPosY+debugger.fontSize*2);
-			// canvas.text("LEFT: " + leftPressed,centerX,textPosY+debugger.fontSize*3);
-			// canvas.text("RIGHT: " + rightPressed,centerX,textPosY+debugger.fontSize*4);
+			// canvas.fill(255,255,255,255);
+			// canvas.rect(pos.x,pos.y,siz.x / 4,siz.y / 4);
+			// canvas.rect(cen.x,cen.y,siz.x / 4,siz.y / 4);
+			// canvas.textSize(debugger.fontSize);
+			// canvas.textAlign(CENTER);
+			// canvas.fill(colors.player[id],255);
+			// int playerID = id;
+			// float textPosY = cen.y + siz.x + debugger.fontSize;
+			// canvas.text("ID: " + id,cen.x,textPosY);
+			// canvas.text("ALPHA: " + alpha,cen.x,textPosY+debugger.fontSize);
+			// canvas.text("BOOSTING: " + strokeWidth,cen.x,textPosY+debugger.fontSize*2);
+			// canvas.text("UP: " + upPressed,cen.x,textPosY+debugger.fontSize);
+			// canvas.text("DOWN: " + downPressed,cen.x,textPosY+debugger.fontSize*2);
+			// canvas.text("LEFT: " + leftPressed,cen.x,textPosY+debugger.fontSize*3);
+			// canvas.text("RIGHT: " + rightPressed,cen.x,textPosY+debugger.fontSize*4);
 		}
 	}
 
@@ -277,85 +290,83 @@ class Player {
 		canvas.strokeWeight(CELL_SIZE / (CELL_SIZE / 3));
 		canvas.stroke(colors.player[id],100);
 		canvas.strokeCap(SQUARE);
-		canvas.line(xPos,yPos,xPos + hSize/4,yPos);
-		canvas.line(xPos + hSize - hSize/4,yPos,xPos + hSize,yPos);
-		canvas.line(xPos,yPos,xPos,yPos + vSize / 4);
-		canvas.line(xPos,yPos + vSize - vSize / 4,xPos,yPos + vSize);
-		canvas.line(xPos + hSize,yPos,xPos + hSize,yPos + vSize / 4);
-		canvas.line(xPos + hSize,yPos + vSize - vSize / 4,xPos + hSize,yPos + vSize);
-		canvas.line(xPos,yPos + vSize,xPos + hSize/4,yPos + vSize);
-		canvas.line(xPos + vSize - hSize / 4,yPos + vSize,xPos + hSize,yPos + vSize);
+		canvas.line(pos.x,pos.y,pos.x + siz.x/4,pos.y);
+		canvas.line(pos.x + siz.x - siz.x/4,pos.y,pos.x + siz.x,pos.y);
+		canvas.line(pos.x,pos.y,pos.x,pos.y + siz.x / 4);
+		canvas.line(pos.x,pos.y + siz.x - siz.x / 4,pos.x,pos.y + siz.x);
+		canvas.line(pos.x + siz.x,pos.y,pos.x + siz.x,pos.y + siz.x / 4);
+		canvas.line(pos.x + siz.x,pos.y + siz.x - siz.x / 4,pos.x + siz.x,pos.y + siz.x);
+		canvas.line(pos.x,pos.y + siz.x,pos.x + siz.x/4,pos.y + siz.x);
+		canvas.line(pos.x + siz.x - siz.x / 4,pos.y + siz.x,pos.x + siz.x,pos.y + siz.x);
 		canvas.noStroke();
 		canvas.fill(colors.player[id],50);
-		canvas.rect(xPos + CELL_SIZE / 10, yPos + CELL_SIZE / 10, hSize - CELL_SIZE / 5, vSize - CELL_SIZE / 5);
+		canvas.rect(pos.x + CELL_SIZE / 10, pos.y + CELL_SIZE / 10, siz.x - CELL_SIZE / 5, siz.x - CELL_SIZE / 5);
 		canvas.textAlign(CENTER);
 		canvas.textSize(CELL_SIZE / 1.5);
 		canvas.fill(colors.player[id],200);
 		canvas.pushMatrix();
 		switch (id) {
 			case 0:
-				canvas.translate(xPos + hSize / 2,yPos+vSize / 2.8);
+				canvas.translate(pos.x + siz.x / 2,pos.y+siz.x / 2.8);
 				canvas.rotate(radians(180)); break;
 			case 1: 
-				canvas.translate(xPos + hSize / 2,yPos+vSize / 1.5);
+				canvas.translate(pos.x + siz.x / 2,pos.y+siz.x / 1.5);
 				canvas.rotate(radians(0)); break;
 			case 2: 
-				canvas.translate(xPos + hSize / 1.5,yPos+vSize / 2);
+				canvas.translate(pos.x + siz.x / 1.5,pos.y+siz.x / 2);
 				canvas.rotate(radians(270)); break;
 			case 3: 
-				canvas.translate(xPos + hSize / 2.8,yPos+vSize / 2);
+				canvas.translate(pos.x + siz.x / 2.8,pos.y+siz.x / 2);
 				canvas.rotate(radians(90)); break;
 		}
 		if (respawnCounter > 0) canvas.text(respawnCounter,0,0);
 		else canvas.text("GO!",0,0);
 		canvas.popMatrix();
-		canvas.strokeWeight(0);
-		canvas.rectMode(CORNER);
 	}
 
 	void drawBoostIndicator() {
 		// setup some temp variables for later adjustment
 		float x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0;
-		float lineDistance = hSize / 8; 
+		float lineDistance = siz.x / 8; 
 
 		canvas.strokeWeight(CELL_SIZE / 16);
 		canvas.pushMatrix();
 		// set the drawing origin to the center of the player
-		canvas.translate(centerX,centerY);
+		canvas.translate(cen.x,cen.y);
 
 		// set the positions depending on the direction of the player
-		if (yDir == 0) {
-			x1 = -hSize / 2 * xDir;
-			y1 = -vSize / 2;
-			x2 = -hSize / 2 * xDir;
-			y2 = vSize / 2;
-		} else if (xDir == 0) {
-			x1 = -hSize / 2;
-			y1 = -vSize / 2 * yDir;
-			x2 = hSize / 2;
-			y2 = -vSize / 2 * yDir;
+		if (dir.y == 0) {
+			x1 = -siz.x / 2 * dir.x;
+			y1 = -siz.x / 2;
+			x2 = -siz.x / 2 * dir.x;
+			y2 = siz.x / 2;
+		} else if (dir.x == 0) {
+			x1 = -siz.x / 2;
+			y1 = -siz.x / 2 * dir.y;
+			x2 = siz.x / 2;
+			y2 = -siz.x / 2 * dir.y;
 		} else {
-			x1 = -hSize / 2 * xDir;
+			x1 = -siz.x / 2 * dir.x;
 			y1 = 0;
-			x2 = -hSize / 2 * xDir;
-			y2 = -vSize / 2 * yDir;
+			x2 = -siz.x / 2 * dir.x;
+			y2 = -siz.x / 2 * dir.y;
 			x3 = 0;
-			y3 = -vSize / 2 * yDir;			
+			y3 = -siz.x / 2 * dir.y;			
 		} 
 
 		for (int i=1;i<=3;i++) {
 			canvas.stroke(colors.player[id],alpha / i);
-			if (xDir != 0) { x1 -= lineDistance * xDir; x2 -= lineDistance * xDir; x3 -= lineDistance * xDir; }
-			if (yDir != 0) { y1 -= lineDistance * yDir; y2 -= lineDistance * yDir; y3 -= lineDistance * yDir; }
+			if (dir.x != 0) { x1 -= lineDistance * dir.x; x2 -= lineDistance * dir.x; x3 -= lineDistance * dir.x; }
+			if (dir.y != 0) { y1 -= lineDistance * dir.y; y2 -= lineDistance * dir.y; y3 -= lineDistance * dir.y; }
 			canvas.line(x1,y1,x2,y2);
-			if (xDir != 0 && yDir != 0) canvas.line(x2,y2,x3,y3);
+			if (dir.x != 0 && dir.y != 0) canvas.line(x2,y2,x3,y3);
 		}
 		canvas.popMatrix();
 	}
 
 	void drawMultiShotIndicator() {
 
-		float msMinSize = hSize / 12;
+		float msMinSize = siz.x / 12;
 		float msSpeed = 0.2;
 
 		if (msIndicatorSize <= msMinSize || msIndicatorSize >= msMaxSize) msSpeed *= -1;
@@ -365,7 +376,7 @@ class Player {
 		for (int xD=-1;xD<=1;xD++) {
 			for (int yD=-1;yD<=1;yD++) {
 			    if (xD == 0 && yD == 0) {}
-			    else canvas.rect(centerX + hSize / 4 * xD,centerY + vSize / 4 * yD,msIndicatorSize,msIndicatorSize);
+			    else canvas.rect(cen.x + siz.x / 4 * xD,cen.y + siz.x / 4 * yD,msIndicatorSize,msIndicatorSize);
 			}
 		}
 	}
@@ -374,8 +385,8 @@ class Player {
 		// draw the boost trail
 		if (boosting) {
 			if (trailCount < boostTime) {
-				trailX[trailCount] = centerX;
-				trailY[trailCount] = centerY;
+				trailX[trailCount] = cen.x;
+				trailY[trailCount] = cen.y;
 
 				canvas.noFill();
 				canvas.strokeWeight(CELL_SIZE / 32);	
@@ -407,7 +418,7 @@ class Player {
 		prevItem = currentItem;
 		
 		canvas.pushMatrix();
-		canvas.translate(centerX,centerY);
+		canvas.translate(cen.x,cen.y);
 
 		if (TOP_VIEW) {
 			switch (id) {
@@ -472,34 +483,34 @@ class Player {
 
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine vertical speed
-		if (input.upPressed || (boosting && yDir == -1)) {
-			if (vSpeed > -_maxSpeed) vSpeed -= _acc;
-			else vSpeed = -_maxSpeed;
-		} else if (input.downPressed || (boosting && yDir == 1)) {
-			if (vSpeed < _maxSpeed) vSpeed += _acc;
-			else vSpeed = _maxSpeed;
+		if (input.upPressed || (boosting && dir.y == -1)) {
+			if (speed.y > -_maxSpeed) speed.y -= _acc;
+			else speed.y = -_maxSpeed;
+		} else if (input.downPressed || (boosting && dir.y == 1)) {
+			if (speed.y < _maxSpeed) speed.y += _acc;
+			else speed.y = _maxSpeed;
 		} else {
-			if (abs(vSpeed) > 0.1) vSpeed *= _dec;
-			else vSpeed = 0;
+			if (abs(speed.y) > 0.1) speed.y *= _dec;
+			else speed.y = 0;
 		}
 		// return the vertical speed
-		return vSpeed;
+		return speed.y;
 	}
 
 	float getHSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine horizontal speed
-		if (input.leftPressed || (boosting && xDir == -1)) {
-			if (hSpeed > -_maxSpeed) hSpeed -= _acc;
-			else hSpeed = -_maxSpeed;
-		} else if (input.rightPressed || (boosting && xDir == 1)) {
-			if (hSpeed < _maxSpeed) hSpeed += _acc;
-			else hSpeed = _maxSpeed;
+		if (input.leftPressed || (boosting && dir.x == -1)) {
+			if (speed.x > -_maxSpeed) speed.x -= _acc;
+			else speed.x = -_maxSpeed;
+		} else if (input.rightPressed || (boosting && dir.x == 1)) {
+			if (speed.x < _maxSpeed) speed.x += _acc;
+			else speed.x = _maxSpeed;
 		} else {
-			if (abs(hSpeed) > 0.1) hSpeed *= _dec;
-			else hSpeed = 0;
+			if (abs(speed.x) > 0.1) speed.x *= _dec;
+			else speed.x = 0;
 		}	
 		// return the horizontal speed
-		return hSpeed;
+		return speed.x;
 	}
 
 	void move() {
@@ -537,8 +548,8 @@ class Player {
 		getHSpeed(acceleration, deceleration, maxSpeed);
 
 		// player shaking
-		hSpeed += shake.offset.x;
-		vSpeed += shake.offset.y;
+		speed.x += shake.offset.x;
+		speed.y += shake.offset.y;
 
 		//collision bools
 		boolean collisionTop = false;
@@ -556,74 +567,74 @@ class Player {
 			// and when there isn't already a collision
 
 			if (id != p.id && !p.dead && !respawn) {
-				if (!collisionTop) 		collisionTop = collision.checkBoxCollision(xPos,yPos - abs(vSpeed),hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
-				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(xPos,yPos + abs(vSpeed),hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(xPos - abs(hSpeed),yPos,hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(xPos + abs(hSpeed),yPos,hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
+				if (!collisionTop) 		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
  			}
 
 		}
 
 		//check for collisions with solids
 		for (Solid s : oManager.solids) {
-				if (!collisionTop)		collisionTop = collision.checkBoxCollision(xPos,yPos - abs(vSpeed),hSize,vSize,s.xPos,s.yPos,s.hSize,s.vSize);
-				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(xPos,yPos + abs(vSpeed),hSize,vSize,s.xPos,s.yPos,s.hSize,s.vSize);
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(xPos - abs(hSpeed),yPos,hSize,vSize,s.xPos,s.yPos,s.hSize,s.vSize);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(xPos + abs(hSpeed),yPos,hSize,vSize,s.xPos,s.yPos,s.hSize,s.vSize);
+				if (!collisionTop)		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
 		}
 
 		// if there are no collisions set vertical speed
-		if (vSpeed <= 0 && !collisionTop) yPos += vSpeed;
-		if (vSpeed >= 0 && !collisionBottom) yPos += vSpeed;
+		if (speed.y <= 0 && !collisionTop) pos.y += speed.y;
+		if (speed.y >= 0 && !collisionBottom) pos.y += speed.y;
 
 		// if there are no collisions set horizontal speed
-		if (hSpeed <= 0 && !collisionLeft) xPos += hSpeed;
-		if (hSpeed >= 0 && !collisionRight) xPos += hSpeed;
+		if (speed.x <= 0 && !collisionLeft) pos.x += speed.x;
+		if (speed.x >= 0 && !collisionRight) pos.x += speed.x;
 
 		// screenwrapping
-		if (xPos > VIEW_WIDTH) xPos = -hSize;
-		else if (xPos + hSize < 0) xPos = VIEW_WIDTH;
+		if (pos.x > VIEW_WIDTH) pos.x = -siz.x;
+		else if (pos.x + siz.x < 0) pos.x = VIEW_WIDTH;
 
-		if (yPos > VIEW_HEIGHT) yPos = -vSize;
-		else if (yPos + vSize < 0) yPos = VIEW_HEIGHT;
+		if (pos.y > VIEW_HEIGHT) pos.y = -siz.x;
+		else if (pos.y + siz.x < 0) pos.y = VIEW_HEIGHT;
 
 	}
 
 	void face() {
 		// this class determines which direction the player is facing and sets the player cursor appropriately
 		if (input.upPressed) {
-			yDir = -1;
-			if (!input.leftPressed && !input.rightPressed) xDir = 0;
+			dir.y = -1;
+			if (!input.leftPressed && !input.rightPressed) dir.x = 0;
 		}
 		else if (input.downPressed) {
-			yDir = 1;
-			if (!input.leftPressed && !input.rightPressed) xDir = 0;
+			dir.y = 1;
+			if (!input.leftPressed && !input.rightPressed) dir.x = 0;
 		}
 		
 		if (input.leftPressed) {
-			xDir = -1;
-			if (!input.upPressed && !input.downPressed) yDir = 0;
+			dir.x = -1;
+			if (!input.upPressed && !input.downPressed) dir.y = 0;
 		}
 		else if (input.rightPressed) {
-			xDir = 1;
-			if (!input.upPressed && !input.downPressed) yDir = 0;
+			dir.x = 1;
+			if (!input.upPressed && !input.downPressed) dir.y = 0;
 		}
 
 		//evaluate the position of the cursor depending on the player direction
-		if (yDir > 0) yPosCursor = yPos + vSize;
-		else if (yDir < 0) yPosCursor = yPos;
-		else yPosCursor = yPos + vSize / 2;
+		if (dir.y > 0) cursorPos.y = pos.y + siz.x;
+		else if (dir.y < 0) cursorPos.y = pos.y;
+		else cursorPos.y = pos.y + siz.x / 2;
 
-		if (xDir > 0) xPosCursor = xPos + hSize;
-		else if (xDir < 0) xPosCursor = xPos;
-		else xPosCursor = xPos + hSize / 2;
+		if (dir.x > 0) cursorPos.x = pos.x + siz.x;
+		else if (dir.x < 0) cursorPos.x = pos.x;
+		else cursorPos.x = pos.x + siz.x / 2;
 	}
 
 	void shoot() {
 		//shoot bullets!
 
 		if (input.shootReleased) {
-		    oManager.addBullet(id,xPosCursor,yPosCursor,xDir,yDir,charge);
+		    oManager.addBullet(id,cursorPos,dir,charge);
 		    shot01.trigger();
 		    shots++;
 			charge = minCharge;
@@ -642,8 +653,10 @@ class Player {
 			multiShot01.trigger();
 			for (int xD=-1;xD<=1;xD++) {
 				for (int yD=-1;yD<=1;yD++) {
-				    if (xD == 0 && yD == 0) {}
-				    else oManager.addBullet(id,centerX,centerY,xD,yD,minCharge);
+				    if (xD != 0 && yD != 0) {
+				    	PVector direction = new PVector( xD, yD );
+				    	oManager.addBullet(id,cen,direction,minCharge);
+				    }
 				}
 			}
 			hasMultiShot = false;
@@ -658,7 +671,7 @@ class Player {
 			if (id == b.id) continue;
 
 			//only check collisions when the player isn't dead
-			if (!dead) hit = collision.checkBoxCollision(xPos,yPos,hSize,vSize,b.xPos,b.yPos,b.hSize,b.vSize);
+			if (!dead) hit = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,b.pos.x,b.pos.y,b.siz.x,b.siz.y);
 
 			// if the player was hit by a bullet
 			if (hit) {
@@ -683,12 +696,12 @@ class Player {
 		hit = false;
 	}
 
-	void knockBack(int _xDir, int _yDir) {
+	void knockBack(PVector dir) {
 		// knocks the player back when hit
 		int knockBackStrength = 5;
 
-		// hSpeed = knockBackStrength * _xDir * dt; 
-		// vSpeed = knockBackStrength * _yDir * dt; 
+		// speed.x = knockBackStrength * _dir.x * dt; 
+		// speed.y = knockBackStrength * _dir.y * dt; 
 
 		//play a sound
 		hurt01.trigger();
@@ -706,8 +719,7 @@ class Player {
 	void spawn() {
 
 		// set cursor variables
-		xPosCursor = xPos;
-		yPosCursor = yPos;
+		cursorPos.set(pos);
 
 		// respawn the player and reset it's properties
 		dead = false;
@@ -731,16 +743,10 @@ class Player {
 			if (id == p.id) continue;
 			// don't check when dead
 			if (!p.dead) {
-				spawnKill = collision.checkBoxCollision(xPos,yPos,hSize,vSize,p.xPos,p.yPos,p.hSize,p.hSize);
+				spawnKill = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
  			}
  			if (spawnKill) p.hp -= p.hp;
 		}
-	}
-
-	void setStartPosition() {
-		// starting position
-		xPos = gManager.playerStartPosX[id];
-		yPos = gManager.playerStartPosY[id];			
 	}
 
 	void reset() {
@@ -763,6 +769,6 @@ class Player {
 		nodesLost = 0;
 		showItem = false;
 		if (gManager.gameOver) wins = 0;
-		setStartPosition();
+		pos.set(gManager.playerStartPos[id]);
 	}
 }
