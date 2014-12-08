@@ -1,19 +1,20 @@
 class Player extends GameObject {
 
 	//properties
-	PVector dir, speed, sizCore;
+	PVector dir, speed, sizCore, shieldHp;
 
-	int id, hp, defaultHp, shieldHp, defaultShieldHp, alpha;
+	int id, alpha;
 	float minCharge, maxCharge, drawScale;
-	boolean hit, respawn, dead, invincible, knockBack, hasMultiShot, hasShield, hasLockDown;
+	boolean ALIVE, KILLED, INVINCIBLE;
+	boolean hit, knockBack, hasMultiShot, hasShield, hasLockDown;
 	
 	// stats
 	int bullets, kills, deaths, shots, items, score, nodesOwned, nodesCaptured, nodesLost, wins;
-	boolean hasDiedOnce;
+	boolean canRespawn, spawnedOnce;
 
 	//counters
-	int respawnDuration, respawnTime, respawnDurationMultiplier;
-	int invincibleDuration, invincibleTime;
+	float respawnDuration, respawnTime, respawnDurationMultiplier;
+	float invincibleDuration, invincibleTime;
 	int trailCount, blink;
 	float charge, chargeDelay, initChargeDelay;
 
@@ -57,19 +58,14 @@ class Player extends GameObject {
 		cursorSiz 	= new PVector( siz.x, siz.y );
 		speed 		= new PVector( 0,0 );
 		dir 		= new PVector( 0,1 );
+		hp 			= new PVector( 10,10 );
+		shieldHp 	= new PVector( 10,10 );
 
-		//properties
-		defaultHp = 10;
-		hp = defaultHp;
-		shieldHp = 0;
-		defaultShieldHp = 10;
-		alpha = 255;
-		drawScale = 1;
-
+		
 		hit = false;
-		respawn = true;
-		dead = true;
-		invincible = true;
+		ALIVE = false;
+		INVINCIBLE = false;
+		KILLED = false;
 		boosting = false;
 		hasBoost = true;
 		hasMultiShot = false;
@@ -77,6 +73,10 @@ class Player extends GameObject {
 		hasLockDown = true;
 		showItem = false;
 		shaking = false;
+		
+		//properties
+		alpha = 255;
+		drawScale = 1;
 
 		//stats
 		bullets = 0;
@@ -88,7 +88,7 @@ class Player extends GameObject {
 		nodesCaptured = 0;
 		nodesLost = 0;
 		wins = 0;
-		wasKilledOnce = false;
+		spawnedOnce = false;
 
 		//counters
 		maxCharge = CELL_SIZE;
@@ -115,32 +115,12 @@ class Player extends GameObject {
 		input.update();
 
 		updateVectors();
+		if (!KILLED) move();
+		draw();
 
-		if (ALIVE) {
+		if (ALIVE && !KILLED) {
 
-			if (KILLED) {
-
-				if (alpha > 0) alpha -= 10 * dt;
-				else if (!respawn && !gManager.matchOver) {
-					ALIVE = false;
-					KILLED = false;
-				}
-
-			}
-
-			// if hp goes under 0, kill the player
-			if (hp <= 0) {
-				KILLED = true;
-				die01.trigger();
-				deaths++;
-				wasKilledOnce = true;
-				respawnDuration *= respawnDurationMultiplier;
-				gManager.activePlayers--;
-			}
-
-			// maintain the shield status
-			if (shieldHp <= 0) hasShield = false;
-			else hasShield = true;
+			face();
 
 			//if the player is invincible, count down the timer and start blinking
 			if (INVINCIBLE) {
@@ -148,7 +128,7 @@ class Player extends GameObject {
 				if (invincibleTime > 0) {
 
 					blink(0,255,10);
-					invincibility -= dt;
+					invincibleTime -= dt;
 				
 				} else {
 
@@ -157,52 +137,88 @@ class Player extends GameObject {
 					alpha = 255;
 				
 				}
+
+			} else hit();
+
+			// if hp.x goes under 0, kill the player
+			if (hp.x <= 0) {
+				KILLED = true;
+				die01.trigger();
+				deaths++;
+				respawnDuration *= respawnDurationMultiplier;
+				gManager.activePlayers--;
 			}
+
+			// maintain the shield status
+			if (shieldHp.x <= 0) hasShield = false;
+			else hasShield = true;
+			
+			if(!gManager.matchOver) {
+				shoot();
+				useItem();
+				checkNodeCount();
+			}
+
+		} else if (KILLED) {
+			
+			if (alpha > 0) alpha -= 10 * dt;
+			else if (!gManager.matchOver) {
+				ALIVE = false;
+				KILLED = false;
+			}
+
 		} else {
-
 			// count down until respawn is possible
-			if (respawnTime > 0 && !canRespawn) respawnTime -= dtInSeconds;
-			else {
-				canRespawn = true;
+			if (respawnTime > 0) respawnTime -= dtInSeconds;
+			else if (input.shootReleased && !gManager.matchOver) {
 				respawnTime = respawnDuration;
-			}
-
-			if (input.shootReleased && !gManager.matchOver && canRespawn) {
 				spawn();
 			}
 
-			// let the player move around to change respawn position
-			if (wasKilledOnce) move();
-
-			drawRespawnIndicator();
-
-		} else {
-			// let the player move, face a direction, shoot and get hit when not dead
-			if (!invincible) hit();
-			move();
-			face();
-			draw();
-			if(!gManager.matchOver && !respawn && !dead) shoot();
-
-			// lock down nodes
-			if (input.useItemPressed && hasLockDown) lockDown();
-		}		
-
-
 		}
 
+	}
 
+	void useItem() {
+
+		if (input.useItemPressed) { 
+			if (hasLockDown) {
+				for (Node n : oManager.nodes) {
+					n.wasLockedDown = true;
+				}
+				hasLockDown = false;
+			}
+			
+			if (hasBoost && !boosting) {
+				boosting = true;
+				hasBoost = false;
+				boost01.trigger();
+			}
+
+			if (hasMultiShot) {
+				multiShot01.trigger();
+				for (int xD=-1;xD<=1;xD++) {
+					for (int yD=-1;yD<=1;yD++) {
+					    if (xD != 0 && yD != 0) {
+					    	PVector direction = new PVector( xD, yD );
+					    	oManager.addBullet(id,cen,direction,minCharge);
+					    }
+					}
+				}
+				hasMultiShot = false;
+			}
 		}
 
+	}
 
-				
+	void checkNodeCount() {
 		//check how many nodes the player owns (must be more than one)
 		if (nodesOwned == oManager.nodes.size() && nodesOwned != 0 && !gManager.matchOver) {
 			wins ++;
 			if (wins == 3) gManager.gameOver = true;
 			gManager.matchOver = true;
 			gManager.winnerID = id;
-		}
+		}		
 	}
 
 	void updateVectors() {
@@ -210,8 +226,8 @@ class Player extends GameObject {
 		cen.x = pos.x + siz.x / 2;
 		cen.y = pos.y + siz.y / 2;
 
-		sizCore.x = siz.x / 2 * hp / 10;
-		sizCore.y = siz.y / 2 * hp / 10;
+		sizCore.x = siz.x / 2 * hp.x / 10;
+		sizCore.y = siz.y / 2 * hp.x / 10;
 
 		cursorSiz.x = charge / 4;
 		cursorSiz.y = charge / 4;
@@ -221,49 +237,52 @@ class Player extends GameObject {
 
 		canvas.rectMode(CENTER);
 
-		// player background
-		canvas.strokeWeight(siz.x / 32);	
-		canvas.fill(colors.player[id],alpha/5);
-		canvas.stroke(colors.player[id],alpha/2);
-		canvas.pushMatrix();
-		canvas.scale(1.0);
-		canvas.rect(cen.x,cen.y,siz.x,siz.y);
-		canvas.popMatrix();
+		if (ALIVE) {
+			// player background
+			canvas.strokeWeight(siz.x / 32);	
+			canvas.fill(colors.player[id],alpha/5);
+			canvas.stroke(colors.player[id],alpha/2);
+			canvas.pushMatrix();
+			canvas.scale(2.0);
+			canvas.rect(cen.x,cen.y,siz.x,siz.y);
+			canvas.popMatrix();
 
-		//draw the player core background
-		canvas.noStroke();
-		canvas.fill(colors.player[id],alpha/3);
-		canvas.rect(cen.x,cen.y,siz.x/2,siz.y/2);
+			//draw the player core background
+			canvas.noStroke();
+			canvas.fill(colors.player[id],alpha/3);
+			canvas.rect(cen.x,cen.y,siz.x/2,siz.y/2);
 
-		// // draw the multishot indicator
-		// if (hasMultiShot) drawMultiShotIndicator();
+			// // draw the multishot indicator
+			// if (hasMultiShot) drawMultiShotIndicator();
 
-		// // draw the boost indicator
-		// if (hasBoost) drawBoostIndicator();
+			// // draw the boost indicator
+			// if (hasBoost) drawBoostIndicator();
 
-		// // draw the boost trail
-		// drawBoostTrail();
+			// // draw the boost trail
+			// drawBoostTrail();
 
-		// draw shield
-		// if (hasShield) {
-		// 	float offset = size / 16;
-		// 	canvas.noFill();
-		// 	canvas.stroke(colors.player[id],alpha);
-		// 	float weight = map(shieldHp,0,defaultShieldHp,1,6);
-		// 	canvas.strokeWeight(weight);
-		// 	canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
-		// }
+			// draw shield
+			// if (hasShield) {
+			// 	float offset = size / 16;
+			// 	canvas.noFill();
+			// 	canvas.stroke(colors.player[id],alpha);
+			// 	float weight = map(shieldHp.x,0,shieldHp.y,1,6);
+			// 	canvas.strokeWeight(weight);
+			// 	canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
+			// }
 
-		// draw the player core
-		canvas.noStroke();
-		canvas.fill(colors.player[id],alpha);
-		canvas.rect(cen.x,cen.y,sizCore.x,sizCore.x);
+			// draw the player core
+			canvas.noStroke();
+			canvas.fill(colors.player[id],alpha);
+			canvas.rect(cen.x,cen.y,sizCore.x,sizCore.x);
 
-		// draw the cursor
-		canvas.rect(cursorPos.x,cursorPos.y,cursorSiz.x,cursorSiz.y);
-		
-		// draw the item name on pickup
-		if (showItem) drawItemName();
+			// draw the cursor
+			canvas.rect(cursorPos.x,cursorPos.y,cursorSiz.x,cursorSiz.y);
+			
+			// draw the item name on pickup
+			if (showItem) drawItemName();
+
+		} else if (!KILLED) drawRespawnIndicator();
 
 		if (debugger.debugDraw) {
 			// canvas.fill(255,255,255,255);
@@ -319,7 +338,7 @@ class Player extends GameObject {
 				canvas.translate(pos.x + siz.x / 2.8,pos.y+siz.x / 2);
 				canvas.rotate(radians(90)); break;
 		}
-		if (respawnCounter > 0) canvas.text(respawnCounter,0,0);
+		if (respawnTime > 0) canvas.text(ceil(respawnTime),0,0);
 		else canvas.text("GO!",0,0);
 		canvas.popMatrix();
 	}
@@ -494,7 +513,7 @@ class Player extends GameObject {
 			else speed.y = 0;
 		}
 		// return the vertical speed
-		return speed.y;
+		return speed.y * dtInSeconds;
 	}
 
 	float getHSpeed(float _acc, float _dec, float _maxSpeed) {
@@ -510,27 +529,14 @@ class Player extends GameObject {
 			else speed.x = 0;
 		}	
 		// return the horizontal speed
-		return speed.x;
+		return speed.x * dtInSeconds;
 	}
 
 	void move() {
 		// movement properties
-		float maxSpeed = 3.5 * dt;
-		float acceleration = 0.5 * dt;
-		float deceleration = 0.2 * dt;			
-
-		// boost triggering
-		// check if the player has a boost counter higher than 0
-		// and hasn't boosted last update
-		if (input.useItemPressed && !respawn) {
-			// only boost if the player isn't already boosting and
-			// doesn have the multishot item
-			if (hasBoost && !boosting) {
-				boosting = true;
-				hasBoost = false;
-				boost01.trigger();
-			}
-		}
+		float maxSpeed = 2.5;
+		float acceleration = 0.5;
+		float deceleration = 0.2;			
 
 		// change movement properties when boosting
 		if (boosting) {
@@ -547,10 +553,6 @@ class Player extends GameObject {
 		getVSpeed(acceleration, deceleration, maxSpeed);
 		getHSpeed(acceleration, deceleration, maxSpeed);
 
-		// player shaking
-		speed.x += shake.offset.x;
-		speed.y += shake.offset.y;
-
 		//collision bools
 		boolean collisionTop = false;
 		boolean collisionBottom = false;
@@ -566,7 +568,7 @@ class Player extends GameObject {
 			// when the player isn't in respawn mode
 			// and when there isn't already a collision
 
-			if (id != p.id && !p.dead && !respawn) {
+			if (id != p.id && p.ALIVE) {
 				if (!collisionTop) 		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
 				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
 				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
@@ -601,7 +603,7 @@ class Player extends GameObject {
 	}
 
 	void face() {
-		// this class determines which direction the player is facing and sets the player cursor appropriately
+		// this method determines which direction the player is facing and sets the player cursor appropriately
 		if (input.upPressed) {
 			dir.y = -1;
 			if (!input.leftPressed && !input.rightPressed) dir.x = 0;
@@ -634,32 +636,22 @@ class Player extends GameObject {
 		//shoot bullets!
 
 		if (input.shootReleased) {
+		
 		    oManager.addBullet(id,cursorPos,dir,charge);
 		    shot01.trigger();
 		    shots++;
 			charge = minCharge;
 			input.shootReleased = false;
 			chargeDelay = initChargeDelay;
+		
 		} else if (input.shootWasPressed) {
+
 			if (chargeDelay > 0) chargeDelay -= dt;
 			else {
 				if (charge < maxCharge) charge += 1.01 * dt;
 				else charge = maxCharge;
 			}
-		}
-
-		// use multishot item!
-		if (input.useItemPressed && hasMultiShot) {
-			multiShot01.trigger();
-			for (int xD=-1;xD<=1;xD++) {
-				for (int yD=-1;yD<=1;yD++) {
-				    if (xD != 0 && yD != 0) {
-				    	PVector direction = new PVector( xD, yD );
-				    	oManager.addBullet(id,cen,direction,minCharge);
-				    }
-				}
-			}
-			hasMultiShot = false;
+		
 		}
 	}
 
@@ -671,7 +663,7 @@ class Player extends GameObject {
 			if (id == b.id) continue;
 
 			//only check collisions when the player isn't dead
-			if (!dead) hit = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,b.pos.x,b.pos.y,b.siz.x,b.siz.y);
+			if (ALIVE) hit = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,b.pos.x,b.pos.y,b.siz.x,b.siz.y);
 
 			// if the player was hit by a bullet
 			if (hit) {
@@ -682,12 +674,12 @@ class Player extends GameObject {
 					shake.startShaking = true;	
 				}
 
-				if (!hasShield) hp -= b.damage;					// if the target has no shield, subtract hp
-				else shieldHp -= b.damage;						// subtract damage from shield
+				if (!hasShield) hp.x -= b.damage;					// if the target has no shield, subtract hp.x
+				else shieldHp.x -= b.damage;						// subtract damage from shield
 				
 				b.damage = 0;									// set the bullet damage to 0 (used to determine if it still can do damage)
 				
-				if (hp <= 0) p.kills++;							// add the shooters killcount if the bullet killed the target
+				if (hp.x <= 0) p.kills++;							// add the shooters killcount if the bullet killed the target
 				break;											// exit the loop
 			}
 
@@ -709,27 +701,17 @@ class Player extends GameObject {
 		knockBack = true;		// this doesn't do anything but can be used later if needed
 	}
 
-	void lockDown() {
-		for (Node n : oManager.nodes) {
-			n.wasLockedDown = true;
-		}
-		hasLockDown = false;
-	}
-
 	void spawn() {
 
-		// set cursor variables
-		cursorPos.set(pos);
-
 		// respawn the player and reset it's properties
-		dead = false;
-		respawn = false;
-		invincible = true;
-		hp = defaultHp;
+		ALIVE = true;
+		INVINCIBLE = true;
+		spawnedOnce = true;
+		canRespawn = false;
+		hp.x = hp.y;
 		alpha = 255;
 		spawn01.trigger();
 		gManager.activePlayers++;
-
 		checkSpawnKill();
 	}
 
@@ -742,33 +724,33 @@ class Player extends GameObject {
 			// skip own player id
 			if (id == p.id) continue;
 			// don't check when dead
-			if (!p.dead) {
+			if (p.ALIVE) {
 				spawnKill = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
  			}
- 			if (spawnKill) p.hp -= p.hp;
+ 			if (spawnKill) p.hp.x -= p.hp.x;
 		}
 	}
 
 	void reset() {
-		dead = true;
-		alpha = 0;
-		nodesOwned = 0;
-		respawnCounter = 0;
-		respawnTime = initRespawnTime;
-		hasDiedOnce = false;
+		ALIVE = false;
+		KILLED = false;
+		respawnTime = respawnDuration;
+		spawnedOnce = false;
 		charge = minCharge;
 		hasBoost = false;
 		hasMultiShot = false;
 		hasLockDown = false;
-		shieldHp = 0;
+		shieldHp.x = 0;
 		kills = 0;
 		deaths = 0;
 		items = 0;
 		shots = 0;
+		nodesOwned = 0;
 		nodesCaptured = 0;
 		nodesLost = 0;
 		showItem = false;
 		if (gManager.gameOver) wins = 0;
 		pos.set(gManager.playerStartPos[id]);
 	}
+
 }

@@ -85,7 +85,7 @@ class Item {
 			for (Player p : gManager.players) {
 				
 				// if the player is dead or respawning, skip to the next player
-				if (p.respawn || p.dead) continue;
+				if (!p.ALIVE) continue;
 
 				// check for collisions
 				pickUp = collision.checkBoxCollision(xPos,yPos,hSize,vSize,p.pos.x,p.pos.y,p.siz.x,p.siz.y);
@@ -104,8 +104,8 @@ class Item {
 						p.hasMultiShot = false;
 						p.hasLockDown = true;
 					} else if (itemName == "SHIELD") {
-						p.shieldHp = p.defaultShieldHp;
-					} else if (itemName == "HEALTH") p.hp = p.defaultHp;
+						p.shieldHp.x = p.shieldHp.y;
+					} else if (itemName == "HEALTH") p.hp.x = p.hp.y;
 
 					p.currentItem = itemName;
 					p.showItem = true;

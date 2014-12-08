@@ -51,7 +51,7 @@ class GameManager {
 		// add inactive players if they aren't there already
 		addPlayers();
 		resetPlayers();
-		
+
 		// reset the game state
 		gameOver = false;
 		matchOver = false;
@@ -93,8 +93,7 @@ class GameManager {
 		// save dt in jan format
 		dt = lastFrameDuration / 1000 * 60;
 		// save dt in seconds
-		dtInSeconds = dt / 60;
-
+		dtInSeconds = lastFrameDuration / 1000;
 		// update bullets and targets
 		oManager.update();
 

@@ -82,8 +82,8 @@ class Debugger {
 		if (gManager.players != null && (invincibility || autoShoot)) {
 			for (Player p : gManager.players) {
 
-				if (invincibility) p.invincible = true;
-				if (canShoot && !gManager.matchOver && !p.respawn && !p.dead) {
+				if (invincibility) p.INVINCIBLE = true;
+				if (canShoot && !gManager.matchOver && p.ALIVE) {
 //					p.input.shootReleased = true;
 					p.shoot();
 				}

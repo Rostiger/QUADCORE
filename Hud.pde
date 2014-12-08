@@ -64,7 +64,7 @@ class Hud {
 
 				Player player = gManager.players[i];
 				
-				if (!player.dead) continue;
+				if (player.ALIVE) continue;
 				else {
 		
 					pushMatrix();
@@ -88,8 +88,8 @@ class Hud {
 					// choose a text to draw
 					String hudMessage;
 
-					if (player.respawnCounter > 0) hudMessage = "RESPAWN IN " + str(player.respawnCounter);
-					else if (player.hasDiedOnce) hudMessage = "FIRE!";
+					if (player.respawnTime > 0) hudMessage = "RESPAWN IN " + str(ceil(player.respawnTime));
+					else if (player.spawnedOnce) hudMessage = "FIRE!";
 					else hudMessage = "PRESS FIRE TO JOIN";
 					
 					// set the text position

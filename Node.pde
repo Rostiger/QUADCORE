@@ -77,7 +77,7 @@ class Node {
 
 			for (Player p : gManager.players) {
 				// skip to the next player if the current one is dead
-				if (p.dead) {
+				if (!p.ALIVE) {
 					if (occupiedByPlayer == p.id) occupiedByPlayer = 100;
 					continue;
 				}
