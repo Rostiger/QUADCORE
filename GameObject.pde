@@ -1,6 +1,6 @@
 class GameObject {
 	
-	int id;
+	int id, alpha;
 	PVector siz, pos, cen, hp;
 	boolean destroy;
 
@@ -10,6 +10,7 @@ class GameObject {
 		cen = new PVector();
 		hp  = new PVector();
 		destroy = false;
+		alpha = 255;
 	}
 
 }
