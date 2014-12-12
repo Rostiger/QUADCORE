@@ -36,7 +36,7 @@ class Bullet extends GameObject {
 		}
 
 		// if the bullet collides or moves outside the screen a second time, subtract damage
-		if (!hasHit && (collision || wrapCounter > 1)) {
+		if (!hasHit && (collision || wrapCounter > 1 || damage == 0)) {
   			bulletHit01.trigger();
 			hasHit = true;
 			damage = 0;
@@ -100,8 +100,6 @@ class Bullet extends GameObject {
 			PVector hitPos = new PVector( cen.x, cen.y );
 			hitPos.x += hitVel.x * hitDir.x;
 			hitPos.y += hitVel.y * hitDir.y;
-
-			println("cen: "+cen);
 			
 			canvas.rect( hitPos.x, hitPos.y, siz.x / 2, siz.y / 2 );
 		}
