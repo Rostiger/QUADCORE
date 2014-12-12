@@ -1,5 +1,5 @@
 class Bullet extends GameObject {
-	PVector dir, vel, hitPos, hitVel;
+	PVector dir, vel, hitVel;
 	int damage, wrapCounter;
 	float speed;
 	boolean hasHit;
@@ -11,8 +11,7 @@ class Bullet extends GameObject {
 		cen 	= new PVector( _pos.x + siz.x / 2, _pos.x + siz.x / 2 );
 		dir 	= new PVector( _dir.x, _dir.y );
 		vel 	= new PVector();
-		hitPos	= new PVector();
-		hitVel 	= new PVector();
+		hitVel 	= new PVector( 0,0 );
 
 		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, 300.0, 150.0);
 		damage 	= floor(map(_charge,CELL_SIZE / 2, CELL_SIZE, 1.0, 10.0));
@@ -21,26 +20,29 @@ class Bullet extends GameObject {
 	
 	void update() {
 
-		// set the velocity
-		vel.set( speed * dir.x, speed * dir.y);
-		vel.mult(dtInSeconds);
-
-		// check for collisions
 		boolean collision = false;
-		collision = checkCollision();
+
+		if (!hasHit) {
+			// set the velocity
+			vel.set( speed * dir.x, speed * dir.y);
+			vel.mult(dtInSeconds);
+
+			// update the center coordinates
+			cen.x = pos.x + siz.x / 2;
+			cen.y = pos.y + siz.y / 2;
+
+			// check for collisions
+			collision = checkCollision();
+		}
 
 		// if the bullet collides or moves outside the screen a second time, subtract damage
 		if (!hasHit && (collision || wrapCounter > 1)) {
   			bulletHit01.trigger();
 			hasHit = true;
 			damage = 0;
-			hitPos.set(cen);
 		}
 
 		if (!hasHit) {
-			// update the center coordinates
-			cen.x = pos.x + siz.x / 2;
-			cen.y = pos.y + siz.y / 2;
 
 			// move the bullet
 			pos.add(vel);
@@ -79,11 +81,15 @@ class Bullet extends GameObject {
 		canvas.noStroke();
 		canvas.rectMode(CENTER);
 		canvas.fill(colors.player[id],alpha);
-
+ 
 		PVector hitDir = new PVector();
-		int hitAcc = 100;
+		float hitAcc = 1.5;
+
+		hitVel.x += hitAcc;
+		hitVel.y += hitAcc;
 
 		for (int i=0; i<4; i++) {
+
 			switch(i) {
 				case 0: hitDir = new PVector( -1,-1 ); break;
 				case 1: hitDir = new PVector(  1,-1 ); break;
@@ -91,13 +97,16 @@ class Bullet extends GameObject {
 				case 3: hitDir = new PVector( -1, 1 ); break;
 			}
 
-			hitVel.add( hitAcc * hitDir.x * dtInSeconds, hitAcc * hitDir.y * dtInSeconds, 0 );
-			hitPos.add( hitVel );
+			PVector hitPos = new PVector( cen.x, cen.y );
+			hitPos.x += hitVel.x * hitDir.x;
+			hitPos.y += hitVel.y * hitDir.y;
 
+			println("cen: "+cen);
+			
 			canvas.rect( hitPos.x, hitPos.y, siz.x / 2, siz.y / 2 );
 		}
 
-		if (alpha > 0) alpha -= hitAcc * dtInSeconds;
+		if (alpha > 0) alpha -= hitAcc * dtInSeconds * 1500;
 		else destroy = true;
 
 	}
@@ -115,12 +124,8 @@ class Bullet extends GameObject {
 
 	boolean checkCollision(){				
 
-		PVector checkPos = new PVector();
-		checkPos.set(pos);
-		checkPos.add(vel);
-
 		for (Solid s : oManager.solids) {
-			if (collision.checkBoxCollision(checkPos.x,checkPos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y)) return true; 
+			if (collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y)) return true; 
 		}
 
 		return false;

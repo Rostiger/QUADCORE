@@ -241,37 +241,34 @@ class Player extends GameObject {
 			// player background
 			canvas.strokeWeight(siz.x / 32);	
 			canvas.fill(colors.player[id],alpha/5);
-			canvas.stroke(colors.player[id],alpha/2);
-			canvas.pushMatrix();
-			canvas.scale(2.0);
+			canvas.stroke(colors.player[id],alpha);
 			canvas.rect(cen.x,cen.y,siz.x,siz.y);
-			canvas.popMatrix();
 
 			//draw the player core background
 			canvas.noStroke();
 			canvas.fill(colors.player[id],alpha/3);
 			canvas.rect(cen.x,cen.y,siz.x/2,siz.y/2);
 
-			// // draw the multishot indicator
-			// if (hasMultiShot) drawMultiShotIndicator();
+			// draw the multishot indicator
+			if (hasMultiShot) drawMultiShotIndicator();
 
-			// // draw the boost indicator
-			// if (hasBoost) drawBoostIndicator();
+			// draw the boost indicator
+			if (hasBoost) drawBoostIndicator();
 
-			// // draw the boost trail
-			// drawBoostTrail();
+			// draw the boost trail
+			drawBoostTrail();
 
 			// draw shield
-			// if (hasShield) {
-			// 	float offset = size / 16;
-			// 	canvas.noFill();
-			// 	canvas.stroke(colors.player[id],alpha);
-			// 	float weight = map(shieldHp.x,0,shieldHp.y,1,6);
-			// 	canvas.strokeWeight(weight);
-			// 	canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
-			// }
+			if (hasShield) {
+				float offset = siz.x / 16;
+				canvas.noFill();
+				canvas.stroke(colors.player[id],alpha);
+				float weight = map(shieldHp.x,0,shieldHp.y,1,6);
+				canvas.strokeWeight(weight);
+				canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
+			}
 
-			// draw the player core
+			// draw the player cores
 			canvas.noStroke();
 			canvas.fill(colors.player[id],alpha);
 			canvas.rect(cen.x,cen.y,sizCore.x,sizCore.x);
@@ -344,6 +341,7 @@ class Player extends GameObject {
 	}
 
 	void drawBoostIndicator() {
+
 		// setup some temp variables for later adjustment
 		float x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0;
 		float lineDistance = siz.x / 8; 
@@ -381,6 +379,7 @@ class Player extends GameObject {
 			if (dir.x != 0 && dir.y != 0) canvas.line(x2,y2,x3,y3);
 		}
 		canvas.popMatrix();
+
 	}
 
 	void drawMultiShotIndicator() {
