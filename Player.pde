@@ -4,7 +4,7 @@ class Player extends GameObject {
 	PVector dir, speed, sizCore, shieldHp;
 
 	int id, alpha;
-	float minCharge, maxCharge, drawScale;
+	float minCharge, maxCharge, drawScale, initialDrawScale;
 	boolean ALIVE, KILLED, INVINCIBLE;
 	boolean hit, knockBack, hasMultiShot, hasShield, hasLockDown;
 	
@@ -76,7 +76,8 @@ class Player extends GameObject {
 		
 		//properties
 		alpha = 255;
-		drawScale = 1;
+		initialDrawScale = 5;
+		drawScale = initialDrawScale;
 
 		//stats
 		bullets = 0;
@@ -122,6 +123,9 @@ class Player extends GameObject {
 
 			face();
 
+			if (drawScale > 1) drawScale *= 0.9;
+			else drawScale = 1;
+
 			//if the player is invincible, count down the timer and start blinking
 			if (INVINCIBLE) {
 
@@ -161,8 +165,10 @@ class Player extends GameObject {
 
 		} else if (KILLED) {
 			
-			if (alpha > 0) alpha -= 10 * dt;
-			else if (!gManager.matchOver) {
+			if (alpha > 0) {
+				alpha -= 10 * dt;
+				drawScale++;
+			} else if (!gManager.matchOver) {
 				ALIVE = false;
 				KILLED = false;
 			}
@@ -233,6 +239,7 @@ class Player extends GameObject {
 		cursorSiz.y = charge / 4;
 
 	}
+
 	void draw() {
 
 		canvas.rectMode(CENTER);
@@ -242,12 +249,12 @@ class Player extends GameObject {
 			canvas.strokeWeight(siz.x / 32);	
 			canvas.fill(colors.player[id],alpha/5);
 			canvas.stroke(colors.player[id],alpha);
-			canvas.rect(cen.x,cen.y,siz.x,siz.y);
+			canvas.rect(cen.x,cen.y,siz.x * drawScale,siz.y * drawScale);
 
 			//draw the player core background
 			canvas.noStroke();
 			canvas.fill(colors.player[id],alpha/3);
-			canvas.rect(cen.x,cen.y,siz.x/2,siz.y/2);
+			canvas.rect(cen.x,cen.y,siz.x/2 * drawScale,siz.y/2 * drawScale);
 
 			// draw the multishot indicator
 			if (hasMultiShot) drawMultiShotIndicator();
@@ -265,16 +272,16 @@ class Player extends GameObject {
 				canvas.stroke(colors.player[id],alpha);
 				float weight = map(shieldHp.x,0,shieldHp.y,1,6);
 				canvas.strokeWeight(weight);
-				canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2,siz.y - offset * 2);
+				canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2 * drawScale,siz.y - offset * 2 * drawScale);
 			}
 
 			// draw the player cores
 			canvas.noStroke();
 			canvas.fill(colors.player[id],alpha);
-			canvas.rect(cen.x,cen.y,sizCore.x,sizCore.x);
+			canvas.rect(cen.x,cen.y,sizCore.x * drawScale,sizCore.x * drawScale);
 
 			// draw the cursor
-			canvas.rect(cursorPos.x,cursorPos.y,cursorSiz.x,cursorSiz.y);
+			canvas.rect(cursorPos.x,cursorPos.y,cursorSiz.x * drawScale,cursorSiz.y * drawScale);
 			
 			// draw the item name on pickup
 			if (showItem) drawItemName();
@@ -669,9 +676,7 @@ class Player extends GameObject {
 
 				Player p = gManager.players[b.id];				// get the id of the shooter
 				
-				if (b.damage != 0 && !hasShield) {				// if the bullet hasn't hit yet, shake the target 
-					shake.startShaking = true;	
-				}
+				if (b.damage != 0) drawScale = 1.5;
 
 				if (!hasShield) hp.x -= b.damage;					// if the target has no shield, subtract hp.x
 				else shieldHp.x -= b.damage;						// subtract damage from shield
@@ -705,6 +710,7 @@ class Player extends GameObject {
 		// respawn the player and reset it's properties
 		ALIVE = true;
 		INVINCIBLE = true;
+		drawScale = initialDrawScale;
 		spawnedOnce = true;
 		canRespawn = false;
 		hp.x = hp.y;
