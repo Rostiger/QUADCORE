@@ -4,6 +4,7 @@ class GameManager {
 	boolean debug = false;
 	boolean gameOver = false;
 	boolean matchOver = false;
+	boolean canRestart = false;
 
 	boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed;
 
@@ -16,6 +17,8 @@ class GameManager {
 	int nextLevelID;
 
 	int activePlayers;
+
+	Checkers checkers = new Checkers();
 
 	GameManager() {
 	    prevLevelID = 100;
@@ -94,6 +97,10 @@ class GameManager {
 		dt = lastFrameDuration / 1000 * 60;
 		// save dt in seconds
 		dtInSeconds = lastFrameDuration / 1000;
+
+		// draw a checkerboard for the winner
+		if (matchOver) checkers.drawCheckers();
+
 		// update bullets and targets
 		oManager.update();
 
