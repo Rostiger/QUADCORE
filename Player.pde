@@ -40,10 +40,6 @@ class Player extends GameObject {
 	float itemYPos, itemShowDuration;
 	String currentItem, prevItem = "";
 
-	//shaking
-	Shake shake = new Shake();
-	boolean shaking;
-
 	public Input input;
 	
 	Player(int _id) {
@@ -73,7 +69,6 @@ class Player extends GameObject {
 		hasShield = false;
 		hasLockDown = true;
 		showItem = false;
-		shaking = false;
 		
 		//properties
 		alpha = 255;
@@ -151,6 +146,7 @@ class Player extends GameObject {
 			if (hp.x <= 0) {
 				KILLED = true;
 				die01.trigger();
+				screenShake.shake(10,5);
 				deaths++;
 				respawnDuration *= respawnDurationMultiplier;
 				gManager.activePlayers--;

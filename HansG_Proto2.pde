@@ -47,7 +47,7 @@ boolean TOP_VIEW = false;		// playing on the hansG?
 PVector canvasPos;				// canvas position
 color bgColor = #000000;
 
-Shake cameraShake = new Shake();
+Shake screenShake = new Shake();
 
 void setup() {
 
@@ -138,9 +138,9 @@ void setup() {
 }
 
 void draw() {
-	if (cameraShake.isShaking) {
-		cameraShake.update();
-		canvasPos.add(cameraShake.offset);
+	if (screenShake.isShaking) {
+		screenShake.update();
+		canvasPos.add(screenShake.offset);
 	}
 	noCursor();
 	background(bgColor);
@@ -157,9 +157,6 @@ void draw() {
 
 void keyPressed() {
 	gManager.keyPressed();
-
-	if (key == ' ') cameraShake.shake(5,2);
-
 }
 
 void keyReleased() {

@@ -1,16 +1,15 @@
 class Shake {
 
-	int dir;
-	float shakeTime, strength;
-	PVector offset, newOffset;
+	float shakeTime, strength, strenghtFalloff;
+	PVector offset, newOffset, dir;
 	boolean startShaking, isShaking, moveBack;
 	
 	Shake() {
 
-		dir = 1;
 		shakeTime = 0;
 		offset = new PVector(0,0);
 		newOffset = new PVector(0,0);
+		dir = new PVector();
 		startShaking = false;
 		isShaking = false;
 		moveBack = false;
@@ -19,23 +18,31 @@ class Shake {
 
 	void update() {
 
-		if (shakeTime !=0) println("shakeTime: "+shakeTime);
+		strength -= strenghtFalloff;
+		dir = new PVector( getDir(), getDir() );
 
 		if (shakeTime > 0) {
 			
-			moveBack = !moveBack;
-
-			newOffset.x = strength;
-			newOffset.y = strength;
+			if (moveBack) {
+				newOffset.mult(-1);
+				moveBack = false;
+			} else {
+				newOffset.x = strength * dir.x;
+				newOffset.y = strength * dir.y;
+				moveBack = true;
+			}
 
 			offset.set(newOffset);
-
-			if (moveBack) strength *= -1;
 
 			shakeTime--;
 
 		} else {
 
+			if (moveBack) {
+				newOffset.mult(-1);
+				offset.set(newOffset);
+			}
+			
 			shakeTime = 0;
 			isShaking = false;
 
@@ -44,9 +51,20 @@ class Shake {
 
 	void shake(float _strenght, float _duration) {
 
-			strength = _strenght;
 			shakeTime = _duration / dtInSeconds;
+			strength = _strenght;
+			strenghtFalloff = _strenght / shakeTime;
 			isShaking = true;
 
+	}
+
+	float getDir() {
+		
+		float newDir = random( -1, 1 );
+
+		if (newDir > 0) newDir = 1;
+		else newDir = -1;	
+
+		return newDir;	
 	}
 }
