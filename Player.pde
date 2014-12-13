@@ -15,6 +15,7 @@ class Player extends GameObject {
 	//counters
 	float respawnDuration, respawnTime, respawnDurationMultiplier;
 	float invincibleDuration, invincibleTime;
+	float shootDelayDuration, shootDelayTime;
 	int trailCount, blink;
 	float charge, chargeDelay, initChargeDelay;
 
@@ -97,9 +98,11 @@ class Player extends GameObject {
 		charge = minCharge;
 		initChargeDelay = 10;
 		chargeDelay = initChargeDelay;
-		respawnDuration = 2;
+		respawnDuration = 3;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
+		shootDelayDuration = 6;
+		shootDelayTime = 0;
 
 		invincibleDuration = 150;
 		invincibleTime = invincibleDuration;
@@ -158,7 +161,10 @@ class Player extends GameObject {
 			else hasShield = true;
 			
 			if(!gManager.matchOver) {
-				shoot();
+
+				if (shootDelayTime > 0) shootDelayTime--;
+				else shoot();
+
 				useItem();
 				checkNodeCount();
 			}
@@ -207,7 +213,7 @@ class Player extends GameObject {
 					for (int yD=-1;yD<=1;yD++) {
 					    if (xD != 0 && yD != 0) {
 					    	PVector direction = new PVector( xD, yD );
-					    	oManager.addBullet(id,cen,direction,minCharge);
+					    	oManager.addBullet(id,cen,direction,maxCharge * 0.9);
 					    }
 					}
 				}
@@ -642,13 +648,14 @@ class Player extends GameObject {
 		//shoot bullets!
 
 		if (input.shootReleased) {
-		
+			
 		    oManager.addBullet(id,cursorPos,dir,charge);
 		    shot01.trigger();
 		    shots++;
 			charge = minCharge;
 			input.shootReleased = false;
 			chargeDelay = initChargeDelay;
+			shootDelayTime = shootDelayDuration;
 		
 		} else if (input.shootWasPressed) {
 
