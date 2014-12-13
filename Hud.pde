@@ -1,14 +1,17 @@
 class Hud {
 	int alpha;
 	int blink;
-	float rotation, statsDistance, easeControl;
-	boolean visible;
+	float rotation, statsDistance, easeControl, waitTime, waitDuration;
+	boolean visible, showEndScreen;
 
 	Hud() {
 		blink = 0;
 		rotation = 0;
 		statsDistance = 0;
 		easeControl = 0;
+		showEndScreen = false;
+		waitDuration = 400;
+		waitTime = waitDuration;
 	}
 
 	void update() {
@@ -29,12 +32,20 @@ class Hud {
 			blink = blinkDuration;
 		}
 
+		if (gManager.matchOver) {
+			if (waitTime > 0) waitTime--;
+			else {
+				showEndScreen = true;
+				waitTime = waitDuration;
+			}
+		} else showEndScreen = false;
+
 		draw();
 	}
 
 	void draw() {
 		
-		if (gManager.matchOver) {
+		if (showEndScreen) {
 		
 			noStroke();
 			fill(0,0,0,150);
@@ -116,10 +127,9 @@ class Hud {
 		int lineNumber = 0;
 
 		float barLSizeFactor = 0.7;
-		PVector barPosS		=	new PVector(canvasPos.x - ARENA_BORDER,0);
 		PVector barSizeS	=	new PVector(VIEW_WIDTH * 0.4, VIEW_HEIGHT / 6);
-		PVector barPosL 	= 	new PVector(canvasPos.x - ARENA_BORDER,0);
 		PVector barSizeL 	= 	new PVector(VIEW_WIDTH + (ARENA_BORDER * 2), barSizeS.y * barLSizeFactor);
+		PVector barPos		=	new PVector(canvasPos.x - ARENA_BORDER,0);
 		float baseOffsetY	= 	VIEW_HEIGHT / 4;
 		float barsOffsetY 	= 	baseOffsetY / 8;
 		float titleOffsetY	=	baseOffsetY * 1.4;
@@ -146,21 +156,20 @@ class Hud {
 				lineNumberCount--;
 			} else lineNumber = lineNumberCount; 
 			
-			barPosS.y = baseOffsetY + ((barsOffsetY + barSizeS.y) * lineNumber);
-			barPosL.y = barPosS.y + (barSizeL.y / 4);	
+			barPos.y = baseOffsetY + ((barsOffsetY + barSizeS.y) * lineNumber);
 
 			// draw bars
 			noStroke();
 			fill(colors.solid,barsAlpha);
-			rect(barPosL.x, barPosL.y, barSizeL.x, barSizeL.y);
+			rect(barPos.x, barPos.y + (barSizeL.y / 4), barSizeL.x, barSizeL.y);
 			fill(colors.player[i],barsAlpha);
-			rect(barPosS.x, barPosS.y, barSizeS.x, barSizeS.y);
+			rect(barPos.x, barPos.y, barSizeS.x, barSizeS.y);
 			
 			// check the players stats and choose a fitting text
 			subText = playerName + " " + getDescription(i);
 
 			// set the subtext position
-			PVector subTextPos	= new PVector(barPosS.x + barSizeS.x + barSizeL.x / 16, barPosL.y + (barSizeL.y / 2) + (fontSizeS / 3));
+			PVector subTextPos	= new PVector(barPos.x + barSizeS.x + barSizeL.x / 16, barPos.y + barSizeL.y - (fontSizeS / 3));
 
 			fill(colors.player[i]);
 			textSize(fontSizeS);
@@ -180,9 +189,10 @@ class Hud {
 				float boxSpacing = barSizeS.y * 0.3;
 				float posX = (boxSize + boxSpacing) * b;
 				float offsetX = (barSizeS.x - (boxSize * 3 + boxSpacing * 2)) / 2;
-				PVector pos = new PVector(barPosS.x + offsetX + posX , barPosS.y + (barSizeS.y / 2 - boxSize / 2));
+				PVector pos = new PVector(barPos.x + offsetX + posX , barPos.y + (barSizeS.y / 2 - boxSize / 2));
 
 				rect(pos.x,pos.y,boxSize,boxSize);
+
 			}
 		
 		}
