@@ -146,7 +146,7 @@ class Player extends GameObject {
 			if (hp.x <= 0) {
 				KILLED = true;
 				die01.trigger();
-				screenShake.shake(10,5);
+				screenShake.shake(7,1.2);
 				deaths++;
 				respawnDuration *= respawnDurationMultiplier;
 				gManager.activePlayers--;
@@ -680,6 +680,7 @@ class Player extends GameObject {
 				Player p = gManager.players[b.id];				// get the id of the shooter
 				
 				if (b.damage != 0) drawScale = 1.5;
+				screenShake.shake(1,0.2);
 
 				if (!hasShield) hp.x -= b.damage;					// if the target has no shield, subtract hp.x
 				else shieldHp.x -= b.damage;						// subtract damage from shield
