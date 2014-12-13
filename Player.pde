@@ -112,8 +112,8 @@ class Player extends GameObject {
 	void update() {
 
 		input.update();
-
 		updateVectors();
+
 		if (!KILLED) move();
 		draw();
 
@@ -269,12 +269,11 @@ class Player extends GameObject {
 
 			// draw shield
 			if (hasShield) {
-				float offset = siz.x / 16;
 				canvas.noFill();
 				canvas.stroke(colors.player[id],alpha);
-				float weight = map(shieldHp.x,0,shieldHp.y,1,6);
+				float weight = map(shieldHp.x,0,shieldHp.y,1,3);
 				canvas.strokeWeight(weight);
-				canvas.rect(cen.x + offset,cen.y + offset,siz.x - offset * 2 * drawScale,siz.y - offset * 2 * drawScale);
+				canvas.rect(cen.x,cen.y,siz.x * drawScale,siz.y * drawScale);
 			}
 
 			// draw the player cores
