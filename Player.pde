@@ -116,10 +116,9 @@ class Player extends GameObject {
 
 		if (!KILLED) move();
 		draw();
-
+		face();
+		
 		if (ALIVE && !KILLED) {
-
-			face();
 
 			if (drawScale > 1) drawScale *= 0.8;
 			else drawScale = 1;
@@ -233,7 +232,6 @@ class Player extends GameObject {
 	}
 
 	void updateVectors() {
-
 		cen.x = pos.x + siz.x / 2;
 		cen.y = pos.y + siz.y / 2;
 
@@ -242,7 +240,6 @@ class Player extends GameObject {
 
 		cursorSiz.x = charge / 4;
 		cursorSiz.y = charge / 4;
-
 	}
 
 	void draw() {
