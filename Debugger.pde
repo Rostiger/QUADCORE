@@ -145,10 +145,9 @@ class Debugger {
 		text("SOLIDS " + oManager.solids.size(),textPos.x,textPos.y * (gameStatsYPos+2));
 		text("NODES " + oManager.nodes.size(),textPos.x,textPos.y * (gameStatsYPos+3));
 		text("BULLETS " + oManager.bullets.size(),textPos.x,textPos.y * (gameStatsYPos+4));
-		text("LEVEL #" + gManager.nextLevelID,textPos.x,textPos.y * (gameStatsYPos+5));
-		text("# OF LEVELS " + levelList.size(),textPos.x,textPos.y * (gameStatsYPos+6));
+		text("LEVEL " + gManager.nextLevelID + "/" + levelList.size(),textPos.x,textPos.y * (gameStatsYPos+5));
 
-		gameStatsYPos = 15;
+		gameStatsYPos = 14;
 
 		// switchable debug settings
 		text("DEBUG SETTINGS",textPos.x,textPos.y * gameStatsYPos);
