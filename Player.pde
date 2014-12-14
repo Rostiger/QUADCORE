@@ -13,7 +13,7 @@ class Player extends GameObject {
 	boolean canRespawn, spawnedOnce;
 
 	//counters
-	float respawnDuration, respawnTime, respawnDurationMultiplier;
+	float initialRespawnDuration, respawnDuration, respawnTime, respawnDurationMultiplier;
 	float invincibleDuration, invincibleTime;
 	float shootDelayDuration, shootDelayTime;
 	int trailCount, blink;
@@ -93,7 +93,8 @@ class Player extends GameObject {
 		charge = minCharge;
 		initChargeDelay = 0.01;
 		chargeDelay = initChargeDelay;
-		respawnDuration = 3;
+		initialRespawnDuration = 1;
+		respawnDuration = initialRespawnDuration;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
 		shootDelayDuration = 3;
@@ -210,7 +211,7 @@ class Player extends GameObject {
 
 					    if (xD != 0 || yD != 0) {
 					    	PVector direction = new PVector( xD, yD );
-					    	oManager.addBullet(id,cen,direction,maxCharge * 0.9);
+					    	oManager.addBullet(id,cen,direction,maxCharge * 0.7);
 					    }
 
 					}
@@ -742,7 +743,7 @@ class Player extends GameObject {
 		ALIVE = false;
 		KILLED = false;
 		siz = new PVector( CELL_SIZE, CELL_SIZE );
-		respawnTime = respawnDuration;
+		respawnDuration = initialRespawnDuration;
 		spawnedOnce = false;
 		charge = minCharge;
 		hasBoost = false;
