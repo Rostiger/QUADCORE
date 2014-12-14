@@ -5,6 +5,7 @@ class GameManager {
 	boolean gameOver = false;
 	boolean matchOver = false;
 	boolean canRestart = false;
+	boolean drawCheckers = false;
 
 	boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed;
 
@@ -100,7 +101,7 @@ class GameManager {
 
 
 		// draw a checkerboard for the winner
-		if (matchOver) checkers.drawCheckers();
+		if (matchOver || drawCheckers) checkers.drawCheckers();
 
 		// update bullets and targets
 		oManager.update();

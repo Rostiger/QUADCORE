@@ -4,7 +4,7 @@ class Checkers {
 		
 	Checkers() {
 
-		switchDuration = 10;
+		switchDuration = 14;
 		switchTime = switchDuration;
 		alpha1 = 90;
 		alpha2 = 40;
@@ -25,10 +25,14 @@ class Checkers {
 
 			switchTime = switchDuration;
 		}
-		
-		alpha = alpha2;
 
+		alpha = alpha1;
+		
 		for (float x = 0; x < VIEW_WIDTH; x += CELL_SIZE * 2) {
+
+			if (alpha == alpha2) alpha = alpha1;
+			else alpha = alpha2;
+
 			for (float y = 0; y < VIEW_HEIGHT; y += CELL_SIZE * 2) {
 
 				if (alpha == alpha2) alpha = alpha1;

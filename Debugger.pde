@@ -12,7 +12,7 @@ class Debugger {
 	boolean debugDraw, invincibility, autoShoot;
 	int autoShootInterval, autoShootCount;
 
-	DebugOption[] debugOptions = new DebugOption[3];
+	DebugOption[] debugOptions = new DebugOption[4];
 	int selectedOption;
 
 	Debugger() {
@@ -34,6 +34,7 @@ class Debugger {
 		debugOptions[0] = new DebugOption("DEBUG DRAW",false);
 		debugOptions[1] = new DebugOption("INVINCIBILITY",false);
 		debugOptions[2] = new DebugOption("AUTO FIRE",false);
+		debugOptions[3] = new DebugOption("SHOW CHECKERS",false);
 
 		selectedOption = 0;
 	}
@@ -47,6 +48,9 @@ class Debugger {
 
 		if (debugOptions[2].active) autoShoot = true;
 		else autoShoot = false;
+
+		if (debugOptions[3].active) gManager.drawCheckers = true;
+		else gManager.drawCheckers = false;
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;
