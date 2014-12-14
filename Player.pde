@@ -541,7 +541,7 @@ class Player extends GameObject {
 
 	void move() {
 		// movement properties
-		float maxSpeed = 2.5;
+		float maxSpeed = CELL_SIZE / 5;
 		float acceleration = 0.5;
 		float deceleration = 0.2;			
 
@@ -606,7 +606,6 @@ class Player extends GameObject {
 
 		if (pos.y > VIEW_HEIGHT) pos.y = -siz.x;
 		else if (pos.y + siz.x < 0) pos.y = VIEW_HEIGHT;
-
 	}
 
 	void face() {
@@ -741,6 +740,7 @@ class Player extends GameObject {
 	void reset() {
 		ALIVE = false;
 		KILLED = false;
+		siz = new PVector( CELL_SIZE, CELL_SIZE );
 		respawnTime = respawnDuration;
 		spawnedOnce = false;
 		charge = minCharge;
