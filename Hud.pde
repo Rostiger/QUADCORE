@@ -10,14 +10,14 @@ class Hud {
 		statsDistance = 0;
 		easeControl = 0;
 		showEndScreen = false;
-		waitDuration = 400;
+		waitDuration = 100;
 		waitTime = waitDuration;
 	}
 
 	void update() {
 		// blinking timer
-		int blinkDuration = 50;
-		if (blink > 0) blink -= dt;
+		int blinkDuration = 14;
+		if (blink > 0) blink -= 1 * dtInSeconds;
 		else {
 			if (alpha < 255) {
 				alpha = 255;

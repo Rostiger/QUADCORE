@@ -119,7 +119,7 @@ class Item {
 		} else {
 
 			// item respawning
-			if (respawn > 0) respawn -= dt;
+			if (respawn > 0) respawn -= 1 * dtInSeconds;
 			else {
 
 				// choose an item by it's likelihood
@@ -199,12 +199,12 @@ class Item {
 		canvas.popMatrix();
 
 		// set the position of the little rectangle
-		if (bxPos < hSize / 4) bxPos += dt;
+		if (bxPos < hSize / 4) bxPos += 30 * dtInSeconds;
 		else {
 			if (hud.visible) bxPos = -hSize / 2;
 		}
 		byPos = -vSize / 2;
-		// map the position of the little rectangle to the alphh value the trail should hhve
+		// map the position of the little rectangle to the alphh value the trail should have
 		alphh = (int)map(bxPos,hSize/4,-hSize / 2,0,255);
 		// draw four rectangles with a little fake trail
 		for (int r=0;r<4;r++) {
@@ -213,6 +213,7 @@ class Item {
 			canvas.stroke(colors.item, alphh);
 			canvas.strokeWeight(CELL_SIZE / 5);
 			// draw the trail
+			canvas.strokeCap(SQUARE);
 			canvas.line(-hSize / 2 + hSize / 8, -vSize / 2 + vSize / 8,bxPos + hSize / 8,byPos + vSize / 8);
 			canvas.strokeWeight(1.0);
 			canvas.noStroke();

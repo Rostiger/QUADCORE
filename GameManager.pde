@@ -98,6 +98,7 @@ class GameManager {
 		// save dt in seconds
 		dtInSeconds = lastFrameDuration / 1000;
 
+
 		// draw a checkerboard for the winner
 		if (matchOver) checkers.drawCheckers();
 

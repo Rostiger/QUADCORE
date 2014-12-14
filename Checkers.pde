@@ -4,7 +4,7 @@ class Checkers {
 		
 	Checkers() {
 
-		switchDuration = 30;
+		switchDuration = 10;
 		switchTime = switchDuration;
 		alpha1 = 90;
 		alpha2 = 40;

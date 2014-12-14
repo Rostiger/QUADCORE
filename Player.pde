@@ -96,7 +96,7 @@ class Player extends GameObject {
 		respawnDuration = 3;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
-		shootDelayDuration = 6;
+		shootDelayDuration = 3;
 		shootDelayTime = 0;
 
 		invincibleDuration = 150;
@@ -121,7 +121,7 @@ class Player extends GameObject {
 
 			face();
 
-			if (drawScale > 1) drawScale *= 0.9;
+			if (drawScale > 1) drawScale *= 0.8;
 			else drawScale = 1;
 
 			//if the player is invincible, count down the timer and start blinking
@@ -129,8 +129,8 @@ class Player extends GameObject {
 
 				if (invincibleTime > 0) {
 
-					blink(0,255,10);
-					invincibleTime -= dt;
+					blink(0,255,3);
+					invincibleTime -= 1 * dtInSeconds;
 				
 				} else {
 
@@ -168,7 +168,7 @@ class Player extends GameObject {
 		} else if (KILLED) {
 			
 			if (alpha > 0) {
-				alpha -= 10 * dt;
+				alpha -= 10 * dtInSeconds;
 				drawScale++;
 			} else if (!gManager.matchOver) {
 				ALIVE = false;
@@ -177,7 +177,7 @@ class Player extends GameObject {
 
 		} else {
 			// count down until respawn is possible
-			if (respawnTime > 0) respawnTime -= dtInSeconds;
+			if (respawnTime > 0) respawnTime -= 1 * dtInSeconds;
 			else if (input.shootReleased && !gManager.matchOver) {
 				respawnTime = respawnDuration;
 				spawn();
@@ -459,14 +459,14 @@ class Player extends GameObject {
 		canvas.textSize(CELL_SIZE);
 
 		float itemYPosMax = -CELL_SIZE;
-		float easing = 0.2;
+		float easing = 0.3;
 		float itemDistance = itemYPosMax - itemYPos;
-		float itemShowTime = 30;
+		float itemShowTime = 0.5;
 
 		// set the text position
 		if (itemYPos > itemYPosMax && abs(itemDistance) > 1) {
 			// move the text up
-			itemYPos += itemDistance * easing * dt;
+			itemYPos += itemDistance * easing;
 
 			// set the text transparency depending on the text position
 			itemAlpha = (int)map(itemYPos,0,itemYPosMax,0,255);
@@ -474,10 +474,10 @@ class Player extends GameObject {
 			itemShowDuration = itemShowTime;
 		} else {
 			// let the text stand there for a little while
-			if (itemShowDuration > 0) itemShowDuration -= dt;
+			if (itemShowDuration > 0) itemShowDuration -= 1 * dtInSeconds;
 			else {
 				// fade out the text
-				int fadeOutSpeed = 20;
+				int fadeOutSpeed = 70;
 				if (itemAlpha > 0) itemAlpha -= fadeOutSpeed;
 				else {
 					itemYPos = 0;
@@ -497,7 +497,7 @@ class Player extends GameObject {
 
 	void blink(int _value1, int _value2, int _speed) {
 
-		if (blink > 0) blink -= dt;
+		if (blink > 0) blink -= 1 * dtInSeconds;
 		else {
 
 			if (alpha < _value2) alpha = _value2;
@@ -550,7 +550,7 @@ class Player extends GameObject {
 			maxSpeed = 8.0;
 			acceleration = 1.0;
 
-			if (boostDuration > 0) boostDuration -= dt;
+			if (boostDuration > 0) boostDuration -= 1 * dtInSeconds;
 			else {
 				boosting = false;
 				boostDuration = boostTime;
@@ -654,9 +654,9 @@ class Player extends GameObject {
 		
 		} else if (input.shootWasPressed) {
 
-			if (chargeDelay > 0) chargeDelay -= dt;
+			if (chargeDelay > 0) chargeDelay -= 1 * dtInSeconds;
 			else {
-				if (charge < maxCharge) charge += 1.01 * dt;
+				if (charge < maxCharge) charge += 1.01 * dtInSeconds;
 				else charge = maxCharge;
 			}
 		
@@ -699,8 +699,8 @@ class Player extends GameObject {
 		// knocks the player back when hit
 		int knockBackStrength = 5;
 
-		// speed.x = knockBackStrength * _dir.x * dt; 
-		// speed.y = knockBackStrength * _dir.y * dt; 
+		// speed.x = knockBackStrength * _dir.x * dtInSeconds; 
+		// speed.y = knockBackStrength * _dir.y * dtInSeconds; 
 
 		//play a sound
 		hurt01.trigger();

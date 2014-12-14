@@ -58,14 +58,14 @@ class Node {
 
 			if (lockDownCounter > 0) {
 				if (lockDownCounter < lockDownTime * 0.2) {
-					if (blinkCounter > 0) blinkCounter -= dt;
+					if (blinkCounter > 0) blinkCounter -= 1 * dtInSeconds;
 					else {
 						if (nAlpha > 0) { nAlpha = 0; lockDownStopAlert01.trigger(); }
 						else nAlpha = 255;
 						blinkCounter = blinkTime;
 					}
 				}
-				lockDownCounter -= dt;
+				lockDownCounter -= 1 * dtInSeconds;
 			} else {
 				lockDown = false;
 				lockDownCounter = lockDownTime;
@@ -124,7 +124,7 @@ class Node {
 			if (pulseNode) {
 				float startValue = 1;
 				float targetValue = 1.5;
-				float duration = 0.15;
+				float duration = 0.1;
 				float diff = targetValue - startValue;
 
 				if (easeControl == -1) easeControl = startValue;
@@ -180,7 +180,7 @@ class Node {
 			canvas.popMatrix();
 
 			// set the scale of the lockdown overlay
-			if (lockDownScale > 1.0) lockDownScale -= lockDownScaleSpeed * dt;
+			if (lockDownScale > 1.0) lockDownScale -= lockDownScaleSpeed * dtInSeconds;
 			else lockDownScale = 1.0;
 		}
 	}

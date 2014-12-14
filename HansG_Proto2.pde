@@ -64,7 +64,7 @@ void setup() {
 
 	// setup the window and renderer
 	size((int)WIN_WIDTH,(int)WIN_HEIGHT,P2D);
-	frameRate(60);
+	frameRate(30);
 
 	// GAMEPAD
 	// Initialise the ControlIO
