@@ -91,7 +91,7 @@ class Player extends GameObject {
 		maxCharge = CELL_SIZE;
 		minCharge = CELL_SIZE / 2;
 		charge = minCharge;
-		initChargeDelay = 10;
+		initChargeDelay = 0.01;
 		chargeDelay = initChargeDelay;
 		respawnDuration = 3;
 		respawnTime = respawnDuration;
@@ -99,7 +99,7 @@ class Player extends GameObject {
 		shootDelayDuration = 3;
 		shootDelayTime = 0;
 
-		invincibleDuration = 150;
+		invincibleDuration = 2;
 		invincibleTime = invincibleDuration;
 		trailCount = 100000;
 		blink = 0;
@@ -168,7 +168,7 @@ class Player extends GameObject {
 		} else if (KILLED) {
 			
 			if (alpha > 0) {
-				alpha -= 10 * dtInSeconds;
+				alpha -= 10;
 				drawScale++;
 			} else if (!gManager.matchOver) {
 				ALIVE = false;
@@ -656,7 +656,7 @@ class Player extends GameObject {
 
 			if (chargeDelay > 0) chargeDelay -= 1 * dtInSeconds;
 			else {
-				if (charge < maxCharge) charge += 1.01 * dtInSeconds;
+				if (charge < maxCharge) charge += 0.7;
 				else charge = maxCharge;
 			}
 		
@@ -687,7 +687,6 @@ class Player extends GameObject {
 				b.damage = 0;									// set the bullet damage to 0 (used to determine if it still can do damage)
 				
 				if (hp.x <= 0) p.kills++;							// add the shooters killcount if the bullet killed the target
-				break;											// exit the loop
 			}
 
 		}

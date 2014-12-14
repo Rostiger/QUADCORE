@@ -83,7 +83,7 @@ class Bullet extends GameObject {
 		canvas.fill(colors.player[id],alpha);
  
 		PVector hitDir = new PVector();
-		float hitAcc = 1.5;
+		float hitAcc = 2.5;
 
 		hitVel.x += hitAcc;
 		hitVel.y += hitAcc;
@@ -104,7 +104,7 @@ class Bullet extends GameObject {
 			canvas.rect( hitPos.x, hitPos.y, siz.x / 2, siz.y / 2 );
 		}
 
-		if (alpha > 0) alpha -= hitAcc * dtInSeconds * 1500;
+		if (alpha > 0) alpha -= 40;
 		else destroy = true;
 
 	}
