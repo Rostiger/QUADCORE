@@ -13,7 +13,7 @@ class Bullet extends GameObject {
 		vel 	= new PVector();
 		hitVel 	= new PVector( 0,0 );
 
-		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, 300.0, 150.0);
+		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE * 14, CELL_SIZE * 7);
 		damage 	= floor(map(_charge,CELL_SIZE / 2, CELL_SIZE, 1.0, 10.0));
 		wrapCounter = 0;
 	}
@@ -24,8 +24,7 @@ class Bullet extends GameObject {
 
 		if (!hasHit) {
 			// set the velocity
-			vel.set( speed * dir.x, speed * dir.y);
-			vel.mult(dtInSeconds);
+			vel.set( speed * dtInSeconds * dir.x, speed * dtInSeconds * dir.y);
 
 			// update the center coordinates
 			cen.x = pos.x + siz.x / 2;
