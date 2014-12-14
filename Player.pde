@@ -205,12 +205,15 @@ class Player extends GameObject {
 
 			if (hasMultiShot) {
 				multiShot01.trigger();
-				for (int xD=-1;xD<=1;xD++) {
-					for (int yD=-1;yD<=1;yD++) {
-					    if (xD != 0 && yD != 0) {
+
+				for (int xD = -1; xD <= 1; xD++) {
+					for (int yD = -1; yD <= 1; yD++) {
+
+					    if (xD != 0 || yD != 0) {
 					    	PVector direction = new PVector( xD, yD );
 					    	oManager.addBullet(id,cen,direction,maxCharge * 0.9);
 					    }
+
 					}
 				}
 				hasMultiShot = false;
@@ -269,11 +272,12 @@ class Player extends GameObject {
 
 			// draw shield
 			if (hasShield) {
+				float offset = 1.5;
 				canvas.noFill();
 				canvas.stroke(colors.player[id],alpha);
 				float weight = map(shieldHp.x,0,shieldHp.y,1,3);
 				canvas.strokeWeight(weight);
-				canvas.rect(cen.x,cen.y,siz.x * drawScale,siz.y * drawScale);
+				canvas.rect(cen.x,cen.y,siz.x * offset,siz.y * offset);
 			}
 
 			// draw the player cores
@@ -541,9 +545,9 @@ class Player extends GameObject {
 
 	void move() {
 		// movement properties
-		float maxSpeed = CELL_SIZE / 5;
-		float acceleration = 0.5;
-		float deceleration = 0.2;			
+		float maxSpeed = CELL_SIZE / 7;
+		float acceleration = CELL_SIZE / 15;
+		float deceleration = 0.1;			
 
 		// change movement properties when boosting
 		if (boosting) {
