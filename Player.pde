@@ -93,7 +93,7 @@ class Player extends GameObject {
 		charge = minCharge;
 		initChargeDelay = 0.01;
 		chargeDelay = initChargeDelay;
-		initialRespawnDuration = 1;
+		initialRespawnDuration = 0;
 		respawnDuration = initialRespawnDuration;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
@@ -148,7 +148,8 @@ class Player extends GameObject {
 				die01.trigger();
 				screenShake.shake(7,1.2);
 				deaths++;
-				respawnDuration *= respawnDurationMultiplier;
+				if (respawnDuration != 0) respawnDuration *= respawnDurationMultiplier;
+				else respawnDuration = 2;
 				gManager.activePlayers--;
 			}
 
@@ -744,6 +745,7 @@ class Player extends GameObject {
 		KILLED = false;
 		siz = new PVector( CELL_SIZE, CELL_SIZE );
 		respawnDuration = initialRespawnDuration;
+		respawnTime = respawnDuration;
 		spawnedOnce = false;
 		charge = minCharge;
 		hasBoost = false;
