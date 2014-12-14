@@ -97,7 +97,7 @@ class Player extends GameObject {
 		respawnDuration = initialRespawnDuration;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
-		shootDelayDuration = 3;
+		shootDelayDuration = 4.5;
 		shootDelayTime = 0;
 
 		invincibleDuration = 2;
