@@ -49,9 +49,8 @@ class Node {
 			}
 
 		} else {
-
-			
-
+			pulseNode = true;
+			pulseNode();
 		}
 
 		if (lockDown) {
@@ -120,27 +119,8 @@ class Node {
 				}
 			}
 
-			// play the node pulse effect
-			if (pulseNode) {
-				float startValue = 1;
-				float targetValue = 1.5;
-				float duration = 0.1;
-				float diff = targetValue - startValue;
+			pulseNode();
 
-				if (easeControl == -1) easeControl = startValue;
-
-				if (easeControl < targetValue && !reverse) {
-					nScale = ease(easeControl,startValue,targetValue,0.5);
-					easeControl += dtInSeconds / duration * diff;
-				} else if(easeControl > startValue) {
-					reverse = true;
-					nScale = ease(easeControl,targetValue,startValue,0.5);
-					easeControl -= dtInSeconds / duration * diff;
-				} else {
-					pulseNode = false;
-					reverse = false;
-				}
-			}
 		}
 	}
 
@@ -182,6 +162,30 @@ class Node {
 			// set the scale of the lockdown overlay
 			if (lockDownScale > 1.0) lockDownScale -= lockDownScaleSpeed * dtInSeconds;
 			else lockDownScale = 1.0;
+		}
+	}
+
+	void pulseNode() {
+		// play the node pulse effect
+		if (pulseNode) {
+			float startValue = 1;
+			float targetValue = 1.5;
+			float duration = 0.1;
+			float diff = targetValue - startValue;
+
+			if (easeControl == -1) easeControl = startValue;
+
+			if (easeControl < targetValue && !reverse) {
+				nScale = ease(easeControl,startValue,targetValue,0.5);
+				easeControl += dtInSeconds / duration * diff;
+			} else if(easeControl > startValue) {
+				reverse = true;
+				nScale = ease(easeControl,targetValue,startValue,0.5);
+				easeControl -= dtInSeconds / duration * diff;
+			} else {
+				pulseNode = false;
+				reverse = false;
+			}
 		}
 	}
 }
