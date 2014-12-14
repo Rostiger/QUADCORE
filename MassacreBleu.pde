@@ -34,7 +34,7 @@ ArrayList < PImage > levelList;
 
 float WIN_WIDTH;			// stores the width of the display resolution
 float WIN_HEIGHT;			// stores the height of the display resolution		
-float WIN_SCALE = 1.0;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
 float VIEW_WIDTH;			// width of the game area
 float VIEW_HEIGHT;			// height of the game area
 float CELL_SIZE;			// size of a single tile

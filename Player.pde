@@ -272,8 +272,9 @@ class Player extends GameObject {
 			// draw shield
 			if (hasShield) {
 				float offset = 1.5;
+				float shieldAlpha = shieldHp.x / 10 * alpha;
 				canvas.noFill();
-				canvas.stroke(colors.player[id],alpha);
+				canvas.stroke(colors.player[id],shieldAlpha);
 				float weight = map(shieldHp.x,0,shieldHp.y,1,3);
 				canvas.strokeWeight(weight);
 				canvas.rect(cen.x,cen.y,siz.x * offset,siz.y * offset);
