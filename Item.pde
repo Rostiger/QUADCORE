@@ -133,7 +133,7 @@ class Item {
 				else 							itemName = "BOOST"; 
 
 				pickedUp = false;
-				respawn = floor(random(200,1000));
+				respawn = floor(random(5,10));
 				powerUpSpawn01.trigger();
 			}
 		}
