@@ -48,7 +48,7 @@ class Hud {
 		if (showEndScreen) {
 		
 			noStroke();
-			fill(0,0,0,150);
+			fill(0,0,0,200);
 			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
 
 			pushMatrix();
