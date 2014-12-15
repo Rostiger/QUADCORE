@@ -1,4 +1,5 @@
 class Bullet extends GameObject {
+	
 	PVector dir, vel, hitVel;
 	int damage, wrapCounter;
 	float speed;

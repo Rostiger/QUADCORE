@@ -16,7 +16,7 @@ class Player extends GameObject {
 	float initialRespawnDuration, respawnDuration, respawnTime, respawnDurationMultiplier;
 	float invincibleDuration, invincibleTime;
 	float shootDelayDuration, shootDelayTime;
-	int trailCount, blink;
+	int trailCount;
 	float charge, chargeDelay, initChargeDelay;
 
 	//cursor
@@ -103,7 +103,6 @@ class Player extends GameObject {
 		invincibleDuration = 2;
 		invincibleTime = invincibleDuration;
 		trailCount = 100000;
-		blink = 0;
 
 		// multishot display variables
 		msMaxSize = siz.x / 6;
@@ -497,18 +496,6 @@ class Player extends GameObject {
 		// draw the actual text
 		canvas.text(currentItem,0,itemYPos);
 		canvas.popMatrix();
-	}
-
-	void blink(int _value1, int _value2, int _speed) {
-
-		if (blink > 0) blink -= 1 * dtInSeconds;
-		else {
-
-			if (alpha < _value2) alpha = _value2;
-			else alpha = _value1;
-
-			blink = _speed;
-		}
 	}
 
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
