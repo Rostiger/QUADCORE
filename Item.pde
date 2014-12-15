@@ -1,7 +1,7 @@
-class Item {
+class Item extends GameObject {
 
-	int id, ownedByPlayer, occupiedByPlayer, respawnTime;
-	float size, xPos, yPos, hSize, vSize, respawn, alphh;
+	int respawnTime;
+	float size, xPos, yPos, hSize, vSize, respawn;
 	boolean pickUp, pickedUp;
 	String[] items = new String[]{"BOOST","HEALTH","MULTISHOT","LOCKDOWN","SHIELD"};
 	String itemName;
@@ -34,7 +34,6 @@ class Item {
 		pickedUp = true;
 		pickUp = false;
 		itemName = items[floor(random(0,items.length))];
-		alphh = 255;
 
 		respawnTime = 0;
 
@@ -190,8 +189,8 @@ class Item {
 
 		// draw a pulsing rectangle in the background
 		canvas.pushMatrix();
-		alphh = (int)map(bScale,bScaleMax,bScaleMin,50,150);
-		canvas.fill(colors.item,alphh);
+		alpha = (int)map(bScale,bScaleMax,bScaleMin,50,150);
+		canvas.fill(colors.item,alpha);
 		if (bScale <= bScaleMin || bScale >= bScaleMax) bScaleSpeed *= -1;
 		bScale += bScaleSpeed;
 		canvas.scale(bScale);
@@ -204,13 +203,13 @@ class Item {
 			if (hud.visible) bxPos = -hSize / 2;
 		}
 		byPos = -vSize / 2;
-		// map the position of the little rectangle to the alphh value the trail should have
-		alphh = (int)map(bxPos,hSize/4,-hSize / 2,0,255);
+		// map the position of the little rectangle to the alpha value the trail should have
+		alpha = (int)map(bxPos,hSize/4,-hSize / 2,0,255);
 		// draw four rectangles with a little fake trail
 		for (int r=0;r<4;r++) {
 			// now rotate from the center
 			canvas.rotate(radians(90 * r));
-			canvas.stroke(colors.item, alphh);
+			canvas.stroke(colors.item, alpha);
 			canvas.strokeWeight(CELL_SIZE / 5);
 			// draw the trail
 			canvas.strokeCap(SQUARE);
@@ -237,9 +236,9 @@ class Item {
 		// let the scale move between it's min and max range
 		if (msScale <= msScaleMin || msScale >= msScaleMax) msSpeed *= -1;
 		msScale += msSpeed / 30;
-		// map the alphh to the current scale value
-		alphh = (int)map(msScale,msScaleMax,msScaleMin,50,150);
-		canvas.fill(colors.item,alphh);
+		// map the alpha to the current scale value
+		alpha = (int)map(msScale,msScaleMax,msScaleMin,50,150);
+		canvas.fill(colors.item,alpha);
 		// draw the rectangle
 		canvas.scale(msScale);
 		canvas.rect(-hSize / 2,-vSize / 2, hSize, vSize);
@@ -250,8 +249,8 @@ class Item {
 		if (msDistance < msDistanceMax) msDistance += abs(msSpeed);
 		else msDistance = 0;
 		
-		alphh = (int)map(msDistance,msDistanceMax,0,50,255);
-		canvas.fill(colors.item,alphh);
+		alpha = (int)map(msDistance,msDistanceMax,0,50,255);
+		canvas.fill(colors.item,alpha);
 		for (int xD=-1;xD<=1;xD++) {
 			for (int yD=-1;yD<=1;yD++) {
 			    if (xD == 0 && yD == 0) {}
@@ -266,7 +265,7 @@ class Item {
 		ldPos += ldSpeed;
 
 		float ldSize = size / 2.5;
-		float alpha = map(ldPos,ldPosMin,ldPosMax,10,250);
+		alpha = (int)map(ldPos,ldPosMin,ldPosMax,10,250);
 
 		canvas.rectMode(CENTER);
 		canvas.fill(colors.item,alpha);
