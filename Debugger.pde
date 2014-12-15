@@ -1,7 +1,5 @@
 class Debugger {
 
-	int minFPS;
-	int maxFPS;
 	float fontSize;
 
 	PVector consolePos;
@@ -16,9 +14,6 @@ class Debugger {
 	int selectedOption;
 
 	Debugger() {
-		minFPS = 60;
-		maxFPS = 0;
-
 		consoleSize = new PVector(VIEW_WIDTH / 2, WIN_HEIGHT);
 		consolePos = new PVector(canvasPos.x - consoleSize.x,0);
 		consoleAlpha = 0;
@@ -54,10 +49,6 @@ class Debugger {
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;
-
-		// get the min and max framerates
-		if (frameRate < minFPS && maxFPS > 40) minFPS = floor(frameRate);
-		if (frameRate > maxFPS) maxFPS = floor(frameRate);
 
 		// toggle console
 		if (gManager.debug) {
@@ -128,8 +119,6 @@ class Debugger {
 		// draw frame rate & other game variables
 		fill(255,255,255,consoleAlpha);
 		text("FPS " + (int)frameRate,textPos.x,textPos.y);
-		text("MIN " + minFPS,textPos.x + hSize - hSize / 2,textPos.y);
-		text("MAX " + maxFPS,textPos.x + hSize - hSize / 4,textPos.y);
 		text("CELLSIZE " + CELL_SIZE + " PX",textPos.x,textPos.y * 2);
 		text("VIEW SIZE " + VIEW_WIDTH + " PX",textPos.x,textPos.y * 3);
 		text("RESOLUTION " + floor(WIN_WIDTH) + " X " + floor(WIN_HEIGHT) + " PX",textPos.x,textPos.y * 4);
