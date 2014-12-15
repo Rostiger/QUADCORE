@@ -74,8 +74,8 @@ class Debugger {
 		}
 
 		// trigger invincibility and autoshoot in all players when turned on
-		if (gManager.players != null && (invincibility || autoShoot)) {
-			for (Player p : gManager.players) {
+		if (oManager.players != null && (invincibility || autoShoot)) {
+			for (Player p : oManager.players) {
 
 				if (invincibility) p.INVINCIBLE = true;
 				if (canShoot && !gManager.matchOver && p.ALIVE) {
@@ -130,7 +130,7 @@ class Debugger {
 
 		drawDivider(consolePos.x,textPos.y * gameStatsYPos,textIndent.x);
 
-		text("PLAYERS " + gManager.activePlayers,textPos.x,textPos.y * (gameStatsYPos+1));
+		text("PLAYERS " + oManager.activePlayers,textPos.x,textPos.y * (gameStatsYPos+1));
 		text("SOLIDS " + oManager.solids.size(),textPos.x,textPos.y * (gameStatsYPos+2));
 		text("NODES " + oManager.nodes.size(),textPos.x,textPos.y * (gameStatsYPos+3));
 		text("BULLETS " + oManager.bullets.size(),textPos.x,textPos.y * (gameStatsYPos+4));

@@ -19,11 +19,11 @@ AudioSample
 	lockDownStop01;
 
 GameManager gManager = new GameManager();
+ObjectManager oManager = new ObjectManager();
 Colors colors = new Colors();
 LevelParser levelParser = new LevelParser();
 Debugger debugger;
 Hud hud;
-ObjectManager oManager;
 Collision collision;
 
 PGraphics canvas;

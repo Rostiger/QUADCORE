@@ -81,7 +81,7 @@ class Item extends GameObject {
 			
 			draw();
 
-			for (Player p : gManager.players) {
+			for (Player p : oManager.players) {
 				
 				// if the player is dead or respawning, skip to the next player
 				if (!p.ALIVE) continue;

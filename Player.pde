@@ -1,7 +1,7 @@
 class Player extends GameObject {
 
 	//properties
-	PVector dir, speed, sizCore, shieldHp;
+	PVector startPos, dir, speed, sizCore, shieldHp;
 
 	int id, alpha;
 	float minCharge, maxCharge, drawScale, initialDrawScale;
@@ -42,13 +42,14 @@ class Player extends GameObject {
 
 	public Input input;
 	
-	Player(int _id) {
+	Player(int _id, PVector _startPos) {
 
 		id = _id;
 		input = new Input(id);
 
 		// set player variables
-		pos 		= new PVector( gManager.playerStartPos[id].x, gManager.playerStartPos[id].y );
+		startPos 	= new PVector( _startPos.x, _startPos.y );
+		pos 		= new PVector( startPos.x, startPos.y );
 		cen 		= new PVector( pos.x + siz.x / 2, pos.y + siz.x / 2);
 		sizCore		= new PVector( siz.x, siz.y );
 		cursorPos 	= new PVector( pos.x, pos.y );
@@ -112,6 +113,13 @@ class Player extends GameObject {
 	void update() {
 
 		input.update();
+		if (input.startPressed) {
+			if (gManager.matchOver) gManager.reset();
+			else {
+				//add pause functionality here!
+			}
+		}
+
 		updateVectors();
 
 		if (!KILLED) move();
@@ -149,7 +157,7 @@ class Player extends GameObject {
 				deaths++;
 				if (respawnDuration != 0) respawnDuration *= respawnDurationMultiplier;
 				else respawnDuration = 2;
-				gManager.activePlayers--;
+				oManager.activePlayers--;
 			}
 
 			// maintain the shield status
@@ -558,7 +566,7 @@ class Player extends GameObject {
 		boolean collisionRight = false;
 
 		//check for collisions with other players
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 
 			// only check for collisions when:
 			// the id is different from the players id
@@ -666,7 +674,7 @@ class Player extends GameObject {
 			// if the player was hit by a bullet
 			if (hit) {
 
-				Player p = gManager.players[b.id];				// get the id of the shooter
+				Player p = oManager.players[b.id];				// get the id of the shooter
 				
 				if (b.damage != 0) drawScale = 1.5;
 				screenShake.shake(1,0.2);
@@ -708,7 +716,7 @@ class Player extends GameObject {
 		hp.x = hp.y;
 		alpha = 255;
 		spawn01.trigger();
-		gManager.activePlayers++;
+		oManager.activePlayers++;
 		checkSpawnKill();
 	}
 
@@ -717,7 +725,7 @@ class Player extends GameObject {
 		boolean spawnKill = false;
 
 		//check for collisions with other players and kill them when spawning on top of them
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 			// skip own player id
 			if (id == p.id) continue;
 			// don't check when dead
@@ -749,7 +757,7 @@ class Player extends GameObject {
 		nodesLost = 0;
 		showItem = false;
 		if (gManager.gameOver) wins = 0;
-		pos.set(gManager.playerStartPos[id]);
+		pos.set(startPos);
 	}
 
 }

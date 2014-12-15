@@ -43,7 +43,7 @@ class Node extends GameObject {
 			// check if the node is captured by a player
 			if (!lockDown) {
 
-				for (Player p : gManager.players) {
+				for (Player p : oManager.players) {
 
 					// only check for players that are alive
 					if (!p.ALIVE) {
@@ -65,7 +65,7 @@ class Node extends GameObject {
 
 						//if the node was captured before, get the ID of the previous owner and subtract their node count
 						if (ownedByPlayer != 100) {
-							Player pl = gManager.players[ownedByPlayer];
+							Player pl = oManager.players[ownedByPlayer];
 							pl.nodesOwned--;
 							pl.nodesLost++;
 						}

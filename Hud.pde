@@ -71,9 +71,9 @@ class Hud {
 
 		} else {
 
-			for (int i=0; i<gManager.players.length; i++) {
+			for (int i=0; i<oManager.players.length; i++) {
 
-				Player player = gManager.players[i];
+				Player player = oManager.players[i];
 				
 				if (player.ALIVE) continue;
 				else {
@@ -137,9 +137,9 @@ class Hud {
 
 		int playerWithMostWins = checkMostWins();
 
-		for (int i=0; i<gManager.players.length; i++) {
+		for (int i=0; i<oManager.players.length; i++) {
 
-			Player player = gManager.players[i];
+			Player player = oManager.players[i];
 
 			// set the player name
 			switch (i) {
@@ -237,7 +237,7 @@ class Hud {
 		int mostItems = 100;
 		String text = "";
 
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 
 			// if the player is the winner, set the message and skip the rest of the loop
 			if (p.id == gManager.winnerID) {
@@ -284,7 +284,7 @@ class Hud {
 		int wins = 0;
 		int mostWins = 0;
 
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 			if (p.wins > wins) {
 				wins = p.wins;
 				mostWins = p.id;
