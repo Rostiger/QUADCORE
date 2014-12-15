@@ -2,12 +2,11 @@ class GameManager {
 	float prevMillis;
 
 	boolean debug = false;
+	boolean paused = false;
 	boolean gameOver = false;
 	boolean matchOver = false;
 	boolean canRestart = false;
 	boolean drawCheckers = false;
-
-	boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed;
 
 	int winnerID;
 	int prevLevelID;
@@ -23,7 +22,7 @@ class GameManager {
 	void reset() {
 		// make sure all game objects (except players) are removed
 		oManager.clearGameObjects();
-		
+
 		// pick a color scheme
 		colors.pickColorScheme("DARK_PURPLE");
 
@@ -71,34 +70,9 @@ class GameManager {
 		if (matchOver || drawCheckers) checkers.drawCheckers();
 
 		// update game objects
-		oManager.update();
+		if (!paused) oManager.update();
 
 		// update HUD
 		if (hud != null) hud.update();
-	}
-
-	void keyPressed() {
-		oManager.keyPressed();
-
-		if (debug) {
-			if (keyCode == UP) upPressed = true;
-			if (keyCode == DOWN) downPressed = true;
-			if (keyCode == LEFT) leftPressed = true;
-			if (keyCode == RIGHT) rightPressed = true;
-			if (keyCode == ENTER) enterPressed = true;
-		}
-	}
-
-	void keyReleased() {
-		oManager.keyReleased();
-
-		//toggle debug mode
-		if (key == '~' || key == '`' || key == '^') {
-			if (!debug) debug = true;
-			else debug = false;
-		}
-
-		//reset game
-		if (!debug && keyCode == ENTER) reset();
 	}
 }

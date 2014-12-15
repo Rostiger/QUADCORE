@@ -10,8 +10,10 @@ class Debugger {
 	boolean debugDraw, invincibility, autoShoot;
 	int autoShootInterval, autoShootCount;
 
-	DebugOption[] debugOptions = new DebugOption[4];
+	DebugOption[] debugOptions = new DebugOption[5];
 	int selectedOption;
+
+	Input input = new Input(0);
 
 	Debugger() {
 		consoleSize = new PVector(VIEW_WIDTH / 2, WIN_HEIGHT);
@@ -30,6 +32,7 @@ class Debugger {
 		debugOptions[1] = new DebugOption("INVINCIBILITY",false);
 		debugOptions[2] = new DebugOption("AUTO FIRE",false);
 		debugOptions[3] = new DebugOption("SHOW CHECKERS",false);
+		debugOptions[4] = new DebugOption("PAUSE",false);
 
 		selectedOption = 0;
 	}
@@ -46,6 +49,9 @@ class Debugger {
 
 		if (debugOptions[3].active) gManager.drawCheckers = true;
 		else gManager.drawCheckers = false;
+
+		if (debugOptions[4].active) gManager.paused = true;
+		else gManager.paused = false;
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;
@@ -87,16 +93,16 @@ class Debugger {
 		}
 
 		// set the debug cursor position on input
-		if (gManager.upPressed) {
+		if (input.upPressed) {
 			if (selectedOption > 0) selectedOption--;
 			else selectedOption = debugOptions.length - 1;
-			gManager.upPressed = false;
+			input.upPressed = false;
 		}
 
-		if (gManager.downPressed) {
+		if (input.downPressed) {
 			if (selectedOption < debugOptions.length - 1) selectedOption++;
 			else selectedOption = 0;
-			gManager.downPressed = false;
+			input.downPressed = false;
 		}
 	}
 
@@ -154,11 +160,11 @@ class Debugger {
 				name = "> " + debugOptions[i].name;
 
 				// turn the option on or off
-				if (gManager.leftPressed || gManager.rightPressed) {
+				if (input.leftPressed || input.rightPressed) {
 
 					debugOptions[i].active = !debugOptions[i].active;
-					gManager.leftPressed = false;
-					gManager.rightPressed = false;
+					input.leftPressed = false;
+					input.rightPressed = false;
 
 				}
 			}
@@ -218,6 +224,23 @@ class Debugger {
 		for (int x = 0; x <= hSize; x += fontSize / 2) {
 			text("-",xPos + x, yPos);
 		}		
+	}
+
+	void keyPressed() {
+		input.keyPressed();
+	}
+
+	void keyReleased() {
+		input.keyReleased();
+		
+		//toggle debug mode
+		if (key == '~' || key == '`' || key == '^') {
+			if (!gManager.debug) gManager.debug = true;
+			else gManager.debug = false;
+		}
+
+		//reset game
+		if (!gManager.debug && keyCode == ENTER) gManager.reset();
 	}
 
 }

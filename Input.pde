@@ -28,7 +28,6 @@ class Input {
 			else hasGamePad = false;
 
 		}
-
 	}
 
 	void update() {
@@ -51,7 +50,6 @@ class Input {
 	}
 
 	void getGamePadInput() {
-
 		if (gPads.get(id).getSlider("LS_Y").getValue() < -0.2 || gPads.get(id).getButton("DP_UP").pressed()) {
 
 			if (TOP_VIEW) {
@@ -149,10 +147,9 @@ class Input {
 		shootPressed = gPads.get(id).getButton("BT_A").pressed();
 		useItemPressed = gPads.get(id).getButton("BT_B").pressed();
 		startPressed = gPads.get(id).getButton("BT_C").pressed();
-
 	}
 
-	void checkKeyPress() {
+	void keyPressed() {
 		switch(id) {
 			case 0:
 				if (keyCode == UP) upPressed = true;
@@ -161,6 +158,7 @@ class Input {
 				if (keyCode == RIGHT) rightPressed = true;
 				if (key == '/') shootPressed = true;
 				if (keyCode == SHIFT) useItemPressed = true;
+				if (key == ' ') startPressed = true;
 			break;
 			case 1:
 				if (key == 'w') upPressed = true;
@@ -189,7 +187,7 @@ class Input {
 		}
 	}
 
-	void checkKeyRelease() {
+	void keyReleased() {
 
 		switch(id) {
 			case 0:

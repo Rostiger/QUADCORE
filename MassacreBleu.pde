@@ -156,11 +156,14 @@ void draw() {
 }
 
 void keyPressed() {
-	gManager.keyPressed();
+	debugger.keyPressed();
+	if (!gManager.debug) oManager.keyPressed();
+	
 }
 
 void keyReleased() {
-	gManager.keyReleased();
+	debugger.keyReleased();
+	if (!gManager.debug) oManager.keyReleased();
 }
 
 boolean sketchFullScreen() {

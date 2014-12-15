@@ -112,7 +112,8 @@ class Player extends GameObject {
 
 	void update() {
 
-		input.update();
+		if (!gManager.debug) input.update();
+		
 		if (input.startPressed) {
 			if (gManager.matchOver) gManager.reset();
 			else {
