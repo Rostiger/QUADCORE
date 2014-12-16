@@ -3,6 +3,7 @@ class GameManager {
 
 	boolean debug = false;
 	boolean paused = false;
+	boolean wasPaused = false;
 	boolean gameOver = false;
 	boolean matchOver = false;
 	boolean canRestart = false;
@@ -13,6 +14,8 @@ class GameManager {
 	int nextLevelID;
 
 	Checkers checkers = new Checkers();
+	Pause pauseMenu = new Pause();
+	PImage pauseBG;
 
 	GameManager() {
 	    prevLevelID = 100;
@@ -70,9 +73,25 @@ class GameManager {
 		if (matchOver || drawCheckers) checkers.drawCheckers();
 
 		// update game objects
-		if (!paused) oManager.update();
+		if (!wasPaused) {
 
-		// update HUD
-		if (hud != null) hud.update();
+			oManager.update();
+			hud.update();
+			
+			// store a background image when paused
+			if (paused) {
+				pauseBG = get();
+				wasPaused = true;
+			}
+
+		} else pause();
 	}
+
+	void pause() {
+		image(pauseBG, 0, 0);
+		pauseMenu.update();
+		if (!paused) wasPaused = false;
+	}
+
+
 }

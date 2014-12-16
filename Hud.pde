@@ -43,8 +43,7 @@ class Hud {
 		draw();
 	}
 
-	void draw() {
-		
+	void draw() {	
 		if (showEndScreen) {
 		
 			noStroke();
@@ -117,7 +116,6 @@ class Hud {
 	}
 
 	void showEndScreen() {
-
 		// set up text variables
 		String playerName = "";
 		String subText = "";
@@ -193,8 +191,7 @@ class Hud {
 
 				rect(pos.x,pos.y,boxSize,boxSize);
 
-			}
-		
+			}		
 		}
 
 		translate(WIN_WIDTH / 2, WIN_HEIGHT /2);
@@ -221,7 +218,6 @@ class Hud {
 		// draw footer
 		textSize(ARENA_BORDER);
 		text(footerText,0,VIEW_HEIGHT / 2 + ARENA_BORDER / 2);
-
 	}
 
 	String getDescription(int _playerID) {
@@ -280,7 +276,6 @@ class Hud {
 	}
 
 	int checkMostWins() {
-		
 		int wins = 0;
 		int mostWins = 0;
 

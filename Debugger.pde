@@ -125,9 +125,9 @@ class Debugger {
 		// draw frame rate & other game variables
 		fill(255,255,255,consoleAlpha);
 		text("FPS " + (int)frameRate,textPos.x,textPos.y);
-		text("CELLSIZE " + CELL_SIZE + " PX",textPos.x,textPos.y * 2);
-		text("VIEW SIZE " + VIEW_WIDTH + " PX",textPos.x,textPos.y * 3);
-		text("RESOLUTION " + floor(WIN_WIDTH) + " X " + floor(WIN_HEIGHT) + " PX",textPos.x,textPos.y * 4);
+		text("WIN SIZE " + WIN_WIDTH + " X " + WIN_HEIGHT,textPos.x,textPos.y * 2);
+		text("VIEW SIZE " + VIEW_WIDTH,textPos.x,textPos.y * 3);
+		text("CELLSIZE " + CELL_SIZE,textPos.x,textPos.y * 4);
 		text("FONTSIZE " + fontSize,textPos.x,textPos.y * 5);
 
 		float gameStatsYPos = 7;

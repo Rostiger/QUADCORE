@@ -113,12 +113,10 @@ class Player extends GameObject {
 	void update() {
 
 		if (!gManager.debug) input.update();
-		
+
 		if (input.startPressed) {
 			if (gManager.matchOver) gManager.reset();
-			else {
-				//add pause functionality here!
-			}
+			else gManager.paused = true;
 		}
 
 		updateVectors();
