@@ -32,8 +32,8 @@ PFont debugFont;
 
 ArrayList < PImage > levelList;  
 
-float WIN_WIDTH;			// stores the width of the display resolution
-float WIN_HEIGHT;			// stores the height of the display resolution		
+int WIN_WIDTH;			// stores the width of the display resolution
+int WIN_HEIGHT;			// stores the height of the display resolution		
 float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
 float VIEW_WIDTH;			// width of the game area
 float VIEW_HEIGHT;			// height of the game area
@@ -52,9 +52,8 @@ Shake screenShake = new Shake();
 void setup() {
 
 	// get the width of the current display and set the height so it's a 4:3 ratio
-	WIN_HEIGHT = 768 * WIN_SCALE;	
-	WIN_WIDTH = ceil(WIN_HEIGHT * 1.333);
-	// WIN_WIDTH = WIN_HEIGHT;
+	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
+	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
 
 	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
@@ -63,7 +62,7 @@ void setup() {
 	println("WIN_HEIGHT: "+WIN_HEIGHT);
 
 	// setup the window and renderer
-	size((int)WIN_WIDTH,(int)WIN_HEIGHT,P2D);
+	size(WIN_WIDTH,WIN_HEIGHT,P2D);
 	frameRate(30);
 
 	// GAMEPAD
@@ -158,7 +157,6 @@ void draw() {
 void keyPressed() {
 	debugger.keyPressed();
 	if (!gManager.debug) oManager.keyPressed();
-	
 }
 
 void keyReleased() {
