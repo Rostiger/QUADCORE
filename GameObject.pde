@@ -1,8 +1,8 @@
 class GameObject {
 	
-	int id, alpha, blinkTime;
+	int id, alpha;
 	PVector siz, pos, cen, hp;
-	float drawScale, repeatTime;
+	float drawScale, repeatTime, blinkTime;
 	boolean destroy, repeat;
 
 	GameObject() {
@@ -18,12 +18,12 @@ class GameObject {
 
 	}
 
-	void blink(int _alpha1, int _alpha2, int _speed) {
+	void blink(int _alpha1, int _alpha2, float _speed) {
 		// switches between two alpha values with a given speed
 		if (blinkTime > 0) blinkTime -= 1 * dtInSeconds;
 		else {
 
-			if (alpha < _alpha2) alpha = _alpha2;
+			if (alpha != _alpha2) alpha = _alpha2;
 			else alpha = _alpha1;
 
 			blinkTime = _speed;
