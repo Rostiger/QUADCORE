@@ -98,7 +98,7 @@ class Player extends GameObject {
 		respawnDuration = initialRespawnDuration;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
-		shootDelayDuration = 4.5;
+		shootDelayDuration = 1.5;
 		shootDelayTime = 0;
 
 		invincibleDuration = 2;
@@ -114,9 +114,9 @@ class Player extends GameObject {
 
 		if (!gManager.debug) input.update();
 
-		if (input.startPressed) {
+		if (input.startReleased) {
 			if (gManager.matchOver) gManager.reset();
-			else gManager.paused = true;
+			else gManager.paused = !gManager.paused;
 		}
 
 		updateVectors();
@@ -132,9 +132,7 @@ class Player extends GameObject {
 
 			//if the player is invincible, count down the timer and start blinking
 			if (INVINCIBLE) {
-
 				if (invincibleTime > 0) {
-
 					blink(0,255,3);
 					invincibleTime -= 1 * dtInSeconds;
 				

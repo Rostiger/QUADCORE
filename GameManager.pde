@@ -10,11 +10,12 @@ class GameManager {
 	boolean drawCheckers = false;
 
 	int winnerID;
+	int lastStartPressId;
 	int prevLevelID;
 	int nextLevelID;
 
 	Checkers checkers = new Checkers();
-	Pause pauseMenu = new Pause();
+	PauseMenu pauseMenu = new PauseMenu();
 	PImage pauseBG;
 
 	GameManager() {
@@ -84,14 +85,10 @@ class GameManager {
 				wasPaused = true;
 			}
 
-		} else pause();
+		} else {
+			image( pauseBG, 0, 0 );
+			pauseMenu.update();
+			if (!paused) wasPaused = false;
+		}
 	}
-
-	void pause() {
-		image(pauseBG, 0, 0);
-		pauseMenu.update();
-		if (!paused) wasPaused = false;
-	}
-
-
 }

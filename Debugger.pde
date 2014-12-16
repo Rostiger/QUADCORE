@@ -49,9 +49,6 @@ class Debugger {
 
 		if (debugOptions[3].active) gManager.drawCheckers = true;
 		else gManager.drawCheckers = false;
-
-		if (debugOptions[4].active) gManager.paused = true;
-		else gManager.paused = false;
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;

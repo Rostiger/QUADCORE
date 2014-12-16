@@ -1,10 +1,10 @@
 class Input {
 	
-	public int id;
-	public boolean upPressed, downPressed, leftPressed, rightPressed, shootPressed, useItemPressed, startPressed;
-	public boolean shootWasPressed, useItemWasPressed;
-	public boolean shootReleased, useItemReleased;
-	public boolean hasGamePad;
+	int id;
+	boolean upPressed, downPressed, leftPressed, rightPressed, shootPressed, useItemPressed, startPressed;
+	boolean shootWasPressed, useItemWasPressed, startWasPressed;
+	boolean shootReleased, useItemReleased, startReleased;
+	boolean hasGamePad;
 
 	Input(int _id) {
 		id = _id;
@@ -15,11 +15,13 @@ class Input {
 		rightPressed		=	false;
 		shootPressed		=	false;
 		useItemPressed		=	false;
+		startPressed		=	false;
 		shootWasPressed		=	false;
 		useItemWasPressed	=	false;
-		startPressed		=	false;
+		startWasPressed 	= 	false;
 		shootReleased		=	false;
 		useItemReleased		=	false;
+		startReleased		= 	false;
 
 		// check if player is using a game pad
 		for (int i=0;i<gPads.size();i++) {
@@ -32,6 +34,9 @@ class Input {
 
 	void update() {
 		if (hasGamePad) getGamePadInput();
+
+		// get the id of the player that last pressed the start button
+		if (startReleased) gManager.lastStartPressId = id;
 
 		// take care of button presses/states
 		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
@@ -47,6 +52,14 @@ class Input {
 			else useItemReleased = false;
 			useItemWasPressed = false;
 		}		
+
+		if (startPressed) { startWasPressed = true; startReleased = false; }
+		else {
+			if (startWasPressed) startReleased = true;
+			else startReleased = false;
+			startWasPressed = false;
+		}		
+
 	}
 
 	void getGamePadInput() {
@@ -167,6 +180,7 @@ class Input {
 				if (key == 'd') rightPressed = true;
 				if (key == 'f') shootPressed = true;
 				if (key == 'r') useItemPressed = true;
+				if (key == 'q') startPressed = true;
 			break;
 			case 2:
 				if (key == 'i') upPressed = true;
@@ -175,6 +189,7 @@ class Input {
 				if (key == 'l') rightPressed = true;
 				if (key == 'h') shootPressed = true;
 				if (key == 'y') useItemPressed = true;
+				if (key == 'o') startPressed = true;
 			break;
 			case 3:
 				if (key == '8') upPressed = true;
@@ -182,7 +197,8 @@ class Input {
 				if (key == '4') leftPressed = true;
 				if (key == '6') rightPressed = true;
 				if (key == '0') shootPressed = true;
-				if (key == 'g') useItemPressed = true;
+				if (key == '1') useItemPressed = true;
+				if (key == '2') startPressed = true;
 			break;
 		}
 	}
@@ -197,6 +213,7 @@ class Input {
 				if (keyCode == RIGHT) rightPressed = false;
 				if (key == '/') shootPressed = false;
 				if (keyCode == SHIFT) useItemPressed = false;
+				if (key == ' ') startPressed = false;
 			break;
 			case 1:
 				if (key == 'w') upPressed = false;
@@ -205,6 +222,7 @@ class Input {
 				if (key == 'd') rightPressed = false;
 				if (key == 'f') shootPressed = false;
 				if (key == 'r') useItemPressed = false;
+				if (key == 'q') startPressed = false;
 			break;
 			case 2:
 				if (key == 'i') upPressed = false;
@@ -213,6 +231,7 @@ class Input {
 				if (key == 'l') rightPressed = false;
 				if (key == 'h') shootPressed = false;
 				if (key == 'y') useItemPressed = false;
+				if (key == 'o') startPressed = false;
 			break;
 			case 3:
 				if (key == '8') upPressed = false;
@@ -220,7 +239,8 @@ class Input {
 				if (key == '4') leftPressed = false;
 				if (key == '6') rightPressed = false;
 				if (key == '0') shootPressed = false;
-				if (key == 'g') useItemPressed = false;
+				if (key == '1') useItemPressed = false;
+				if (key == '2') startPressed = false;
 			break;
 		}
 	}
