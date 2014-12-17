@@ -360,7 +360,6 @@ class Player extends GameObject {
 	}
 
 	void drawBoostIndicator() {
-
 		// setup some temp variables for later adjustment
 		float x1 = 0, y1 = 0, x2 = 0, y2 = 0, x3 = 0, y3 = 0;
 		float lineDistance = siz.x / 8; 
@@ -398,7 +397,6 @@ class Player extends GameObject {
 			if (dir.x != 0 && dir.y != 0) canvas.line(x2,y2,x3,y3);
 		}
 		canvas.popMatrix();
-
 	}
 
 	void drawMultiShotIndicator() {

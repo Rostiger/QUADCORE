@@ -46,7 +46,6 @@ class Debugger {
 		println("Window scale: " + scaleInPercent + "%");
 		println("Gamepads found: " + gPads.size());
 		println("-------------------------------");
-
 	}
 
 	void update() {

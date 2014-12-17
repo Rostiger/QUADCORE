@@ -3,6 +3,7 @@ class Hud {
 	int blink;
 	float rotation, statsDistance, easeControl, waitTime, waitDuration;
 	boolean visible, showEndScreen;
+	String[] playerName = new String[]{"RED","YELLOW","GREEN","BLUE"};
 
 	Hud() {
 		blink = 0;
@@ -117,7 +118,6 @@ class Hud {
 
 	void showEndScreen() {
 		// set up text variables
-		String playerName = "";
 		String subText = "";
 		float fontSizeL = FONT_SIZE * 3;
 		float fontSizeS = FONT_SIZE;
@@ -139,14 +139,6 @@ class Hud {
 
 			Player player = oManager.players[i];
 
-			// set the player name
-			switch (i) {
-				case 0: playerName = "RED"; break;
-				case 1: playerName = "YELLOW"; break;
-				case 2: playerName = "GREEN"; break;
-				case 3: playerName = "BLUE"; break;
-			}
-
 			lineNumberCount++;
 
 			if (i == playerWithMostWins) {
@@ -164,7 +156,7 @@ class Hud {
 			rect(barPos.x, barPos.y, barSizeS.x, barSizeS.y);
 			
 			// check the players stats and choose a fitting text
-			subText = playerName + " " + getDescription(i);
+			subText = playerName[i] + " " + getDescription(i);
 
 			// set the subtext position
 			PVector subTextPos	= new PVector(barPos.x + barSizeS.x + barSizeL.x / 16, barPos.y + barSizeL.y - (fontSizeS / 3));

@@ -1,5 +1,5 @@
 class LevelParser {
-
+	
 	LevelParser() {}
 
 	void parseLevel(int _levelID) {
@@ -14,9 +14,9 @@ class LevelParser {
 		int nodeID = 0;
 		int itemID = 0;
 
-		// step through the level file - for each vertical line...
+		// step through the level file - for each horizontal line...
 		for (int x=0; x<width; x++) {
-			// step through all horizontal characters
+			// step through all vertical characters
 			for (int y=0; y<height; y++) {
 				// store the character that is encountered
 				color pixelColor = level.get(x,y);

@@ -20,7 +20,7 @@ class GameManager {
 	GameManager() {
 	    prevLevelID = 100;
     	prevMillis = millis();
-	}
+   	}
 
 	void reset() {
 		// make sure all game objects (except players) are removed
@@ -36,12 +36,15 @@ class GameManager {
 
 		// determine level proportions depending on the amount of characters in the first line of the level file
 		float border =  ARENA_BORDER * 2;
-		CELL_SIZE = floor((WIN_HEIGHT - border) / (levelList.get(nextLevelID).width));
-		VIEW_WIDTH = ceil(CELL_SIZE * levelList.get(nextLevelID).width);
-		VIEW_HEIGHT = ceil(CELL_SIZE * levelList.get(nextLevelID).width);
+		CELL_SIZE = ceil((WIN_HEIGHT - border) / (levelList.get(nextLevelID).width));
+		VIEW_WIDTH = floor(CELL_SIZE * levelList.get(nextLevelID).width);
+		VIEW_HEIGHT = floor(CELL_SIZE * levelList.get(nextLevelID).width);
 
 		// parse the level
 		levelParser.parseLevel(nextLevelID);
+
+		// print some level info
+		println("Level No." + nextLevelID + " | " + "Cellsize: " + CELL_SIZE + " | " + "Levelsize: " + levelList.get(nextLevelID).width + " x " + levelList.get(nextLevelID).width );
 
 		prevLevelID = nextLevelID;
 
