@@ -109,7 +109,7 @@ class Node extends GameObject {
 
 			// warn when the node is about to unlock
 			if (lockDownTime < lockDownDuration * 0.2) {
-				blink(0,255,10);
+				alpha = blink(0,255,10);
 				repeat(10);
 				if (repeat)lockDownStopAlert01.trigger();
 			} 

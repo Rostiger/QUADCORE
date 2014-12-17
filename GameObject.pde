@@ -18,16 +18,18 @@ class GameObject {
 
 	}
 
-	void blink(int _alpha1, int _alpha2, float _speed) {
+	int blink(int _alpha1, int _alpha2, float _speed) {
 		// switches between two alpha values with a given speed
-		if (blinkTime > 0) blinkTime -= 1 * dtInSeconds;
+		if (blinkTime > 0) blinkTime -= 1;
 		else {
 
 			if (alpha != _alpha2) alpha = _alpha2;
-			else alpha = _alpha1;
+			else alpha = _alpha1;			
 
 			blinkTime = _speed;
 		}
+
+		return alpha;
 	}
 
 	boolean repeat(float _interval) {
