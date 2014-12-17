@@ -4,7 +4,7 @@ class Player extends GameObject {
 	PVector startPos, dir, speed, sizCore, shieldHp;
 
 	int id, alpha;
-	float minCharge, maxCharge, drawScale, initialDrawScale;
+	float minCharge, maxCharge, drawScale, initialDrawScale, drawScaleShield;
 	boolean ALIVE, KILLED, INVINCIBLE;
 	boolean hit, knockBack, hasMultiShot, hasShield, hasLockDown;
 	
@@ -75,6 +75,7 @@ class Player extends GameObject {
 		alpha = 255;
 		initialDrawScale = 5;
 		drawScale = initialDrawScale;
+		drawScaleShield = 1;
 
 		//stats
 		bullets = 0;
@@ -111,7 +112,7 @@ class Player extends GameObject {
 	}
 
 	void update() {
-
+		// update the inputs if the debug console isn't open
 		if (!gManager.debug) input.update();
 
 		if (input.startReleased) {
@@ -130,14 +131,16 @@ class Player extends GameObject {
 			if (drawScale > 1) drawScale *= 0.8;
 			else drawScale = 1;
 
+			if (drawScaleShield > 1) drawScaleShield *= 0.8;
+			else drawScaleShield = 1;
+
 			//if the player is invincible, count down the timer and start blinking
 			if (INVINCIBLE) {
 				if (invincibleTime > 0) {
 					alpha = blink(0,255,3);
 					invincibleTime -= 1 * dtInSeconds;
-				
-				} else {
 
+				} else {
 					if (!debugger.invincibility) INVINCIBLE = false;
 					invincibleTime = invincibleDuration;
 					alpha = 255;
@@ -281,7 +284,7 @@ class Player extends GameObject {
 				canvas.stroke(colors.player[id],shieldAlpha);
 				float weight = map(shieldHp.x,0,shieldHp.y,1,3);
 				canvas.strokeWeight(weight);
-				canvas.rect(cen.x,cen.y,siz.x * offset,siz.y * offset);
+				canvas.rect(cen.x,cen.y,siz.x * offset * drawScaleShield,siz.y * offset * drawScaleShield);
 			}
 
 			// draw the player cores
@@ -673,15 +676,20 @@ class Player extends GameObject {
 
 				Player p = oManager.players[b.id];				// get the id of the shooter
 				
-				if (b.damage != 0) drawScale = 1.5;
-				screenShake.shake(1,0.2);
+				if (b.damage != 0) {
+					screenShake.shake(1,0.2);
 
-				if (!hasShield) hp.x -= b.damage;					// if the target has no shield, subtract hp.x
-				else shieldHp.x -= b.damage;						// subtract damage from shield
+					if (!hasShield) {
+						drawScale = 1.5;
+						hp.x -= b.damage;
+					} else {
+						drawScaleShield = 1.5;
+						shieldHp.x -= b.damage;
+					}
+				}
 				
 				b.damage = 0;									// set the bullet damage to 0 (used to determine if it still can do damage)
-				
-				if (hp.x <= 0) p.kills++;							// add the shooters killcount if the bullet killed the target
+				if (hp.x <= 0) p.kills++;						// add the shooters killcount if the bullet killed the target
 			}
 
 		}
