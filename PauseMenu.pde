@@ -1,6 +1,7 @@
 class PauseMenu {
 	
 	int alpha;
+	int pausedById;
 
 	Input input;
 
@@ -11,12 +12,17 @@ class PauseMenu {
 
 	void update() {
 		draw();
-		if (input.startReleased) gManager.paused = false;
+		input.update();
+
+		if (input.startReleased) {
+			gManager.wasPaused = false;
+			gManager.paused = false;
+		}
 	}
 
 	void draw() {
 			noStroke();
-			fill(0,0,0,200);
+			fill(0,0,0,100);
 			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
 
 			pushMatrix();
@@ -24,19 +30,24 @@ class PauseMenu {
 			translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 
 			//rotate the canvas to the winner
-			switch (gManager.lastStartPressId) {
+			switch (pausedById) {
 				case 0: rotate(radians(180)); break;
 				case 1: rotate(radians(0)); break;
 				case 2: rotate(radians(270)); break;
 				case 3: rotate(radians(90)); break;
 			}
 
-			fill(colors.player[gManager.lastStartPressId],alpha);
+			fill(colors.player[pausedById],alpha);
 			textAlign(CENTER);
-			textSize(FONT_SIZE);
-			text("GAME PAUSED",0,100);
+			textSize(FONT_SIZE * 3);
+			text("GAME PAUSED",0,-100);
 
 			popMatrix();
+	}
+
+	void setId(int _id) {
+		input = new Input(_id);
+		pausedById = _id;
 	}
 
 }

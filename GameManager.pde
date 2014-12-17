@@ -15,7 +15,6 @@ class GameManager {
 	int nextLevelID;
 
 	Checkers checkers = new Checkers();
-	PauseMenu pauseMenu = new PauseMenu();
 	PImage pauseBG;
 
 	GameManager() {
@@ -83,12 +82,13 @@ class GameManager {
 			if (paused) {
 				pauseBG = get();
 				wasPaused = true;
+				pauseMenu.setId(lastStartPressId);
 			}
 
 		} else {
 			image( pauseBG, 0, 0 );
 			pauseMenu.update();
-			if (!paused) wasPaused = false;
 		}
 	}
+
 }

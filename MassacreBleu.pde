@@ -22,6 +22,7 @@ GameManager gManager = new GameManager();
 ObjectManager oManager = new ObjectManager();
 Colors colors = new Colors();
 LevelParser levelParser = new LevelParser();
+PauseMenu pauseMenu = new PauseMenu();
 Debugger debugger;
 Hud hud;
 Collision collision;
@@ -58,8 +59,6 @@ void setup() {
 	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
 	ARENA_BORDER = WIN_WIDTH * 0.04;
-	println("WIN_WIDTH: "+WIN_WIDTH);
-	println("WIN_HEIGHT: "+WIN_HEIGHT);
 
 	// setup the window and renderer
 	size(WIN_WIDTH,WIN_HEIGHT,P2D);
@@ -157,11 +156,13 @@ void draw() {
 void keyPressed() {
 	debugger.keyPressed();
 	if (!gManager.debug) oManager.keyPressed();
+	if (gManager.wasPaused) pauseMenu.input.keyPressed();
 }
 
 void keyReleased() {
 	debugger.keyReleased();
 	if (!gManager.debug) oManager.keyReleased();
+	if (gManager.wasPaused) pauseMenu.input.keyReleased();
 }
 
 boolean sketchFullScreen() {

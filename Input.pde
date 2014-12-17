@@ -35,9 +35,6 @@ class Input {
 	void update() {
 		if (hasGamePad) getGamePadInput();
 
-		// get the id of the player that last pressed the start button
-		if (startReleased) gManager.lastStartPressId = id;
-
 		// take care of button presses/states
 		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
 		else {
@@ -59,6 +56,8 @@ class Input {
 			else startReleased = false;
 			startWasPressed = false;
 		}		
+		// get the id of the player that last pressed the start button
+		if (startReleased) gManager.lastStartPressId = id;
 
 	}
 
