@@ -118,9 +118,8 @@ class Player extends GameObject {
 
 		}
 
-		// if (input.hasGamePad) println("Player " + id + " uses a game pad.");
-		// else  println("Player " + id + " doesn't use a game pad.");
-		// if (id == 3) println("-------------------------------");
+		if (input.hasGamePad) println("Player " + id + " uses a game pad.");
+		else  println("Player " + id + " doesn't use a game pad.");
 	}
 
 	void reset() {

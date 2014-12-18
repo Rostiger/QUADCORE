@@ -168,13 +168,13 @@ void draw() {
 void keyPressed() {
 	debugger.keyPressed();
 	if (!gManager.debug) oManager.keyPressed();
-	if (gManager.wasPaused) pauseMenu.input.keyPressed();
+	if (menu.active) menu.input.keyPressed();
 }
 
 void keyReleased() {
 	debugger.keyReleased();
 	if (!gManager.debug) oManager.keyReleased();
-	if (gManager.wasPaused) pauseMenu.input.keyReleased();
+	if (menu.active) menu.input.keyReleased();
 }
 
 boolean sketchFullScreen() {

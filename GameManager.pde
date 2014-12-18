@@ -3,19 +3,15 @@ class GameManager {
 
 	boolean debug = false;
 	boolean paused = false;
-	boolean wasPaused = false;
 	boolean gameOver = false;
 	boolean matchOver = false;
-	boolean canRestart = false;
 	boolean drawCheckers = false;
 
 	int winnerID;
-	int lastStartPressId;
 	int prevLevelID;
 	int nextLevelID;
 
 	Checkers checkers = new Checkers();
-	PImage pauseBG;
 
 	GameManager() {
 	    prevLevelID = 100;
@@ -42,7 +38,6 @@ class GameManager {
 
 		// parse the level
 		levelParser.parseLevel(nextLevelID);
-		// for (int i = 0; i<4; i++) oManager.players
 
 		// print some level info
 		println("Level No." + nextLevelID + " | " + "Cellsize: " + CELL_SIZE + " | " + "Levelsize: " + levelList.get(nextLevelID).width + " x " + levelList.get(nextLevelID).width );
@@ -77,21 +72,18 @@ class GameManager {
 		if (matchOver || drawCheckers) checkers.drawCheckers();
 
 		// update game objects
-		if (!wasPaused) {
+		if (menu.active) menu.update();
+		else {
 
 			oManager.update();
 			hud.update();
 			
 			// store a background image when paused
 			if (paused) {
-				pauseBG = get();
-				wasPaused = true;
-				pauseMenu.setId(lastStartPressId);
+				menu.bg = get();
+				menu.active = true;
 			}
 
-		} else {
-			image( pauseBG, 0, 0 );
-			pauseMenu.update();
 		}
 	}
 

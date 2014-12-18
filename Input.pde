@@ -51,7 +51,7 @@ class Input {
 			startWasPressed = false;
 		}		
 		// get the id of the player that last pressed the start button
-		if (startReleased) gManager.lastStartPressId = id;
+		if (startReleased) menu.setUser(id);
 
 	}
 
