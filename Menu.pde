@@ -38,7 +38,7 @@ class Menu {
 				lg1Siz.y = lg1Ratio * lg1Siz.x;
 				lg1Pos.y = -WIN_HEIGHT / 2;
 			}
-			lg1Scl = pulser.pulse( 1.0, 1.05, 0.4, 2.0 );
+			lg1Scl = pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
 			lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
 		}
 

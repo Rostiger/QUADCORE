@@ -8,7 +8,7 @@ class Pulser {
 		reversed = false;
 	}
 
-	float pulse(float _startValue, float _targetValue, float _duration, float _easingFactor) {
+	float pulse(float _startValue, float _targetValue, float _duration, float _easingFactor, boolean _reverse) {
 		//pulses stuff
 		float diff = _targetValue - _startValue;
 
@@ -18,7 +18,7 @@ class Pulser {
 
 			easeControl += dtInSeconds / _duration * diff;
 
-		} else if(easeControl > _startValue) {
+		} else if(easeControl > _startValue && _reverse) {
 
 			reversed = true;
 			easeControl -= dtInSeconds / _duration * diff;
