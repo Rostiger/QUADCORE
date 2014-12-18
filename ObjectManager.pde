@@ -38,7 +38,6 @@ class ObjectManager {
 		}
 	}
 
-
 	void clearGameObjects() {
 		bullets.clear();
 		solids.clear();
@@ -47,9 +46,11 @@ class ObjectManager {
 	}
 
 	void addPlayer(int _id, PVector _startPos) {
-		// adds an inactive players
-		Player p = new Player(_id, _startPos);
-		players[_id] = p;
+		// adds an inactive players - only if there isn't a player stored at the current position
+		if (players[_id] == null) {
+			Player p = new Player(_id, _startPos);
+			players[_id] = p;
+		} else players[_id].startPos = _startPos;
 	}
 
 	void resetPlayers() {

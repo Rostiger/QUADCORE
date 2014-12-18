@@ -23,17 +23,11 @@ class Input {
 		useItemReleased		=	false;
 		startReleased		= 	false;
 
-		// check if player is using a game pad
-		for (int i=0;i<gPads.size();i++) {
-
-			if (i == id) hasGamePad = true;
-			else hasGamePad = false;
-
-		}
 	}
 
 	void update() {
 		if (hasGamePad) getGamePadInput();
+
 
 		// take care of button presses/states
 		if (shootPressed) { shootWasPressed = true; shootReleased = false; }

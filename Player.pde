@@ -108,7 +108,44 @@ class Player extends GameObject {
 
 		// multishot display variables
 		msMaxSize = siz.x / 6;
-		msIndicatorSize = msMaxSize;	
+		msIndicatorSize = msMaxSize;
+
+		// check if player is using a game pad
+		for ( int i = 0; i < gPads.size(); i++ ) {
+
+			if (i == id) input.hasGamePad = true;
+			else input.hasGamePad = false;
+
+		}
+
+		// if (input.hasGamePad) println("Player " + id + " uses a game pad.");
+		// else  println("Player " + id + " doesn't use a game pad.");
+		// if (id == 3) println("-------------------------------");
+	}
+
+	void reset() {
+		// reset is called at every start of the level
+		ALIVE = false;
+		KILLED = false;
+		siz = new PVector( CELL_SIZE, CELL_SIZE );
+		respawnDuration = initialRespawnDuration;
+		respawnTime = respawnDuration;
+		spawnedOnce = false;
+		charge = minCharge;
+		hasBoost = false;
+		hasMultiShot = false;
+		hasLockDown = false;
+		shieldHp.x = 0;
+		kills = 0;
+		deaths = 0;
+		items = 0;
+		shots = 0;
+		nodesOwned = 0;
+		nodesCaptured = 0;
+		nodesLost = 0;
+		showItem = false;
+		if (gManager.gameOver) wins = 0;
+		pos.set(startPos);
 	}
 
 	void update() {
@@ -737,30 +774,6 @@ class Player extends GameObject {
  			}
  			if (spawnKill) p.hp.x -= p.hp.x;
 		}
-	}
-
-	void reset() {
-		ALIVE = false;
-		KILLED = false;
-		siz = new PVector( CELL_SIZE, CELL_SIZE );
-		respawnDuration = initialRespawnDuration;
-		respawnTime = respawnDuration;
-		spawnedOnce = false;
-		charge = minCharge;
-		hasBoost = false;
-		hasMultiShot = false;
-		hasLockDown = false;
-		shieldHp.x = 0;
-		kills = 0;
-		deaths = 0;
-		items = 0;
-		shots = 0;
-		nodesOwned = 0;
-		nodesCaptured = 0;
-		nodesLost = 0;
-		showItem = false;
-		if (gManager.gameOver) wins = 0;
-		pos.set(startPos);
 	}
 
 }

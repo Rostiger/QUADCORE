@@ -35,17 +35,6 @@ class Debugger {
 		debugOptions[4] = new DebugOption("PAUSE",false);
 
 		selectedOption = 0;
-
-		println("Loading...");
-		println("-------------------------------");
-		println("Game started.");
-		println("-------------------------------");
-		println("Display size: " + displayWidth + " x " + displayHeight);
-		println("Window size: " + WIN_WIDTH + " x " + WIN_HEIGHT);
-		float scaleInPercent = WIN_SCALE * 100;
-		println("Window scale: " + scaleInPercent + "%");
-		println("Gamepads found: " + gPads.size());
-		println("-------------------------------");
 	}
 
 	void update() {

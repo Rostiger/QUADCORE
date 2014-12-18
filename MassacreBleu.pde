@@ -80,6 +80,18 @@ void setup() {
 		else device.close();
 	}
 
+	// print some debug output
+	println("Loading...");
+	println("-------------------------------");
+	println("Game started.");
+	println("-------------------------------");
+	println("Display size: " + displayWidth + " x " + displayHeight);
+	println("Window size: " + WIN_WIDTH + " x " + WIN_HEIGHT);
+	float scaleInPercent = WIN_SCALE * 100;
+	println("Window scale: " + scaleInPercent + "%");
+	println("Gamepads found: " + gPads.size());
+	println("-------------------------------");
+
 	// LEVELS
 	// go through the levels folder and store the found files in an array list
 	File f = new File(dataPath("levels/")); 

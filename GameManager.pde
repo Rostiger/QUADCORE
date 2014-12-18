@@ -42,6 +42,7 @@ class GameManager {
 
 		// parse the level
 		levelParser.parseLevel(nextLevelID);
+		// for (int i = 0; i<4; i++) oManager.players
 
 		// print some level info
 		println("Level No." + nextLevelID + " | " + "Cellsize: " + CELL_SIZE + " | " + "Levelsize: " + levelList.get(nextLevelID).width + " x " + levelList.get(nextLevelID).width );
