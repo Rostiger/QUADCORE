@@ -11,8 +11,6 @@ class GameManager {
 	int prevLevelID;
 	int nextLevelID;
 
-	Checkers checkers = new Checkers();
-
 	GameManager() {
 	    prevLevelID = 100;
     	prevMillis = millis();
@@ -55,6 +53,7 @@ class GameManager {
 	    // these come after parsing the level, because they are dependend on the CELL_SIZE value
 		hud = new Hud();
 		collision = new Collision();
+		checkers = new Checkers();
 	}
 
 	void update() {
@@ -69,7 +68,7 @@ class GameManager {
 		dtInSeconds = lastFrameDuration / 1000;
 
 		// draw a checkerboard for the winner
-		if (matchOver || drawCheckers) checkers.drawCheckers();
+		if (matchOver || debugger.drawCheckers) checkers.drawCheckers( colors.player[winnerID], 90, 40, 14, 2 );
 
 		// update game objects
 		if (menu.active) menu.update();

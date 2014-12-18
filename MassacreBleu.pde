@@ -26,6 +26,7 @@ Menu menu = new Menu();
 Debugger debugger;
 Hud hud;
 Collision collision;
+Checkers checkers;
 
 PGraphics canvas;
 PFont font;

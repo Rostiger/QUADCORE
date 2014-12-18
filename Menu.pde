@@ -34,7 +34,7 @@ class Menu {
 	void update() {
 		// handle the pause menu
 		if (gManager.paused) {
-
+			
 			if (input.shootReleased) {
 				switch( selectedItem ) {
 					case 0: // CONTINUE 					
@@ -92,11 +92,12 @@ class Menu {
 		noStroke();
 
 		if (gManager.paused) {
-			fill(0,0,0,100);
 			image( bg, 0, 0 );
-		} else fill(0,0,0,255);
-
-		rect(0,0,WIN_WIDTH,WIN_HEIGHT);
+			checkers.drawCheckers( #FFFFFF, 90, 40, 14, 2 );
+		} else {
+			fill(0,0,0,255);
+			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
+		}
 
 		pushMatrix();
 
