@@ -1,0 +1,6 @@
+class Pulser {
+	
+	Pulser() {
+	
+	}
+}

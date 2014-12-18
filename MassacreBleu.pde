@@ -22,7 +22,7 @@ GameManager gManager = new GameManager();
 ObjectManager oManager = new ObjectManager();
 Colors colors = new Colors();
 LevelParser levelParser = new LevelParser();
-PauseMenu pauseMenu = new PauseMenu();
+Menu menu = new Menu();
 Debugger debugger;
 Hud hud;
 Collision collision;
@@ -31,7 +31,8 @@ PGraphics canvas;
 PFont font;
 PFont debugFont;
 
-ArrayList < PImage > levelList;  
+ArrayList < PImage > levelList; 
+PImage  lg1, lg2;
 
 int WIN_WIDTH;			// stores the width of the display resolution
 int WIN_HEIGHT;			// stores the height of the display resolution		
@@ -135,6 +136,9 @@ void setup() {
 	//load the font files
 	font = createFont("DS-DIGIB.TTF",128,false);
 	debugFont = createFont("victor-pixel.ttf",32,false);
+
+	// load textures
+	lg1 = loadImage("logo_zamSpielen.png");
 
 	// reset the game
 	gManager.reset();
