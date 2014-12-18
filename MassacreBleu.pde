@@ -138,7 +138,7 @@ void setup() {
 	debugFont = createFont("victor-pixel.ttf",32,false);
 
 	// load textures
-	lg1 = loadImage("logo_zamSpielen.png");
+	lg1 = loadImage("images/logo_zamSpielen.png");
 
 	// reset the game
 	gManager.reset();
@@ -172,26 +172,17 @@ void draw() {
 void keyPressed() {
 	debugger.keyPressed();
 	if (!gManager.debug) oManager.keyPressed();
-	if (menu.active) menu.input.keyPressed();
+	if (menu.active) menu.keyPressed();
 }
 
 void keyReleased() {
 	debugger.keyReleased();
 	if (!gManager.debug) oManager.keyReleased();
-	if (menu.active) menu.input.keyReleased();
+	if (menu.active) menu.keyReleased();
 }
 
 boolean sketchFullScreen() {
 	// sets the sketch to true fullscreen
 	if (WIN_SCALE == 1.0) return true;
 	else return false;
-}
-
-float ease(float _currentValue, float _startValue, float _targetValue, float _easingFactor) {
-	// this function eases a _startValue towards a _targetValue using an _easingFactor
-	// if pulse is true, the function reverses back to the _startValue using the _easingFactor as well
-
-	float normedValue = norm(_currentValue, _startValue, _targetValue);
-	float easedValue = pow(normedValue, _easingFactor);
-	return map(easedValue,0,1,_startValue,_targetValue);
 }

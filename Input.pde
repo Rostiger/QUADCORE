@@ -51,8 +51,7 @@ class Input {
 			startWasPressed = false;
 		}		
 		// get the id of the player that last pressed the start button
-		if (startReleased) menu.setUser(id);
-
+		if (startReleased && !menu.active) menu.setUser(id);
 	}
 
 	void getGamePadInput() {

@@ -3,16 +3,15 @@ class Node extends GameObject {
 	int ownedByPlayer, occupiedByPlayer;
 	color nodeColor1, nodeColor2;
 	boolean pulseNode = false;
-	boolean reverse = false;
-	float easeControl;
 
 	//lockdown
 	boolean lockDown, wasLockedDown;
 	int lockDownTime, lockDownDuration;
 	float lockDownCounter, lockDownScale, lockDownScaleSpeed;
 
-	Node(int _id, float _xPos, float _yPos) {
+	Pulser pulser = new Pulser();
 
+	Node(int _id, float _xPos, float _yPos) {
 		id 	= _id;
 		pos = new PVector(_xPos, _yPos);
 		cen = new PVector( pos.x + siz.x / 2, pos.y + siz.x / 2);
@@ -29,9 +28,6 @@ class Node extends GameObject {
 		lockDownTime= lockDownDuration;
 		lockDownScale = 1.5;
 		lockDownScaleSpeed = 0.1;
-
-		easeControl = -1;
-
 	}
 
 	void update(){
@@ -39,6 +35,8 @@ class Node extends GameObject {
 		draw();
 		
 		if (!gManager.matchOver) {
+
+			if (drawScale <= 1 && pulseNode) pulseNode = false;
 
 			// check if the node is captured by a player
 			if (!lockDown) {
@@ -123,7 +121,7 @@ class Node extends GameObject {
 			}
 		}
 
-		if (pulseNode) pulseNode();
+		if (pulseNode) drawScale = pulser.pulse( 1.0, 1.5, 0.1, 0.5);
 
 	}
 
@@ -141,28 +139,6 @@ class Node extends GameObject {
 		canvas.popMatrix();
 		
 		if (lockDown) lockNode();
-	}
-
-	void pulseNode() {
-		//pulses the node
-		float startValue = 1;
-		float targetValue = 1.5;
-		float duration = 0.1;
-		float diff = targetValue - startValue;
-
-		if (easeControl == -1) easeControl = startValue;
-
-		if (easeControl < targetValue && !reverse) {
-			drawScale = ease(easeControl,startValue,targetValue,0.5);
-			easeControl += dtInSeconds / duration * diff;
-		} else if(easeControl > startValue) {
-			reverse = true;
-			drawScale = ease(easeControl,targetValue,startValue,0.5);
-			easeControl -= dtInSeconds / duration * diff;
-		} else {
-			pulseNode = false;
-			reverse = false;
-		}
 	}
 
 	void lockNode() {
