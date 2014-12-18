@@ -152,7 +152,7 @@ class Player extends GameObject {
 		if (!gManager.debug) input.update();
 
 		if (input.startReleased) {
-			if (gManager.matchOver) gManager.reset();
+			if (gManager.matchOver && hud.showEndScreen) gManager.reset();
 			else gManager.paused = !gManager.paused;
 		}
 
