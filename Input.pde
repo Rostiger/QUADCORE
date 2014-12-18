@@ -1,55 +1,33 @@
 class Input {
 	
 	int id;
-	boolean upPressed, downPressed, leftPressed, rightPressed, shootPressed, useItemPressed, startPressed;
-	boolean shootWasPressed, useItemWasPressed, startWasPressed;
-	boolean shootReleased, useItemReleased, startReleased;
 	boolean hasGamePad;
+
+	boolean upPressed, upWasPressed, upReleased;
+	boolean downPressed, downWasPressed, downReleased;
+	boolean leftPressed, leftWasPressed, leftReleased;
+	boolean rightPressed, rightWasPressed, rightReleased;
+	boolean shootPressed, shootWasPressed, shootReleased;
+	boolean useItemPressed, useItemWasPressed, useItemReleased;
+	boolean startPressed, startWasPressed, startReleased;
 
 	Input(int _id) {
 		id = _id;
 
-		upPressed			=	false;
-		downPressed			=	false;
-		leftPressed			=	false;
-		rightPressed		=	false;
-		shootPressed		=	false;
-		useItemPressed		=	false;
-		startPressed		=	false;
-		shootWasPressed		=	false;
-		useItemWasPressed	=	false;
-		startWasPressed 	= 	false;
-		shootReleased		=	false;
-		useItemReleased		=	false;
-		startReleased		= 	false;
-
+		upPressed		=	false; upWasPressed 	 	= false; upReleased 		= false;
+		downPressed		=	false; downWasPressed 	 	= false; downReleased 		= false;
+		leftPressed		=	false; leftWasPressed 		= false; leftReleased 		= false;
+		rightPressed	=	false; rightWasPressed 		= false; rightReleased 		= false;
+		shootPressed	=	false; shootWasPressed 		= false; shootReleased 		= false;
+		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
+		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
 	}
 
 	void update() {
 		if (hasGamePad) getGamePadInput();
 
+		manageInputStates();
 
-		// take care of button presses/states
-		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
-		else {
-			if (shootWasPressed) shootReleased = true;
-			else shootReleased = false;
-			shootWasPressed = false;
-		}
-
-		if (useItemPressed) { useItemWasPressed = true; useItemReleased = false; }
-		else {
-			if (useItemWasPressed) useItemReleased = true;
-			else useItemReleased = false;
-			useItemWasPressed = false;
-		}		
-
-		if (startPressed) { startWasPressed = true; startReleased = false; }
-		else {
-			if (startWasPressed) startReleased = true;
-			else startReleased = false;
-			startWasPressed = false;
-		}		
 		// get the id of the player that last pressed the start button
 		if (startReleased && !menu.active) menu.setUser(id);
 	}
@@ -152,6 +130,58 @@ class Input {
 		shootPressed = gPads.get(id).getButton("BT_A").pressed();
 		useItemPressed = gPads.get(id).getButton("BT_B").pressed();
 		startPressed = gPads.get(id).getButton("BT_C").pressed();
+	}
+
+	void manageInputStates() {
+		// take care of button presses/states
+		if (upPressed) { upWasPressed = true; upReleased = false; }
+		else {
+			if (upWasPressed) upReleased = true;
+			else upReleased = false;
+			upWasPressed = false;
+		}
+
+		if (downPressed) { downWasPressed = true; downReleased = false; }
+		else {
+			if (downWasPressed) downReleased = true;
+			else downReleased = false;
+			downWasPressed = false;
+		}
+
+		if (leftPressed) { leftWasPressed = true; leftReleased = false; }
+		else {
+			if (leftWasPressed) leftReleased = true;
+			else leftReleased = false;
+			leftWasPressed = false;
+		}
+
+		if (rightPressed) { rightWasPressed = true; rightReleased = false; }
+		else {
+			if (rightWasPressed) rightReleased = true;
+			else rightReleased = false;
+			rightWasPressed = false;
+		}
+
+		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
+		else {
+			if (shootWasPressed) shootReleased = true;
+			else shootReleased = false;
+			shootWasPressed = false;
+		}
+
+		if (useItemPressed) { useItemWasPressed = true; useItemReleased = false; }
+		else {
+			if (useItemWasPressed) useItemReleased = true;
+			else useItemReleased = false;
+			useItemWasPressed = false;
+		}
+		
+		if (startPressed) { startWasPressed = true; startReleased = false; }
+		else {
+			if (startWasPressed) startReleased = true;
+			else startReleased = false;
+			startWasPressed = false;
+		}
 	}
 
 	void keyPressed() {
