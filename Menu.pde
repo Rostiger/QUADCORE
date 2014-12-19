@@ -15,6 +15,7 @@ class Menu {
 	String[] pauseMenu = new String[]{"CONTINUE","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","HOW TO PLAY","ABOUT"};
 	int selectedItem;
+	float itemFontScale;
 
 	// pulser
 	Pulser pulser = new Pulser();
@@ -24,11 +25,19 @@ class Menu {
 		userId = 1;
 		setUser(userId);
 
-		lg1Pos = new PVector();
-		lg1Scl = 1;	
-		lg1Rot = 0;
+		if (lg1 != null) {
+			lg1Pos = new PVector( 0, -WIN_HEIGHT / 2 );
+			lg1Siz = new PVector( lg1.width, lg1.height );	
+
+			lg1Ratio = lg1Siz.y / lg1Siz.x;
+			lg1Siz.x = WIN_WIDTH * 0.5;
+			lg1Siz.y = lg1Ratio * lg1Siz.x;
+			lg1Scl = 1;	
+			lg1Rot = 0;
+		}
 
 		selectedItem = 0;
+		itemFontScale = 1;
 	}
 
 	void update() {
@@ -50,7 +59,6 @@ class Menu {
 					case 2: // HOW TO PLAY
 					break;
 					case 3: // EXIT
-						active = true;
 						gManager.paused = false;
 						selectedItem = 0;
 					break;
@@ -60,13 +68,6 @@ class Menu {
 		} else {
 		// handle the main menu
 			// set the size and position of the zamSpielen logo
-			if (lg1Siz == null) {
-				lg1Siz = new PVector( lg1.width, lg1.height);	
-				lg1Ratio = lg1Siz.y / lg1Siz.x;
-				lg1Siz.x = WIN_WIDTH * 0.5;
-				lg1Siz.y = lg1Ratio * lg1Siz.x;
-				lg1Pos.y = -WIN_HEIGHT / 2;
-			}
 			lg1Scl = pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
 			lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
 
@@ -120,6 +121,7 @@ class Menu {
 	}
 
 	void drawMenu(String[] _menuName) {
+
 		if (input.downReleased) {
 			if (selectedItem < _menuName.length - 1) selectedItem++;
 			else selectedItem = 0;
@@ -130,15 +132,25 @@ class Menu {
 			else selectedItem = _menuName.length - 1;
 		}
 
+		PVector pos = new PVector( 0, 0 );
+
 		// draws the contents of a spcified menu array
 		for (int i = 0; i < _menuName.length; i++) {
+
+			pos.y = FONT_SIZE * i;
+
 			if (i == selectedItem) {
 				alpha = 255;
-			} else alpha = 100;
-			fill(colors.player[userId],alpha);
-			text( _menuName[i], 0, FONT_SIZE * i );
-		}
+				itemFontScale = 1.3;
+			} else {
+				alpha = 100;
+				itemFontScale = 1;
+			}
 
+			textSize(FONT_SIZE * itemFontScale);
+			fill(colors.player[userId],alpha);
+			text( _menuName[i], pos.x, pos.y );
+		}
 	}
 
 	void drawMainMenu() {
@@ -155,13 +167,15 @@ class Menu {
 		textAlign(CENTER);
 		textSize(FONT_SIZE * 3);
 		text("GAME PAUSED",0,-100);
-		textSize(FONT_SIZE);
 		drawMenu(pauseMenu);
 	}
 
 	void setUser(int _id) {
 		input = new Input(_id);
 		userId = _id;
+	}
+
+	void setupLogo(PImage _logo) {
 	}
 
 	void keyPressed()  { input.keyPressed(); }

@@ -91,7 +91,10 @@ void setup() {
 	println("Window size: " + WIN_WIDTH + " x " + WIN_HEIGHT);
 	float scaleInPercent = WIN_SCALE * 100;
 	println("Window scale: " + scaleInPercent + "%");
-	println("Gamepads found: " + gPads.size() + ", " + gPads);
+	println("Gamepads found: " + gPads.size());
+	if (gPads.size() > 0) {
+		for (int i = 0; i < gPads.size(); i++ ) println(i + ": " + gPads.get(i));
+	}
 	println("-------------------------------");
 
 	// LEVELS
