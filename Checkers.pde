@@ -9,7 +9,7 @@ class Checkers {
 		alpha2 = 0;
 	}
 
-	void drawCheckers(int _color, int _alpha1, int _alpha2, int _switchSpeed, int _scale) {
+	void drawCheckers(int _color, int _alpha1, int _alpha2, int _switchSpeed, PVector _size, float _scale) {
 		
 		if (switchTime > 0) switchTime--;
 		else {
@@ -22,22 +22,32 @@ class Checkers {
 
 			switchTime = _switchSpeed;
 		}
+
+		rectMode(CORNER);
+		noStroke();
+
+		PVector numCells = new PVector( floor(VIEW_WIDTH / (_size.x * _scale)), floor(VIEW_HEIGHT / (_size.y * _scale)) );
+		PVector cellSize = new PVector( VIEW_WIDTH / numCells.x, VIEW_HEIGHT / numCells.y);
+
+		boolean toggleAlphaOnLineBreak = numCells.x%2 != 0;
+
+		alpha = alpha2;
+
+		for (float y = 0; y < numCells.y; y++) {
 		
-		for (float x = canvasPos.x; x < VIEW_WIDTH; x += CELL_SIZE * _scale) {
+			for (float x = 0; x < numCells.x; x++) {
 
-			if (alpha == alpha2) alpha = alpha1;
-			else alpha = alpha2;
+				float xPos = canvasPos.x + cellSize.x * x;
+				float yPos = canvasPos.y + cellSize.y * y;
 
-			for (float y = canvasPos.y; y < VIEW_HEIGHT; y += CELL_SIZE * _scale) {
+				if (x != 0 || toggleAlphaOnLineBreak) {
+					alpha = alpha == alpha2 ? alpha1 : alpha2;
+				}
 
-				if (alpha == alpha2) alpha = alpha1;
-				else alpha = alpha2;
-
-				rectMode(CORNER);
 				fill(_color,alpha);
-				noStroke();
-				rect(x,y,CELL_SIZE * _scale,CELL_SIZE * _scale);
+				rect(xPos,yPos,cellSize.x,cellSize.x);
 			}
 		}
+
 	}
 }

@@ -1,6 +1,6 @@
 class Menu {
 	
-	boolean active = false;
+	boolean active = true;
 	int alpha;
 	int userId;
 	PImage bg;
@@ -50,6 +50,7 @@ class Menu {
 					case 2: // HOW TO PLAY
 					break;
 					case 3: // EXIT
+						active = true;
 						gManager.paused = false;
 						selectedItem = 0;
 					break;
@@ -88,12 +89,13 @@ class Menu {
 	}
 
 	void draw() {
-		// draw the background image
+		// draw the background
 		noStroke();
-
 		if (gManager.paused) {
+			fill(0,0,0,180);
 			image( bg, 0, 0 );
-			checkers.drawCheckers( #FFFFFF, 90, 40, 14, 2 );
+			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
+			checkers.drawCheckers( #000000, 90, 40, 14, new PVector( CELL_SIZE, CELL_SIZE ), 2 );
 		} else {
 			fill(0,0,0,255);
 			rect(0,0,WIN_WIDTH,WIN_HEIGHT);

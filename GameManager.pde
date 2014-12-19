@@ -67,12 +67,12 @@ class GameManager {
 		// save dt in seconds
 		dtInSeconds = lastFrameDuration / 1000;
 
-		// draw a checkerboard for the winner
-		if (matchOver || debugger.drawCheckers) checkers.drawCheckers( colors.player[winnerID], 90, 40, 14, 2 );
-
 		// update game objects
 		if (menu.active) menu.update();
 		else {
+		
+			// draw a checkerboard for the winner
+			if (matchOver || debugger.drawCheckers) checkers.drawCheckers( colors.player[winnerID], 90, 40, 14, new PVector( CELL_SIZE, CELL_SIZE ), 2 );
 
 			oManager.update();
 			hud.update();
