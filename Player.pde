@@ -40,7 +40,7 @@ class Player extends GameObject {
 	float itemYPos, itemShowDuration;
 	String currentItem, prevItem = "";
 
-	public Input input;
+	Input input;
 	
 	Player(int _id, PVector _startPos) {
 
@@ -109,17 +109,9 @@ class Player extends GameObject {
 		// multishot display variables
 		msMaxSize = siz.x / 6;
 		msIndicatorSize = msMaxSize;
-
-		// check if player is using a game pad
-		for ( int i = 0; i < gPads.size(); i++ ) {
-
-			if (i == id) input.hasGamePad = true;
-			else input.hasGamePad = false;
-
-		}
-
-		if (input.hasGamePad) println("Player " + id + " uses a game pad.");
-		else  println("Player " + id + " doesn't use a game pad.");
+		
+		// if (input.hasGamePad) println("Player " + id + " uses a game pad.");
+		// else  println("Player " + id + " doesn't use a game pad.");
 	}
 
 	void reset() {

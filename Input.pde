@@ -21,6 +21,15 @@ class Input {
 		shootPressed	=	false; shootWasPressed 		= false; shootReleased 		= false;
 		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
 		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
+
+		// check if player is using a game pad
+		for ( int i = 0; i < gPads.size(); i++ ) {
+			if (i == id) {
+				hasGamePad = true;
+				break;
+			} else hasGamePad = false;
+		}
+
 	}
 
 	void update() {

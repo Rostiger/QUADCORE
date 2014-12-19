@@ -22,7 +22,7 @@ GameManager gManager = new GameManager();
 ObjectManager oManager = new ObjectManager();
 Colors colors = new Colors();
 LevelParser levelParser = new LevelParser();
-Menu menu = new Menu();
+Menu menu;
 Debugger debugger;
 Hud hud;
 Collision collision;
@@ -91,7 +91,7 @@ void setup() {
 	println("Window size: " + WIN_WIDTH + " x " + WIN_HEIGHT);
 	float scaleInPercent = WIN_SCALE * 100;
 	println("Window scale: " + scaleInPercent + "%");
-	println("Gamepads found: " + gPads.size());
+	println("Gamepads found: " + gPads.size() + ", " + gPads);
 	println("-------------------------------");
 
 	// LEVELS
@@ -140,7 +140,8 @@ void setup() {
 
 	// load textures
 	lg1 = loadImage("images/logo_zamSpielen.png");
-
+	menu = new Menu();
+	
 	// reset the game
 	gManager.reset();
 

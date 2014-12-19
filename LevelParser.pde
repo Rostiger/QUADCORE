@@ -15,9 +15,9 @@ class LevelParser {
 		int itemID = 0;
 
 		// step through the level file - for each horizontal line...
-		for (int x=0; x<width; x++) {
+		for (int y=0; y<height; y++) {
 			// step through all vertical characters
-			for (int y=0; y<height; y++) {
+			for (int x=0; x<width; x++) {
 				// store the character that is encountered
 				color pixelColor = level.get(x,y);
 				// store an in-game xPos and a yPos for each character

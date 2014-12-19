@@ -1,6 +1,6 @@
 class Menu {
 	
-	boolean active = true;
+	boolean active = false;
 	int alpha;
 	int userId;
 	PImage bg;
