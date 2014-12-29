@@ -18,6 +18,8 @@ class ObjectManager {
 
 	void update() {
         destroyBullet();
+        // draw a checkerboard for the winner
+		if (!menu.active && (gManager.matchOver || debugger.drawCheckers)) checkers.drawCheckers( colors.player[gManager.winnerID], 90, 40, 14, new PVector( CELL_SIZE, CELL_SIZE ), 2 );
 		updateGameObjects();
 	}
 

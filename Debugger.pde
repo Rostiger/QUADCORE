@@ -240,5 +240,4 @@ class Debugger {
 		//reset game
 		if (!gManager.debug && keyCode == ENTER) gManager.reset();
 	}
-
 }

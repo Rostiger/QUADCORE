@@ -110,8 +110,8 @@ class Player extends GameObject {
 		msMaxSize = siz.x / 6;
 		msIndicatorSize = msMaxSize;
 		
-		// if (input.hasGamePad) println("Player " + id + " uses a game pad.");
-		// else  println("Player " + id + " doesn't use a game pad.");
+		if (input.hasGamePad) println("Player " + id + " uses a game pad.");
+		else  println("Player " + id + " doesn't use a game pad.");
 	}
 
 	void reset() {
@@ -665,7 +665,6 @@ class Player extends GameObject {
 
 	void shoot() {
 		//shoot bullets!
-
 		if (input.shootReleased) {
 			
 		    oManager.addBullet(id,cursorPos,dir,charge);
@@ -766,5 +765,4 @@ class Player extends GameObject {
  			if (spawnKill) p.hp.x -= p.hp.x;
 		}
 	}
-
 }

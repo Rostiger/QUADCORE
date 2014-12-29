@@ -5,7 +5,6 @@ class GameManager {
 	boolean paused = false;
 	boolean gameOver = false;
 	boolean matchOver = false;
-	boolean drawCheckers = false;
 
 	int winnerID;
 	int prevLevelID;
@@ -71,9 +70,6 @@ class GameManager {
 		if (menu.active) menu.update();
 		else {
 		
-			// draw a checkerboard for the winner
-			if (matchOver || debugger.drawCheckers) checkers.drawCheckers( colors.player[winnerID], 90, 40, 14, new PVector( CELL_SIZE, CELL_SIZE ), 2 );
-
 			oManager.update();
 			hud.update();
 			
