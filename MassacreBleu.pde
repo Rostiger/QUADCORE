@@ -36,15 +36,15 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 1.0;		// window scale factor - set to 1 for non-windows fullscreen
-float VIEW_WIDTH;			// width of the game area
-float VIEW_HEIGHT;			// height of the game area
+float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+int VIEW_WIDTH;			// width of the game area
+int VIEW_HEIGHT;			// height of the game area
 float CELL_SIZE;			// size of a single tile
 float dt;					// this value is initialised and update in the GameManager() class
 float dtInSeconds;
 float FONT_SIZE;
 float DEBUG_FONT_SIZE;
-float ARENA_BORDER;
+int ARENA_BORDER;
 boolean TOP_VIEW = false;		// playing on the hansG?
 PVector canvasPos;				// canvas position
 color bgColor = #000000;
@@ -64,7 +64,7 @@ void setup() {
 
 	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
-	ARENA_BORDER = WIN_WIDTH * 0.04;
+	ARENA_BORDER = floor(WIN_WIDTH * 0.04);
 
 	// setup the window and renderer
 	size(WIN_WIDTH,WIN_HEIGHT,P2D);
@@ -112,7 +112,7 @@ void draw() {
 		screenShake.update();
 		canvasPos.add(screenShake.offset);
 	}
-
+	imageMode(CORNER);
   	image( canvas, canvasPos.x, canvasPos.y	);
 	
 	canvas.beginDraw();
@@ -143,12 +143,7 @@ void postProcessing() {
 	pass2.shader(blur);  
 	pass2.image(pass1, 0, 0);
 	pass2.endDraw();
-
-	src = pass2.get();
- // 	overlay.set("destSampler", dst);
-	// overlay.set("srcSampler", src);
-	// shader(overlay);
- 	image(src, 0, 0);
+ 	image(pass2, 0, 0);
 }
 
 void keyPressed() {
