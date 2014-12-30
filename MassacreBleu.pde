@@ -36,7 +36,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 1.0;		// window scale factor - set to 1 for non-windows fullscreen
 float VIEW_WIDTH;			// width of the game area
 float VIEW_HEIGHT;			// height of the game area
 float CELL_SIZE;			// size of a single tile
@@ -52,7 +52,7 @@ color bgColor = #000000;
 Shake screenShake = new Shake();
 
 //post processing variables
-PShader blur, overlay;
+PShader blur;
 PImage dst, src;
 PGraphics pass1, pass2;
 
@@ -80,6 +80,8 @@ void setup() {
 	menu = new Menu();
 	
 	// reset the game
+	VIEW_WIDTH = WIN_HEIGHT - ARENA_BORDER * 2;
+	VIEW_HEIGHT = WIN_HEIGHT - ARENA_BORDER * 2;
 	gManager.reset();
 
 	// set up a canvas to draw onto
@@ -99,12 +101,6 @@ void setup() {
 
 	pass2 = createGraphics(width, height, P2D);
 	pass2.noSmooth();
- 	
- 	overlay = loadShader("overlay.glsl");
-	overlay.set("destSize", width, height);
-	overlay.set("destRect", 0, 0, width, height);  
-	overlay.set("srcSize", width, height);  
-	overlay.set("srcRect", 0, 0, width, height);
 }
 
 void draw() {

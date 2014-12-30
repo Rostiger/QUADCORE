@@ -28,10 +28,7 @@ class GameManager {
 		while (nextLevelID == prevLevelID) nextLevelID = (int)random(0,levelList.size());
 
 		// determine level proportions depending on the amount of characters in the first line of the level file
-		float border =  ARENA_BORDER * 2;
-		CELL_SIZE = ceil((WIN_HEIGHT - border) / (levelList.get(nextLevelID).width));
-		VIEW_WIDTH = floor(CELL_SIZE * levelList.get(nextLevelID).width);
-		VIEW_HEIGHT = floor(CELL_SIZE * levelList.get(nextLevelID).width);
+		CELL_SIZE = VIEW_HEIGHT / (levelList.get(nextLevelID).height);
 
 		// parse the level
 		levelParser.parseLevel(nextLevelID);
