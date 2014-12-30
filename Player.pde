@@ -677,9 +677,9 @@ class Player extends GameObject {
 		
 		} else if (input.shootWasPressed) {
 
-			if (chargeDelay > 0) chargeDelay -= 1 * dtInSeconds;
+			if (chargeDelay > 0) chargeDelay--;
 			else {
-				if (charge < maxCharge) charge += 0.7;
+				if (charge < maxCharge) charge++;
 				else charge = maxCharge;
 			}
 		
