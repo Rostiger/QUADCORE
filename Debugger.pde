@@ -124,7 +124,7 @@ class Debugger {
 		fill(255,255,255,consoleAlpha);
 		text("FPS " + (int)frameRate,textPos.x,textPos.y);
 		text("WIN SIZE " + WIN_WIDTH + " X " + WIN_HEIGHT,textPos.x,textPos.y * 2);
-		text("VIEW SIZE " + VIEW_WIDTH,textPos.x,textPos.y * 3);
+		text("VIEW SIZE " + VIEW_WIDTH + " X " + VIEW_HEIGHT,textPos.x,textPos.y * 3);
 		text("CELLSIZE " + CELL_SIZE,textPos.x,textPos.y * 4);
 		text("FONTSIZE " + fontSize,textPos.x,textPos.y * 5);
 
