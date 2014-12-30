@@ -1,6 +1,7 @@
 class Menu {
 	
 	boolean active = true;
+	boolean tutorial = false;
 	int alpha;
 	int userId;
 	PImage bg;
@@ -57,6 +58,7 @@ class Menu {
 						gManager.reset();
 					break;
 					case 2: // HOW TO PLAY
+						tutorial = true;
 					break;
 					case 3: // EXIT
 						gManager.paused = false;
@@ -78,6 +80,9 @@ class Menu {
 						active = false; 
 						gManager.reset();
 					break;
+					case 1:
+						tutorial = true;
+					break;
 				}
 			}
 		}
@@ -91,20 +96,22 @@ class Menu {
 
 	void draw() {
 		// draw the background
-		noStroke();
+		pushMatrix();
+		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		
+		fill(0,0,0,255);
+		stroke(colors.player[userId]);
+		strokeWeight(CELL_SIZE * 0.5);		
+		rectMode(CENTER);
+		rect(0,0,WIN_HEIGHT,WIN_HEIGHT);
+
 		if (gManager.paused) {
-			fill(0,0,0,180);
-			image( bg, 0, 0 );
-			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
-			checkers.drawCheckers( #000000, 90, 40, 14, new PVector( CELL_SIZE, CELL_SIZE ), 2 );
-		} else {
-			fill(0,0,0,255);
-			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
+			imageMode(CENTER);
+			tint(255,255,255,75);
+			image(bg,0,0);
+			noTint();
 		}
 
-		pushMatrix();
-
-		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 
 		//rotate the canvas to the winner
 		switch (userId) {
@@ -114,13 +121,30 @@ class Menu {
 			case 3: rotate(radians(90)); break;
 		}
 
-		if (gManager.paused) drawPauseMenu();
-		else drawMainMenu();
+		if (gManager.paused) drawMenu(pauseMenu);
+		else drawMenu(mainMenu);
+		if (tutorial) drawTutorial();
+
+		drawLogo();
 
 		popMatrix();
 	}
 
+	void drawPauseMenu() {
+		drawMenu(pauseMenu);
+	}
+
+	void drawTutorial() {
+
+	}
+
 	void drawMenu(String[] _menuName) {
+		if (gManager.paused) {
+			fill(colors.player[userId],255);
+			textAlign(CENTER);
+			textSize(FONT_SIZE * 3);
+			text("GAME PAUSED",0,-100);
+		}
 
 		if (input.downReleased) {
 			if (selectedItem < _menuName.length - 1) selectedItem++;
@@ -137,7 +161,7 @@ class Menu {
 		// draws the contents of a spcified menu array
 		for (int i = 0; i < _menuName.length; i++) {
 
-			pos.y = FONT_SIZE * i;
+			pos.y = WIN_HEIGHT / 4 + FONT_SIZE * i;
 
 			if (i == selectedItem) {
 				alpha = 255;
@@ -153,29 +177,132 @@ class Menu {
 		}
 	}
 
-	void drawMainMenu() {
-		fill(colors.player[userId],255);
-		image( lg1, lg1Pos.x, lg1Pos.y, lg1Siz.x * lg1Scl, lg1Siz.y * lg1Scl );
-		textAlign(CENTER);		
-		textSize(FONT_SIZE);
-		text( "PRESENTS", 0, lg1Pos.y + lg1Siz.y );
-		drawMenu(mainMenu);
-	}
-
-	void drawPauseMenu() {
-		fill(colors.player[userId],255);
-		textAlign(CENTER);
-		textSize(FONT_SIZE * 3);
-		text("GAME PAUSED",0,-100);
-		drawMenu(pauseMenu);
-	}
-
 	void setUser(int _id) {
 		input = new Input(_id);
 		userId = _id;
 	}
 
-	void setupLogo(PImage _logo) {
+	void drawLogo() {
+		// draws QUADCORE
+		float scl = 1;
+		float wght = scl * 3;
+		PVector siz = new PVector(528 * scl, 256 * scl);
+		PVector pos = new PVector(floor(-siz.x / 2), floor(-siz.y / 1.5));
+		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
+		int gridSize = 8;
+		int rgb = colors.player[userId];
+
+		while (pos.x % gridSize != 0) pos.x--;
+		while (pos.y % gridSize != 0) pos.y--;
+
+		// draws the grid inside the logo
+		noFill();
+		stroke(rgb, 50);
+		strokeWeight(wght * 0.2);
+
+		for (float x = pos.x; x < pos.x + siz.x; x += gridSize) {
+			line(x, pos.y, x, pos.y + siz.y);
+		}
+
+		for (float y = pos.y; y < pos.y + siz.y; y += gridSize) {
+			line(pos.x, y, pos.x + siz.x ,y);
+		}
+
+		// stores the coordinates of the letters
+		int[] verts = new int[]{0,0};
+		int[] lines = new int[]{0,0};
+
+		// draw the logo contour
+		fill(0,0,0,255);
+		stroke(0,0,0,255);
+		strokeWeight(wght);
+	
+		beginShape();
+		vertex(pos.x, pos.y);
+		vertex(pos.x + siz.x, pos.y);
+		vertex(pos.x + siz.x, pos.y + siz.y);
+		vertex(pos.x, pos.y + siz.y);
+
+		for (int i=0; i<8; i++){
+			verts = getLetter(i);
+			beginContour();
+			drawLogoLetter(pos, verts, scl, true);
+			endContour();
+		}
+		endShape(CLOSE);
+
+		// draw the letter shapes with outlines
+		noFill();
+		stroke(rgb, 255);
+		strokeWeight(wght);
+		for (int i=0; i<8; i++){
+			verts = getLetter(i);
+			beginShape();
+			drawLogoLetter(pos, verts, scl, true);
+			endShape();
+		}
+
+		// draw non-shape lines of each letter
+		for (int i=0; i<8; i++) {
+			switch(i) {
+				case 0: lines = new int[]{ 64,48, 64,80 }; break;
+				case 1: lines = new int[]{ 192,0, 192,32 }; break;
+				case 2: lines = new int[]{ 320,128, 320,96, 304,96, 336,96 }; break;
+				case 3: lines = new int[]{ 448,48, 448,80 }; break;
+				case 4: lines = new int[]{ 112,176, 112,208, 112,192, 144,192 }; break;
+				case 5: lines = new int[]{ 208,176, 208,208 }; break;
+				case 6: lines = new int[]{ 336,176, 336,208 }; break;
+				case 7: lines = new int[]{ 464,176, 464,208 }; break;
+			}
+			drawLogoLetter(pos, lines, scl, false);
+		}
+	}
+
+	int[] getLetter(int _letter) {
+		int[] verts = new int[]{0,0};
+			switch(_letter) {
+				case 0: //Q
+					verts = new int[]{ 0,0, 128,0, 128,96, 144,96, 128,128, 16,128, 0,112, 0,0, }; break;
+				case 1: //U
+					verts = new int[]{ 128,0, 256,0, 256,112, 240,128, 128,128, 144,96, 128,96, 128,0 }; break;
+				case 2: //A
+					verts = new int[]{ 256,16, 272,0, 368,0, 384,16, 384,128, 240,128, 256,112, 256,16, }; break;
+				case 3: //D
+					verts = new int[]{ 384,0, 480,0, 512,32, 512,128, 384,128, 384,0, 384,0 }; break;
+				case 4: //C
+					verts = new int[]{ 16,128, 144,128, 144,256, 32,256, 16,240, 16,128 }; break;
+				case 5: //O
+					verts = new int[]{ 144,128, 256,128, 272,144, 272,256, 160,256, 144,240, 144,128 }; break;
+				case 6: //R
+					verts = new int[]{ 256,128, 384,128, 400,144, 400,224, 368,224, 400,256, 272,256, 272,144, 256,128 }; break;
+				case 7: //E
+					verts = new int[]{ 384,128, 528,128, 528,192, 496,224, 528,224, 528,256, 400,256, 368,224, 400,224, 400,144, 384,128 }; break;
+			}
+			return verts;
+	}
+
+	void drawLogoLetter(PVector _pos, int[] _coords, float _scl, boolean _contours) {
+		// draws a single logo letter
+		float scl = _scl;
+		PVector pos = _pos;
+		int[] coords = _coords;
+
+		if (_contours) for (int i=0; i<coords.length; i+=2) { vertex( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl ); }
+		else for (int i=0; i<coords.length; i+=4){ line( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl, pos.x + coords[i+2] * scl, pos.y + coords[i+3] * scl ); }
+	}
+
+	void drawGrid(){
+		noFill();
+		strokeWeight(1);
+		stroke(colors.player[userId],50);
+		int gridSize = 32;
+		for (int x=-8; x<WIN_WIDTH; x+=gridSize) {
+			line(x,0,x,WIN_HEIGHT);
+		}
+
+		for (int y=-16; y<WIN_HEIGHT; y+=gridSize) {
+			line(0,y,WIN_WIDTH,y);
+		}
 	}
 
 	void keyPressed()  { input.keyPressed(); }
