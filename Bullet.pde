@@ -14,9 +14,10 @@ class Bullet extends GameObject {
 		vel 	= new PVector();
 		hitVel 	= new PVector( 0,0 );
 
-		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE * 14, CELL_SIZE * 7);
+		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE / 0.08, CELL_SIZE / 0.15);
 		damage 	= floor(map(_charge,CELL_SIZE / 2, CELL_SIZE, 1.0, 10.0));
 		wrapCounter = 0;
+		println("speed: "+speed);
 	}
 	
 	void update() {
