@@ -85,7 +85,7 @@ class ObjectManager {
 		if (players != null) {
 			for (Player p : players) {
 				if (p.input.hasGamePad) continue;
-				else p.input.keyPressed();
+				else p.input.keyPressed(p.id);
 			}
 		}		
 	}
@@ -95,7 +95,7 @@ class ObjectManager {
 		if (players != null) {
 			for (Player p : players) {
 				if (p.input.hasGamePad) continue;
-				else p.input.keyReleased();
+				else p.input.keyReleased(p.id);
 			}
 		}
 	}

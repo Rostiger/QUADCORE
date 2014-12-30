@@ -72,7 +72,7 @@ class GameManager {
 			
 			// store a background image when paused
 			if (paused) {
-				menu.bg = get();
+				menu.bg = canvas.get();
 				menu.active = true;
 			}
 

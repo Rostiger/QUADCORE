@@ -100,19 +100,12 @@ class Menu {
 		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		
 		fill(0,0,0,255);
-		stroke(colors.player[userId]);
-		strokeWeight(CELL_SIZE * 0.5);		
+		stroke(colors.player[userId],255);
+		strokeWeight(ARENA_BORDER * 2);		
 		rectMode(CENTER);
 		rect(0,0,WIN_HEIGHT,WIN_HEIGHT);
 
-		if (gManager.paused) {
-			imageMode(CENTER);
-			tint(255,255,255,75);
-			image(bg,0,0);
-			noTint();
-		}
-
-
+		pushMatrix();
 		//rotate the canvas to the winner
 		switch (userId) {
 			case 0: rotate(radians(180)); break;
@@ -125,13 +118,19 @@ class Menu {
 		else drawMenu(mainMenu);
 		if (tutorial) drawTutorial();
 
-		drawLogo();
+		drawLogo(0.8);
 
 		popMatrix();
-	}
+		if (gManager.paused) {
+			imageMode(CENTER);
+			tint(255,75);
+			image(bg,0,0);
+			noTint();
+		}
 
-	void drawPauseMenu() {
-		drawMenu(pauseMenu);
+		drawGrid(new PVector(-WIN_WIDTH / 2 + 17,-WIN_HEIGHT / 2 + 2),32);
+
+		popMatrix();
 	}
 
 	void drawTutorial() {
@@ -143,7 +142,7 @@ class Menu {
 			fill(colors.player[userId],255);
 			textAlign(CENTER);
 			textSize(FONT_SIZE * 3);
-			text("GAME PAUSED",0,-100);
+			text("GAME PAUSED",0,-VIEW_HEIGHT / 1.2);
 		}
 
 		if (input.downReleased) {
@@ -182,9 +181,9 @@ class Menu {
 		userId = _id;
 	}
 
-	void drawLogo() {
+	void drawLogo(float _scale) {
 		// draws QUADCORE
-		float scl = 1;
+		float scl = _scale;
 		float wght = scl * 3;
 		PVector siz = new PVector(528 * scl, 256 * scl);
 		PVector pos = new PVector(floor(-siz.x / 2), floor(-siz.y / 1.5));
@@ -195,10 +194,19 @@ class Menu {
 		while (pos.x % gridSize != 0) pos.x--;
 		while (pos.y % gridSize != 0) pos.y--;
 
+		// draws a background rect in pause mode
+		// if (gManager.paused) {
+		// 	fill(0,0,0,255);
+		// 	stroke(0,0,0,255);
+		// 	strokeWeight(CELL_SIZE * 2);
+		// 	rectMode(CORNER);
+		// 	rect(-WIN_WIDTH / 2, pos.y , WIN_WIDTH, siz.y);
+		// }
+
 		// draws the grid inside the logo
 		noFill();
 		stroke(rgb, 50);
-		strokeWeight(wght * 0.2);
+		strokeWeight(wght * scl);
 
 		for (float x = pos.x; x < pos.x + siz.x; x += gridSize) {
 			line(x, pos.y, x, pos.y + siz.y);
@@ -291,21 +299,30 @@ class Menu {
 		else for (int i=0; i<coords.length; i+=4){ line( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl, pos.x + coords[i+2] * scl, pos.y + coords[i+3] * scl ); }
 	}
 
-	void drawGrid(){
+	void drawGrid(PVector _offset, int _gridSize){
 		noFill();
 		strokeWeight(1);
 		stroke(colors.player[userId],50);
-		int gridSize = 32;
-		for (int x=-8; x<WIN_WIDTH; x+=gridSize) {
-			line(x,0,x,WIN_HEIGHT);
+		int gridSize = _gridSize;
+		for (float x=_offset.x; x<WIN_WIDTH; x+=gridSize) {
+			line(x,_offset.y,x,WIN_HEIGHT);
 		}
 
-		for (int y=-16; y<WIN_HEIGHT; y+=gridSize) {
-			line(0,y,WIN_WIDTH,y);
+		for (float y=_offset.y; y<WIN_HEIGHT; y+=gridSize) {
+			line(_offset.x,y,WIN_WIDTH,y);
 		}
 	}
 
-	void keyPressed()  { input.keyPressed(); }
-	void keyReleased() { input.keyReleased(); }
+	void keyPressed()  { 
+		for (int i=0; i<4; i++) {
+			input.keyPressed(i);
+			if (i != userId && (input.upWasPressed || input.downWasPressed)) {
+				setUser(i);
+				break;
+			}
+		}
+	}
+
+	void keyReleased() { input.keyReleased(userId); }
 
 }
