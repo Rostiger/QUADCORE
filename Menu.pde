@@ -7,7 +7,7 @@ class Menu {
 	PImage bg;
 
 	ArrayList < Input > input;
-
+	float gridSize;
 	// variables for the zamSpielen logo
 	PVector lg1Pos, lg1Siz;
 	float lg1Scl, lg1Rot, lg1Ratio;
@@ -45,15 +45,16 @@ class Menu {
 			Input in = new Input(i);
 			input.add(in);
 		}
+
+		gridSize = CELL_SIZE;
 	}
 
 	void update() {
 		// handle the pause menu
 		if (gManager.paused) {
-			
 			if (input.get(userId).shootReleased) {
 				switch( selectedItem ) {
-					case 0: // CONTINUE 					
+					case 0: // CONTINUE 
 						active = false;
 						gManager.paused = false;
 					break;
@@ -72,7 +73,6 @@ class Menu {
 					break;
 				}
 			}
-
 		} else {
 		// handle the main menu
 			// set the size and position of the zamSpielen logo
@@ -132,7 +132,7 @@ class Menu {
 		else drawMenu(mainMenu);
 		if (tutorial) drawTutorial();
 
-		drawLogo(0.8);
+		drawLogo();
 
 		popMatrix();
 		if (gManager.paused) {
@@ -142,7 +142,7 @@ class Menu {
 			noTint();
 		}
 
-		drawGrid(new PVector(-WIN_WIDTH / 2 + 17,-WIN_HEIGHT / 2 + 2),32);
+		drawGrid(new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER,-WIN_HEIGHT / 2 + ARENA_BORDER),gridSize);
 
 		popMatrix();
 	}
@@ -194,18 +194,17 @@ class Menu {
 		userId = _id;
 	}
 
-	void drawLogo(float _scale) {
+	void drawLogo() {
 		// draws QUADCORE
-		float scl = _scale;
+		float scl = WIN_SCALE;
 		float wght = scl * 3;
 		PVector siz = new PVector(528 * scl, 256 * scl);
 		PVector pos = new PVector(floor(-siz.x / 2), floor(-siz.y / 1.5));
 		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
-		int gridSize = 8;
 		int rgb = colors.player[userId];
 
-		while (pos.x % gridSize != 0) pos.x--;
-		while (pos.y % gridSize != 0) pos.y--;
+		while (pos.x % gridSize != 0) pos.x++;
+		while (pos.y % gridSize != 0) pos.y++;
 
 		// draws a background rect in pause mode
 		// if (gManager.paused) {
@@ -219,13 +218,13 @@ class Menu {
 		// draws the grid inside the logo
 		noFill();
 		stroke(rgb, 50);
-		strokeWeight(wght * scl);
+		strokeWeight(wght * 0.4);
 
-		for (float x = pos.x; x < pos.x + siz.x; x += gridSize) {
+		for (float x = pos.x; x < pos.x + siz.x; x += gridSize / 4) {
 			line(x, pos.y, x, pos.y + siz.y);
 		}
 
-		for (float y = pos.y; y < pos.y + siz.y; y += gridSize) {
+		for (float y = pos.y; y < pos.y + siz.y; y += gridSize / 4) {
 			line(pos.x, y, pos.x + siz.x ,y);
 		}
 
@@ -253,7 +252,7 @@ class Menu {
 		endShape(CLOSE);
 
 		// draw the letter shapes with outlines
-		noFill();
+		fill(rgb,20);
 		stroke(rgb, 255);
 		strokeWeight(wght);
 		for (int i=0; i<8; i++){
@@ -312,11 +311,11 @@ class Menu {
 		else for (int i=0; i<coords.length; i+=4){ line( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl, pos.x + coords[i+2] * scl, pos.y + coords[i+3] * scl ); }
 	}
 
-	void drawGrid(PVector _offset, int _gridSize){
+	void drawGrid(PVector _offset, float _gridSize){
 		noFill();
 		strokeWeight(1);
 		stroke(colors.player[userId],50);
-		int gridSize = _gridSize;
+		float gridSize = _gridSize;
 		for (float x=_offset.x; x<WIN_WIDTH; x+=gridSize) {
 			line(x,_offset.y,x,WIN_HEIGHT);
 		}
@@ -330,6 +329,7 @@ class Menu {
 		if (active) {
 			for (Input i : input) {
 				i.keyPressed();
+				i.manageInputStates();
 			}
 		}
 	}
@@ -338,6 +338,7 @@ class Menu {
 		if (active) {
 			for (Input i : input) {
 				i.keyReleased();
+				i.manageInputStates();
 			}
 		}
 	}

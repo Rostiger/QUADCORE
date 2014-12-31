@@ -31,22 +31,22 @@ class Input {
 				break;
 			} else hasGamePad = false;
 		}
-
 	}
 
 	void update() {
 		if (!menu.active){
-			if (hasGamePad) {
-				getGamePadInput(id);
-			}
+
 			if (startReleased) {
 				menu.setUser(id);
 				gManager.paused = true;
 			}
+			if (hasGamePad) getGamePadInput(id);
+
 		} else {
 			if (hasGamePad) {
 				for (int i=0; i<4; i++) {
 					getGamePadInput(i);
+					manageInputStates();
 					if (anyKeyPressed) menu.setUser(i);
 					break;
 				}
@@ -154,6 +154,10 @@ class Input {
 		shootPressed = gPads.get(id).getButton("BT_A").pressed();
 		useItemPressed = gPads.get(id).getButton("BT_B").pressed();
 		startPressed = gPads.get(id).getButton("BT_C").pressed();
+
+		// handle any key boolean
+		if (upPressed || downPressed || leftPressed || rightPressed || shootPressed || useItemPressed || startPressed) anyKeyPressed = true;
+		else anyKeyPressed = false;
 	}
 
 	void manageInputStates() {
