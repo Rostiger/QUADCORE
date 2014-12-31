@@ -23,7 +23,7 @@ class Menu {
 
 	Menu() {
 		alpha = 255;
-		userId = 1;
+		userId = (int)floor(random(0,4));
 		
 
 		if (lg1 != null) {
