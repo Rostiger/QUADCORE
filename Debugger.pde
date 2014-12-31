@@ -225,11 +225,11 @@ class Debugger {
 	}
 
 	void keyPressed() {
-		input.keyPressed(0);
+		input.keyPressed();
 	}
 
 	void keyReleased() {
-		input.keyReleased(0);
+		input.keyReleased();
 		
 		//toggle debug mode
 		if (key == '~' || key == '`' || key == '^') {

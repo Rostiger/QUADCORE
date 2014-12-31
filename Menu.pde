@@ -6,7 +6,7 @@ class Menu {
 	int userId;
 	PImage bg;
 
-	Input input;
+	ArrayList < Input > input;
 
 	// variables for the zamSpielen logo
 	PVector lg1Pos, lg1Siz;
@@ -24,7 +24,7 @@ class Menu {
 	Menu() {
 		alpha = 255;
 		userId = 1;
-		setUser(userId);
+		
 
 		if (lg1 != null) {
 			lg1Pos = new PVector( 0, -WIN_HEIGHT / 2 );
@@ -39,13 +39,19 @@ class Menu {
 
 		selectedItem = 0;
 		itemFontScale = 1;
+
+		input = new ArrayList();
+		for (int i=0; i<4; i++) {
+			Input in = new Input(i);
+			input.add(in);
+		}
 	}
 
 	void update() {
 		// handle the pause menu
 		if (gManager.paused) {
 			
-			if (input.shootReleased) {
+			if (input.get(userId).shootReleased) {
 				switch( selectedItem ) {
 					case 0: // CONTINUE 					
 						active = false;
@@ -74,7 +80,7 @@ class Menu {
 			lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
 
 			// 
-			if (input.shootReleased) {
+			if (input.get(userId).shootReleased) {
 				switch( selectedItem ) {
 					case 0: // START GAME
 						active = false; 
@@ -90,8 +96,16 @@ class Menu {
 		// draw the menu
 		if (active) {
 			draw();
-			input.update();
+			input.get(userId).update();
 		} else selectedItem = 0;
+		
+		// check input
+		for (Input in : input) {
+			if (in.anyKeyPressed && in.id != userId)  {
+				setUser(in.id);
+				break;
+			}
+		}
 	}
 
 	void draw() {
@@ -145,12 +159,12 @@ class Menu {
 			text("GAME PAUSED",0,-VIEW_HEIGHT / 1.2);
 		}
 
-		if (input.downReleased) {
+		if (input.get(userId).downReleased) {
 			if (selectedItem < _menuName.length - 1) selectedItem++;
 			else selectedItem = 0;
 		}
 
-		if (input.upReleased) {
+		if (input.get(userId).upReleased) {
 			if (selectedItem > 0) selectedItem--;
 			else selectedItem = _menuName.length - 1;
 		}
@@ -177,7 +191,6 @@ class Menu {
 	}
 
 	void setUser(int _id) {
-		input = new Input(_id);
 		userId = _id;
 	}
 
@@ -313,16 +326,20 @@ class Menu {
 		}
 	}
 
-	void keyPressed()  { 
-		for (int i=0; i<4; i++) {
-			input.keyPressed(i);
-			if (i != userId && (input.upWasPressed || input.downWasPressed)) {
-				setUser(i);
-				break;
+	void keyPressed()  {
+		if (active) {
+			for (Input i : input) {
+				i.keyPressed();
 			}
 		}
 	}
 
-	void keyReleased() { input.keyReleased(userId); }
+	void keyReleased() { 
+		if (active) {
+			for (Input i : input) {
+				i.keyReleased();
+			}
+		}
+	}
 
 }
