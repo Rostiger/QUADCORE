@@ -36,7 +36,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 0.7;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
 float CELL_SIZE;			// size of a single tile
@@ -64,7 +64,7 @@ void setup() {
 
 	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
-	ARENA_BORDER = floor(WIN_WIDTH * 0.04);
+	ARENA_BORDER = ceil(WIN_WIDTH * 0.04);
 
 	// setup the window and renderer
 	size(WIN_WIDTH,WIN_HEIGHT,P2D);
@@ -76,16 +76,15 @@ void setup() {
 	loadSounds();
 	loadTextures();
 	loadFonts();
-
-	menu = new Menu();
 	
 	// reset the game
 	VIEW_WIDTH = WIN_HEIGHT - ARENA_BORDER * 2;
-	VIEW_HEIGHT = WIN_HEIGHT - ARENA_BORDER * 2;
+	VIEW_HEIGHT = VIEW_WIDTH;
 	gManager.reset();
+	menu = new Menu();
 
 	// set up a canvas to draw onto
-	canvas = createGraphics((int)VIEW_WIDTH,(int)VIEW_HEIGHT);
+	canvas = createGraphics(VIEW_WIDTH,VIEW_HEIGHT);
 	canvasPos = new PVector(WIN_WIDTH / 2 - VIEW_WIDTH / 2, ARENA_BORDER);
 	
 	// initialise the debugger
