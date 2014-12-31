@@ -34,24 +34,18 @@ class Input {
 	}
 
 	void update() {
-		if (!menu.active){
 
-			if (startReleased) {
-				menu.setUser(id);
-				gManager.paused = true;
-			}
-			if (hasGamePad) getGamePadInput(id);
-
-		} else {
 			if (hasGamePad) {
-				for (int i=0; i<4; i++) {
-					getGamePadInput(i);
-					manageInputStates();
-					if (anyKeyPressed) menu.setUser(i);
-					break;
-				}
+				if (menu.active) {
+					for (int i=0; i<4; i++) {
+						getGamePadInput(i);
+						manageInputStates();
+						if (anyKeyPressed) menu.setUser(i);
+						break;
+					}
+				} else getGamePadInput(id);
 			}
-		}
+
 		manageInputStates();
 	}
 

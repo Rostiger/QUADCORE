@@ -1,6 +1,6 @@
 class Menu {
 	
-	boolean active = true;
+	boolean active = false;
 	boolean tutorial = false;
 	int alpha;
 	int userId;

@@ -132,7 +132,10 @@ class Player extends GameObject {
 
 		if (input.startReleased) {
 			if (gManager.matchOver && hud.showEndScreen) gManager.reset();
-			else gManager.paused = !gManager.paused;
+			else {
+				// gManager.paused = !gManager.paused;
+				// menu.setUser(id);
+			}
 		}
 
 		updateVectors();
