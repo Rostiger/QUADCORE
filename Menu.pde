@@ -1,6 +1,6 @@
 class Menu {
 	
-	boolean active = false;
+	boolean active = true;
 	boolean tutorial = false;
 	int alpha;
 	int userId;
@@ -113,7 +113,7 @@ class Menu {
 		pushMatrix();
 		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		
-		fill(0,0,0,255);
+		fill(colors.solid,255);
 		stroke(colors.player[userId],255);
 		strokeWeight(ARENA_BORDER * 2);		
 		rectMode(CENTER);
@@ -199,12 +199,12 @@ class Menu {
 		float scl = WIN_SCALE;
 		float wght = scl * 3;
 		PVector siz = new PVector(528 * scl, 256 * scl);
-		PVector pos = new PVector(floor(-siz.x / 2), floor(-siz.y / 1.5));
+		PVector pos = new PVector(-VIEW_WIDTH / 2 + gridSize * 2, -VIEW_HEIGHT / 2 + gridSize * 4);
 		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
 		int rgb = colors.player[userId];
 
-		while (pos.x % gridSize != 0) pos.x++;
-		while (pos.y % gridSize != 0) pos.y++;
+		// while (pos.x > gridSize * 4) pos.x--;
+		// while (pos.y % floor(gridSize) != 0) pos.y++;
 
 		// draws a background rect in pause mode
 		// if (gManager.paused) {
@@ -233,8 +233,8 @@ class Menu {
 		int[] lines = new int[]{0,0};
 
 		// draw the logo contour
-		fill(0,0,0,255);
-		stroke(0,0,0,255);
+		fill(colors.solid,255);
+		stroke(colors.solid,255);
 		strokeWeight(wght);
 	
 		beginShape();
