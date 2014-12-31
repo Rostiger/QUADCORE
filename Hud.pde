@@ -3,6 +3,7 @@ class Hud {
 	int blink;
 	float rotation, statsDistance, easeControl, waitTime, waitDuration;
 	boolean visible, showEndScreen;
+	String[] playerName = new String[]{"RED","YELLOW","GREEN","BLUE"};
 
 	Hud() {
 		blink = 0;
@@ -43,12 +44,11 @@ class Hud {
 		draw();
 	}
 
-	void draw() {
-		
+	void draw() {	
 		if (showEndScreen) {
 		
 			noStroke();
-			fill(0,0,0,150);
+			fill(0,0,0,200);
 			rect(0,0,WIN_WIDTH,WIN_HEIGHT);
 
 			pushMatrix();
@@ -71,9 +71,9 @@ class Hud {
 
 		} else {
 
-			for (int i=0; i<gManager.players.length; i++) {
+			for (int i=0; i<oManager.players.length; i++) {
 
-				Player player = gManager.players[i];
+				Player player = oManager.players[i];
 				
 				if (player.ALIVE) continue;
 				else {
@@ -117,9 +117,7 @@ class Hud {
 	}
 
 	void showEndScreen() {
-
 		// set up text variables
-		String playerName = "";
 		String subText = "";
 		float fontSizeL = FONT_SIZE * 3;
 		float fontSizeS = FONT_SIZE;
@@ -137,17 +135,9 @@ class Hud {
 
 		int playerWithMostWins = checkMostWins();
 
-		for (int i=0; i<gManager.players.length; i++) {
+		for (int i=0; i<oManager.players.length; i++) {
 
-			Player player = gManager.players[i];
-
-			// set the player name
-			switch (i) {
-				case 0: playerName = "RED"; break;
-				case 1: playerName = "YELLOW"; break;
-				case 2: playerName = "GREEN"; break;
-				case 3: playerName = "BLUE"; break;
-			}
+			Player player = oManager.players[i];
 
 			lineNumberCount++;
 
@@ -166,7 +156,7 @@ class Hud {
 			rect(barPos.x, barPos.y, barSizeS.x, barSizeS.y);
 			
 			// check the players stats and choose a fitting text
-			subText = playerName + " " + getDescription(i);
+			subText = playerName[i] + " " + getDescription(i);
 
 			// set the subtext position
 			PVector subTextPos	= new PVector(barPos.x + barSizeS.x + barSizeL.x / 16, barPos.y + barSizeL.y - (fontSizeS / 3));
@@ -193,8 +183,7 @@ class Hud {
 
 				rect(pos.x,pos.y,boxSize,boxSize);
 
-			}
-		
+			}		
 		}
 
 		translate(WIN_WIDTH / 2, WIN_HEIGHT /2);
@@ -221,7 +210,6 @@ class Hud {
 		// draw footer
 		textSize(ARENA_BORDER);
 		text(footerText,0,VIEW_HEIGHT / 2 + ARENA_BORDER / 2);
-
 	}
 
 	String getDescription(int _playerID) {
@@ -237,7 +225,7 @@ class Hud {
 		int mostItems = 100;
 		String text = "";
 
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 
 			// if the player is the winner, set the message and skip the rest of the loop
 			if (p.id == gManager.winnerID) {
@@ -280,11 +268,10 @@ class Hud {
 	}
 
 	int checkMostWins() {
-		
 		int wins = 0;
 		int mostWins = 0;
 
-		for (Player p : gManager.players) {
+		for (Player p : oManager.players) {
 			if (p.wins > wins) {
 				wins = p.wins;
 				mostWins = p.id;

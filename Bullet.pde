@@ -1,4 +1,5 @@
 class Bullet extends GameObject {
+	
 	PVector dir, vel, hitVel;
 	int damage, wrapCounter;
 	float speed;
@@ -13,7 +14,7 @@ class Bullet extends GameObject {
 		vel 	= new PVector();
 		hitVel 	= new PVector( 0,0 );
 
-		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE * 14, CELL_SIZE * 7);
+		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE / 0.08, CELL_SIZE / 0.15);
 		damage 	= floor(map(_charge,CELL_SIZE / 2, CELL_SIZE, 1.0, 10.0));
 		wrapCounter = 0;
 	}
@@ -63,20 +64,18 @@ class Bullet extends GameObject {
 		} else drawHitEffect();
 
 		if (debugger.debugDraw) debugDraw();
-
 	}
 
 	void drawBullet() {
-
+		// draws the bullet
 		canvas.noStroke();
 		canvas.rectMode(CENTER);
 		canvas.fill(colors.player[id],alpha);
 		canvas.rect(cen.x,cen.y,siz.x,siz.y);
-	
 	}
 
 	void drawHitEffect() {
-
+		// draws the hit effect
 		canvas.noStroke();
 		canvas.rectMode(CENTER);
 		canvas.fill(colors.player[id],alpha);
@@ -105,26 +104,23 @@ class Bullet extends GameObject {
 
 		if (alpha > 0) alpha -= 40;
 		else destroy = true;
-
 	}
 
 	void debugDraw() {
-
-			canvas.fill(255,255,255,100);
-			canvas.rect(pos.x,pos.y,2,2);
-			canvas.rect(cen.x-2,cen.y-2,4,4);
-			canvas.text("XPOS " + floor(pos.x),pos.x,pos.y+siz.y+debugger.fontSize);
-			canvas.text("YPOS " + floor(pos.y),pos.x,pos.y+siz.y+debugger.fontSize * 2);
-			canvas.text("WRAPS " + wrapCounter,pos.x,pos.y+siz.y+debugger.fontSize * 5);
-
+		// debug draw
+		canvas.fill(255,255,255,100);
+		canvas.rect(pos.x,pos.y,2,2);
+		canvas.rect(cen.x-2,cen.y-2,4,4);
+		canvas.text("XPOS " + floor(pos.x),pos.x,pos.y+siz.y+debugger.fontSize);
+		canvas.text("YPOS " + floor(pos.y),pos.x,pos.y+siz.y+debugger.fontSize * 2);
+		canvas.text("WRAPS " + wrapCounter,pos.x,pos.y+siz.y+debugger.fontSize * 5);
 	}
 
 	boolean checkCollision(){				
-
+		// checks for collisions with solids
 		for (Solid s : oManager.solids) {
 			if (collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y)) return true; 
 		}
-
 		return false;
 	}
 }

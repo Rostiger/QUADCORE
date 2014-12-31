@@ -1,57 +1,56 @@
 class Input {
 	
-	public int id;
-	public boolean upPressed, downPressed, leftPressed, rightPressed, shootPressed, useItemPressed, startPressed;
-	public boolean shootWasPressed, useItemWasPressed;
-	public boolean shootReleased, useItemReleased;
-	public boolean hasGamePad;
+	int id;
+	boolean hasGamePad;
+
+	boolean upPressed, upWasPressed, upReleased;
+	boolean downPressed, downWasPressed, downReleased;
+	boolean leftPressed, leftWasPressed, leftReleased;
+	boolean rightPressed, rightWasPressed, rightReleased;
+	boolean shootPressed, shootWasPressed, shootReleased;
+	boolean useItemPressed, useItemWasPressed, useItemReleased;
+	boolean startPressed, startWasPressed, startReleased;
+	boolean anyKeyPressed, anyKeyWasPressed, anyKeyReleased;
 
 	Input(int _id) {
 		id = _id;
 
-		upPressed			=	false;
-		downPressed			=	false;
-		leftPressed			=	false;
-		rightPressed		=	false;
-		shootPressed		=	false;
-		useItemPressed		=	false;
-		shootWasPressed		=	false;
-		useItemWasPressed	=	false;
-		startPressed		=	false;
-		shootReleased		=	false;
-		useItemReleased		=	false;
+		upPressed		=	false; upWasPressed 	 	= false; upReleased 		= false;
+		downPressed		=	false; downWasPressed 	 	= false; downReleased 		= false;
+		leftPressed		=	false; leftWasPressed 		= false; leftReleased 		= false;
+		rightPressed	=	false; rightWasPressed 		= false; rightReleased 		= false;
+		shootPressed	=	false; shootWasPressed 		= false; shootReleased 		= false;
+		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
+		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
+		anyKeyPressed 	= 	false;
 
 		// check if player is using a game pad
-		for (int i=0;i<gPads.size();i++) {
-
-			if (i == id) hasGamePad = true;
-			else hasGamePad = false;
-
+		for ( int i = 0; i < gPads.size(); i++ ) {
+			if (i == id) {
+				hasGamePad = true;
+				break;
+			} else hasGamePad = false;
 		}
-
 	}
 
 	void update() {
-		if (hasGamePad) getGamePadInput();
 
-		// take care of button presses/states
-		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
-		else {
-			if (shootWasPressed) shootReleased = true;
-			else shootReleased = false;
-			shootWasPressed = false;
-		}
+			if (hasGamePad) {
+				if (menu.active) {
+					for (int i=0; i<4; i++) {
+						getGamePadInput(i);
+						manageInputStates();
+						if (anyKeyPressed) menu.setUser(i);
+						break;
+					}
+				} else getGamePadInput(id);
+			}
 
-		if (useItemPressed) { useItemWasPressed = true; useItemReleased = false; }
-		else {
-			if (useItemWasPressed) useItemReleased = true;
-			else useItemReleased = false;
-			useItemWasPressed = false;
-		}		
+		manageInputStates();
 	}
 
-	void getGamePadInput() {
-
+	void getGamePadInput(int _id) {
+		int id = _id;
 		if (gPads.get(id).getSlider("LS_Y").getValue() < -0.2 || gPads.get(id).getButton("DP_UP").pressed()) {
 
 			if (TOP_VIEW) {
@@ -150,9 +149,64 @@ class Input {
 		useItemPressed = gPads.get(id).getButton("BT_B").pressed();
 		startPressed = gPads.get(id).getButton("BT_C").pressed();
 
+		// handle any key boolean
+		if (upPressed || downPressed || leftPressed || rightPressed || shootPressed || useItemPressed || startPressed) anyKeyPressed = true;
+		else anyKeyPressed = false;
 	}
 
-	void checkKeyPress() {
+	void manageInputStates() {
+		// take care of button presses/states
+		if (upPressed) { upWasPressed = true; upReleased = false; }
+		else {
+			if (upWasPressed) upReleased = true;
+			else upReleased = false;
+			upWasPressed = false;
+		}
+
+		if (downPressed) { downWasPressed = true; downReleased = false; }
+		else {
+			if (downWasPressed) downReleased = true;
+			else downReleased = false;
+			downWasPressed = false;
+		}
+
+		if (leftPressed) { leftWasPressed = true; leftReleased = false; }
+		else {
+			if (leftWasPressed) leftReleased = true;
+			else leftReleased = false;
+			leftWasPressed = false;
+		}
+
+		if (rightPressed) { rightWasPressed = true; rightReleased = false; }
+		else {
+			if (rightWasPressed) rightReleased = true;
+			else rightReleased = false;
+			rightWasPressed = false;
+		}
+
+		if (shootPressed) { shootWasPressed = true; shootReleased = false; }
+		else {
+			if (shootWasPressed) shootReleased = true;
+			else shootReleased = false;
+			shootWasPressed = false;
+		}
+
+		if (useItemPressed) { useItemWasPressed = true; useItemReleased = false; }
+		else {
+			if (useItemWasPressed) useItemReleased = true;
+			else useItemReleased = false;
+			useItemWasPressed = false;
+		}
+		
+		if (startPressed) { startWasPressed = true; startReleased = false; }
+		else {
+			if (startWasPressed) startReleased = true;
+			else startReleased = false;
+			startWasPressed = false;
+		}
+	}
+
+	void keyPressed() {
 		switch(id) {
 			case 0:
 				if (keyCode == UP) upPressed = true;
@@ -161,6 +215,7 @@ class Input {
 				if (keyCode == RIGHT) rightPressed = true;
 				if (key == '/') shootPressed = true;
 				if (keyCode == SHIFT) useItemPressed = true;
+				if (key == ' ') startPressed = true;
 			break;
 			case 1:
 				if (key == 'w') upPressed = true;
@@ -169,6 +224,7 @@ class Input {
 				if (key == 'd') rightPressed = true;
 				if (key == 'f') shootPressed = true;
 				if (key == 'r') useItemPressed = true;
+				if (key == 'q') startPressed = true;
 			break;
 			case 2:
 				if (key == 'i') upPressed = true;
@@ -177,6 +233,7 @@ class Input {
 				if (key == 'l') rightPressed = true;
 				if (key == 'h') shootPressed = true;
 				if (key == 'y') useItemPressed = true;
+				if (key == 'o') startPressed = true;
 			break;
 			case 3:
 				if (key == '8') upPressed = true;
@@ -184,13 +241,14 @@ class Input {
 				if (key == '4') leftPressed = true;
 				if (key == '6') rightPressed = true;
 				if (key == '0') shootPressed = true;
-				if (key == 'g') useItemPressed = true;
+				if (key == '1') useItemPressed = true;
+				if (key == '2') startPressed = true;
 			break;
 		}
+		if (upPressed || downPressed || leftPressed || rightPressed || shootPressed || useItemPressed || startPressed) anyKeyPressed = true;
 	}
 
-	void checkKeyRelease() {
-
+	void keyReleased() {
 		switch(id) {
 			case 0:
 				if (keyCode == UP) upPressed = false;
@@ -199,6 +257,7 @@ class Input {
 				if (keyCode == RIGHT) rightPressed = false;
 				if (key == '/') shootPressed = false;
 				if (keyCode == SHIFT) useItemPressed = false;
+				if (key == ' ') startPressed = false;
 			break;
 			case 1:
 				if (key == 'w') upPressed = false;
@@ -207,6 +266,7 @@ class Input {
 				if (key == 'd') rightPressed = false;
 				if (key == 'f') shootPressed = false;
 				if (key == 'r') useItemPressed = false;
+				if (key == 'q') startPressed = false;
 			break;
 			case 2:
 				if (key == 'i') upPressed = false;
@@ -215,6 +275,7 @@ class Input {
 				if (key == 'l') rightPressed = false;
 				if (key == 'h') shootPressed = false;
 				if (key == 'y') useItemPressed = false;
+				if (key == 'o') startPressed = false;
 			break;
 			case 3:
 				if (key == '8') upPressed = false;
@@ -222,8 +283,10 @@ class Input {
 				if (key == '4') leftPressed = false;
 				if (key == '6') rightPressed = false;
 				if (key == '0') shootPressed = false;
-				if (key == 'g') useItemPressed = false;
+				if (key == '1') useItemPressed = false;
+				if (key == '2') startPressed = false;
 			break;
 		}
+		if (!upPressed || !downPressed || !leftPressed || !rightPressed || !shootPressed || !useItemPressed || !startPressed) anyKeyPressed = false;
 	}
 }

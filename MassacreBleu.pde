@@ -1,4 +1,3 @@
-
 import java.util.Arrays;				// import the java array class for level loading			
 import ddf.minim.*;						// import the sound library
 import org.gamecontrolplus.gui.*;		// import the gui library for configuring the gamepads
@@ -19,53 +18,157 @@ AudioSample
 	lockDownStop01;
 
 GameManager gManager = new GameManager();
+ObjectManager oManager = new ObjectManager();
 Colors colors = new Colors();
 LevelParser levelParser = new LevelParser();
+Menu menu;
 Debugger debugger;
 Hud hud;
-ObjectManager oManager;
 Collision collision;
+Checkers checkers;
 
 PGraphics canvas;
 PFont font;
 PFont debugFont;
 
-ArrayList < PImage > levelList;  
+ArrayList < PImage > levelList; 
+PImage  lg1, lg2;
 
-float WIN_WIDTH;			// stores the width of the display resolution
-float WIN_HEIGHT;			// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
-float VIEW_WIDTH;			// width of the game area
-float VIEW_HEIGHT;			// height of the game area
+int WIN_WIDTH;				// stores the width of the display resolution
+int WIN_HEIGHT;				// stores the height of the display resolution		
+float WIN_SCALE = 0.7;		// window scale factor - set to 1 for non-windows fullscreen
+int VIEW_WIDTH;			// width of the game area
+int VIEW_HEIGHT;			// height of the game area
 float CELL_SIZE;			// size of a single tile
 float dt;					// this value is initialised and update in the GameManager() class
 float dtInSeconds;
 float FONT_SIZE;
 float DEBUG_FONT_SIZE;
-float ARENA_BORDER;
+int ARENA_BORDER;
 boolean TOP_VIEW = false;		// playing on the hansG?
 PVector canvasPos;				// canvas position
 color bgColor = #000000;
 
 Shake screenShake = new Shake();
 
+//post processing variables
+PShader blur;
+PImage dst, src;
+PGraphics pass1, pass2;
+
 void setup() {
 
 	// get the width of the current display and set the height so it's a 4:3 ratio
-	WIN_HEIGHT = 768 * WIN_SCALE;	
-	WIN_WIDTH = ceil(WIN_HEIGHT * 1.333);
-	// WIN_WIDTH = WIN_HEIGHT;
+	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
+	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
 
 	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
-	ARENA_BORDER = WIN_WIDTH * 0.04;
-	println("WIN_WIDTH: "+WIN_WIDTH);
-	println("WIN_HEIGHT: "+WIN_HEIGHT);
+	ARENA_BORDER = ceil(WIN_WIDTH * 0.04);
 
 	// setup the window and renderer
-	size((int)WIN_WIDTH,(int)WIN_HEIGHT,P2D);
+	size(WIN_WIDTH,WIN_HEIGHT,P2D);
 	frameRate(30);
 
+	initGamePads();
+	printDebug();
+	loadLevels();
+	loadSounds();
+	loadTextures();
+	loadFonts();
+	
+	// reset the game
+	VIEW_WIDTH = WIN_HEIGHT - ARENA_BORDER * 2;
+	VIEW_HEIGHT = VIEW_WIDTH;
+	gManager.reset();
+	menu = new Menu();
+
+	// set up a canvas to draw onto
+	canvas = createGraphics(VIEW_WIDTH,VIEW_HEIGHT);
+	canvasPos = new PVector(WIN_WIDTH / 2 - VIEW_WIDTH / 2, ARENA_BORDER);
+	
+	// initialise the debugger
+	debugger = new Debugger();
+	
+	// set up the shaders
+	blur = loadShader("blur.glsl");
+	blur.set("blurSize", 20);
+	blur.set("sigma", 2.0f);
+
+	pass1 = createGraphics(width, height, P2D);
+	pass1.noSmooth();  
+
+	pass2 = createGraphics(width, height, P2D);
+	pass2.noSmooth();
+}
+
+void draw() {
+	noCursor();
+	background(bgColor);
+	textFont(font);
+
+	if (screenShake.isShaking) {
+		screenShake.update();
+		canvasPos.add(screenShake.offset);
+	}
+	imageMode(CORNER);
+  	image( canvas, canvasPos.x, canvasPos.y	);
+	
+	canvas.beginDraw();
+	canvas.background(colors.bg);
+	canvas.textFont(font);
+	gManager.update();
+	canvas.endDraw();
+
+	noStroke();
+	fill(0,0,0,255);
+	rectMode(CORNER);
+	rect(0,0,canvasPos.x - ARENA_BORDER,WIN_HEIGHT);
+	rect(canvasPos.x + VIEW_WIDTH + ARENA_BORDER, 0, canvasPos.x, WIN_HEIGHT);
+	// postProcessing();
+
+	textFont(debugFont);
+	debugger.update();
+}
+
+void postProcessing() {
+	dst = get();
+
+	// Applying the blur shader along the vertical direction   
+	blur.set("verticalPass", 0);
+	pass1.beginDraw();            
+	pass1.shader(blur);  
+	pass1.image(dst, 0, 0);
+	pass1.endDraw();
+
+	// Applying the blur shader along the horizontal direction      
+	blur.set("horizontalPass", 1);
+	pass2.beginDraw();            
+	pass2.shader(blur);  
+	pass2.image(pass1, 0, 0);
+	pass2.endDraw();
+ 	image(pass2, 0, 0);
+}
+
+void keyPressed() {
+	debugger.keyPressed();
+	if (!gManager.debug) oManager.keyPressed();
+	if (menu.active) menu.keyPressed();
+}
+
+void keyReleased() {
+	debugger.keyReleased();
+	if (!gManager.debug) oManager.keyReleased();
+	if (menu.active) menu.keyReleased();
+}
+
+boolean sketchFullScreen() {
+	// sets the sketch to true fullscreen
+	if (WIN_SCALE == 1.0) return true;
+	else return false;
+}
+
+void initGamePads() {
 	// GAMEPAD
 	// Initialise the ControlIO
 	control = ControlIO.getInstance(this);
@@ -81,7 +184,26 @@ void setup() {
 		if (device.matches(ps3) || device.matches(xBoxWireless)) gPads.add(device);
 		else device.close();
 	}
+}
 
+void printDebug() {
+	// print some debug output
+	println("Loading...");
+	println("-------------------------------");
+	println("Game started.");
+	println("-------------------------------");
+	println("Display size: " + displayWidth + " x " + displayHeight);
+	println("Window size: " + WIN_WIDTH + " x " + WIN_HEIGHT);
+	float scaleInPercent = WIN_SCALE * 100;
+	println("Window scale: " + scaleInPercent + "%");
+	println("Gamepads found: " + gPads.size());
+	if (gPads.size() > 0) {
+		for (int i = 0; i < gPads.size(); i++ ) println(i + ": " + gPads.get(i));
+	}
+	println("-------------------------------");	
+}
+
+void loadLevels() {
 	// LEVELS
 	// go through the levels folder and store the found files in an array list
 	File f = new File(dataPath("levels/")); 
@@ -102,8 +224,10 @@ void setup() {
 			// now add the string array to the levels list
 			levelList.add(level);
 		}
-	}
+	}	
+}
 
+void loadSounds() {
 	//SOUNDS
 	// initialise sound library
 	minim = new Minim(this);
@@ -121,59 +245,15 @@ void setup() {
 	lockDown01 = minim.loadSample("sounds/lockDown01.wav",512);
 	lockDownStopAlert01 = minim.loadSample("sounds/lockDownStopAlert01.wav",512);
 	lockDownStop01 = minim.loadSample("sounds/lockDownStop01.wav",512);
+}
 
+void loadTextures() {
+	// load textures
+	lg1 = loadImage("images/logo_zamSpielen.png");
+}
+
+void loadFonts() {
 	//load the font files
 	font = createFont("DS-DIGIB.TTF",128,false);
 	debugFont = createFont("victor-pixel.ttf",32,false);
-
-	// reset the game
-	gManager.reset();
-
-	// set up a canvas to draw onto
-	canvas = createGraphics((int)VIEW_WIDTH,(int)VIEW_HEIGHT);
-	canvasPos = new PVector(WIN_WIDTH / 2 - VIEW_WIDTH / 2, ARENA_BORDER);
-
-	// initialise the debugger
-	debugger = new Debugger();
-}
-
-void draw() {
-	if (screenShake.isShaking) {
-		screenShake.update();
-		canvasPos.add(screenShake.offset);
-	}
-	noCursor();
-	background(bgColor);
-	textFont(font);
-	canvas.beginDraw();
-	canvas.background(colors.bg);
-	canvas.textFont(font);
-	image(canvas,canvasPos.x,canvasPos.y);
-	gManager.update();
-	canvas.endDraw();
-	textFont(debugFont);
-	debugger.update();
-}
-
-void keyPressed() {
-	gManager.keyPressed();
-}
-
-void keyReleased() {
-	gManager.keyReleased();
-}
-
-boolean sketchFullScreen() {
-	// sets the sketch to true fullscreen
-	if (WIN_SCALE == 1.0) return true;
-	else return false;
-}
-
-float ease(float _currentValue, float _startValue, float _targetValue, float _easingFactor) {
-	// this function eases a _startValue towards a _targetValue using an _easingFactor
-	// if pulse is true, the function reverses back to the _startValue using the _easingFactor as well
-
-	float normedValue = norm(_currentValue, _startValue, _targetValue);
-	float easedValue = pow(normedValue, _easingFactor);
-	return map(easedValue,0,1,_startValue,_targetValue);
 }

@@ -1,5 +1,5 @@
 class LevelParser {
-
+	
 	LevelParser() {}
 
 	void parseLevel(int _levelID) {
@@ -14,10 +14,10 @@ class LevelParser {
 		int nodeID = 0;
 		int itemID = 0;
 
-		// step through the level file - for each vertical line...
-		for (int x=0; x<width; x++) {
-			// step through all horizontal characters
-			for (int y=0; y<height; y++) {
+		// step through the level file - for each horizontal line...
+		for (int y=0; y<height; y++) {
+			// step through all vertical characters
+			for (int x=0; x<width; x++) {
 				// store the character that is encountered
 				color pixelColor = level.get(x,y);
 				// store an in-game xPos and a yPos for each character
@@ -27,13 +27,13 @@ class LevelParser {
 				PVector pos = new PVector(CELL_SIZE * x, CELL_SIZE * y);
 
 				// check through the characters and add respective objects to the game at the stored position
-				if (pixelColor == color(0,0,0)) oManager.addSolid(solidID++,pos);
-				if (pixelColor == color(128,128,128)) oManager.addNode(nodeID++,xPos,yPos);
-				if (pixelColor == color(255,160,0)) oManager.addItem(itemID++,xPos,yPos);
-				if (pixelColor == color(255,0,0)) gManager.setPlayerStartPosition(0,pos);
-				if (pixelColor == color(255,255,0)) gManager.setPlayerStartPosition(1,pos);
-				if (pixelColor == color(0,255,0)) gManager.setPlayerStartPosition(2,pos);
-				if (pixelColor == color(0,0,255)) gManager.setPlayerStartPosition(3,pos);
+				if (pixelColor == color(0,0,0)) 		oManager.addSolid(solidID++,pos);
+				if (pixelColor == color(128,128,128)) 	oManager.addNode(nodeID++,xPos,yPos);
+				if (pixelColor == color(255,160,0)) 	oManager.addItem(itemID++,xPos,yPos);
+				if (pixelColor == color(255,0,0)) 		oManager.addPlayer(0,pos);
+				if (pixelColor == color(255,255,0)) 	oManager.addPlayer(1,pos);
+				if (pixelColor == color(0,255,0)) 		oManager.addPlayer(2,pos);
+				if (pixelColor == color(0,0,255)) 		oManager.addPlayer(3,pos);
 			}			
 		}
 		// the level is parsed into the game - huzzah!

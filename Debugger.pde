@@ -1,7 +1,5 @@
 class Debugger {
 
-	int minFPS;
-	int maxFPS;
 	float fontSize;
 
 	PVector consolePos;
@@ -9,24 +7,24 @@ class Debugger {
 	int 	consoleAlpha;
 	boolean consoleActive;
 
-	boolean debugDraw, invincibility, autoShoot;
+	boolean debugDraw, invincibility, autoShoot, drawCheckers;
 	int autoShootInterval, autoShootCount;
 
-	DebugOption[] debugOptions = new DebugOption[4];
+	DebugOption[] debugOptions = new DebugOption[5];
 	int selectedOption;
 
-	Debugger() {
-		minFPS = 60;
-		maxFPS = 0;
+	Input input = new Input(0);
 
+	Debugger() {
 		consoleSize = new PVector(VIEW_WIDTH / 2, WIN_HEIGHT);
 		consolePos = new PVector(canvasPos.x - consoleSize.x,0);
 		consoleAlpha = 0;
 		consoleActive = false;
 
-		debugDraw = false;
-		invincibility = false;
-		autoShoot = false;
+		debugDraw 		= false;
+		invincibility 	= false;
+		autoShoot 		= false;
+		drawCheckers 	= false;
 
 		autoShootInterval = 20;
 		autoShootCount = autoShootInterval;
@@ -35,6 +33,7 @@ class Debugger {
 		debugOptions[1] = new DebugOption("INVINCIBILITY",false);
 		debugOptions[2] = new DebugOption("AUTO FIRE",false);
 		debugOptions[3] = new DebugOption("SHOW CHECKERS",false);
+		debugOptions[4] = new DebugOption("PAUSE",false);
 
 		selectedOption = 0;
 	}
@@ -49,15 +48,11 @@ class Debugger {
 		if (debugOptions[2].active) autoShoot = true;
 		else autoShoot = false;
 
-		if (debugOptions[3].active) gManager.drawCheckers = true;
-		else gManager.drawCheckers = false;
+		if (debugOptions[3].active) drawCheckers = true;
+		else drawCheckers = false;
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;
-
-		// get the min and max framerates
-		if (frameRate < minFPS && maxFPS > 40) minFPS = floor(frameRate);
-		if (frameRate > maxFPS) maxFPS = floor(frameRate);
 
 		// toggle console
 		if (gManager.debug) {
@@ -83,8 +78,8 @@ class Debugger {
 		}
 
 		// trigger invincibility and autoshoot in all players when turned on
-		if (gManager.players != null && (invincibility || autoShoot)) {
-			for (Player p : gManager.players) {
+		if (oManager.players != null && (invincibility || autoShoot)) {
+			for (Player p : oManager.players) {
 
 				if (invincibility) p.INVINCIBLE = true;
 				if (canShoot && !gManager.matchOver && p.ALIVE) {
@@ -96,16 +91,16 @@ class Debugger {
 		}
 
 		// set the debug cursor position on input
-		if (gManager.upPressed) {
+		if (input.upPressed) {
 			if (selectedOption > 0) selectedOption--;
 			else selectedOption = debugOptions.length - 1;
-			gManager.upPressed = false;
+			input.upPressed = false;
 		}
 
-		if (gManager.downPressed) {
+		if (input.downPressed) {
 			if (selectedOption < debugOptions.length - 1) selectedOption++;
 			else selectedOption = 0;
-			gManager.downPressed = false;
+			input.downPressed = false;
 		}
 	}
 
@@ -123,16 +118,15 @@ class Debugger {
 
 		// draw console background
 		fill(colors.solid,consoleAlpha * 0.8);
+		rectMode(CORNER);
 		rect(consolePos.x,consolePos.y,consoleSize.x,consoleSize.y);
 
 		// draw frame rate & other game variables
 		fill(255,255,255,consoleAlpha);
 		text("FPS " + (int)frameRate,textPos.x,textPos.y);
-		text("MIN " + minFPS,textPos.x + hSize - hSize / 2,textPos.y);
-		text("MAX " + maxFPS,textPos.x + hSize - hSize / 4,textPos.y);
-		text("CELLSIZE " + CELL_SIZE + " PX",textPos.x,textPos.y * 2);
-		text("VIEW SIZE " + VIEW_WIDTH + " PX",textPos.x,textPos.y * 3);
-		text("RESOLUTION " + floor(WIN_WIDTH) + " X " + floor(WIN_HEIGHT) + " PX",textPos.x,textPos.y * 4);
+		text("WIN SIZE " + WIN_WIDTH + " X " + WIN_HEIGHT,textPos.x,textPos.y * 2);
+		text("VIEW SIZE " + VIEW_WIDTH + " X " + VIEW_HEIGHT,textPos.x,textPos.y * 3);
+		text("CELLSIZE " + CELL_SIZE,textPos.x,textPos.y * 4);
 		text("FONTSIZE " + fontSize,textPos.x,textPos.y * 5);
 
 		float gameStatsYPos = 7;
@@ -141,7 +135,7 @@ class Debugger {
 
 		drawDivider(consolePos.x,textPos.y * gameStatsYPos,textIndent.x);
 
-		text("PLAYERS " + gManager.activePlayers,textPos.x,textPos.y * (gameStatsYPos+1));
+		text("PLAYERS " + oManager.activePlayers,textPos.x,textPos.y * (gameStatsYPos+1));
 		text("SOLIDS " + oManager.solids.size(),textPos.x,textPos.y * (gameStatsYPos+2));
 		text("NODES " + oManager.nodes.size(),textPos.x,textPos.y * (gameStatsYPos+3));
 		text("BULLETS " + oManager.bullets.size(),textPos.x,textPos.y * (gameStatsYPos+4));
@@ -165,11 +159,11 @@ class Debugger {
 				name = "> " + debugOptions[i].name;
 
 				// turn the option on or off
-				if (gManager.leftPressed || gManager.rightPressed) {
+				if (input.leftPressed || input.rightPressed) {
 
 					debugOptions[i].active = !debugOptions[i].active;
-					gManager.leftPressed = false;
-					gManager.rightPressed = false;
+					input.leftPressed = false;
+					input.rightPressed = false;
 
 				}
 			}
@@ -231,4 +225,20 @@ class Debugger {
 		}		
 	}
 
+	void keyPressed() {
+		input.keyPressed();
+	}
+
+	void keyReleased() {
+		input.keyReleased();
+		
+		//toggle debug mode
+		if (key == '~' || key == '`' || key == '^') {
+			if (!gManager.debug) gManager.debug = true;
+			else gManager.debug = false;
+		}
+
+		//reset game
+		if (!gManager.debug && keyCode == ENTER) gManager.reset();
+	}
 }
