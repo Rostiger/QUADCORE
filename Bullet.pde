@@ -17,7 +17,6 @@ class Bullet extends GameObject {
 		speed 	= map(_charge,CELL_SIZE / 2, CELL_SIZE, CELL_SIZE / 0.08, CELL_SIZE / 0.15);
 		damage 	= floor(map(_charge,CELL_SIZE / 2, CELL_SIZE, 1.0, 10.0));
 		wrapCounter = 0;
-		println("speed: "+speed);
 	}
 	
 	void update() {
