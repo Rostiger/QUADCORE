@@ -118,6 +118,7 @@ class Debugger {
 
 		// draw console background
 		fill(colors.solid,consoleAlpha * 0.8);
+		rectMode(CORNER);
 		rect(consolePos.x,consolePos.y,consoleSize.x,consoleSize.y);
 
 		// draw frame rate & other game variables
