@@ -121,6 +121,11 @@ void draw() {
 	gManager.update();
 	canvas.endDraw();
 
+	noStroke();
+	fill(0,0,0,255);
+	rectMode(CORNER);
+	rect(0,0,canvasPos.x - ARENA_BORDER,WIN_HEIGHT);
+	rect(canvasPos.x + VIEW_WIDTH + ARENA_BORDER, 0, canvasPos.x, WIN_HEIGHT);
 	// postProcessing();
 
 	textFont(debugFont);
