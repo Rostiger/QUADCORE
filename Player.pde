@@ -59,17 +59,27 @@ class Player extends GameObject {
 		hp 			= new PVector( 10,10 );
 		shieldHp 	= new PVector( 10,10 );
 
+		wins = 0;
 		
+		if (input.hasGamePad) println("Player " + id + " uses a game pad.");
+		else  println("Player " + id + " doesn't use a game pad.");
+	}
+
+	void reset() {
+		// reset is called at every start of the level and is used to (re)initialise player variables
+		siz = new PVector( CELL_SIZE, CELL_SIZE );
+
 		hit = false;
 		ALIVE = false;
 		INVINCIBLE = false;
 		KILLED = false;
 		boosting = false;
-		hasBoost = true;
+		hasBoost = false;
 		hasMultiShot = false;
 		hasShield = false;
-		hasLockDown = true;
+		hasLockDown = false;
 		showItem = false;
+		spawnedOnce = false;
 		
 		//properties
 		alpha = 255;
@@ -86,57 +96,34 @@ class Player extends GameObject {
 		nodesOwned = 0;
 		nodesCaptured = 0;
 		nodesLost = 0;
-		wins = 0;
-		spawnedOnce = false;
+		if (gManager.gameOver) wins = 0;
+		pos.set(startPos);
 
-		//counters
+		// bullet charge
 		maxCharge = CELL_SIZE;
 		minCharge = CELL_SIZE / 2;
 		charge = minCharge;
 		initChargeDelay = 0.01;
 		chargeDelay = initChargeDelay;
+		shootDelayDuration = 1.5;
+		shootDelayTime = 0;
+
+		// respawn timers
 		initialRespawnDuration = 0;
 		respawnDuration = initialRespawnDuration;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
-		shootDelayDuration = 1.5;
-		shootDelayTime = 0;
-
+		// invicibility
 		invincibleDuration = 2;
 		invincibleTime = invincibleDuration;
+		// boost
 		trailCount = 100000;
 
-		// multishot display variables
+		// multishot
 		msMaxSize = siz.x / 6;
 		msIndicatorSize = msMaxSize;
-		
-		if (input.hasGamePad) println("Player " + id + " uses a game pad.");
-		else  println("Player " + id + " doesn't use a game pad.");
-	}
-
-	void reset() {
-		// reset is called at every start of the level
-		ALIVE = false;
-		KILLED = false;
-		siz = new PVector( CELL_SIZE, CELL_SIZE );
-		respawnDuration = initialRespawnDuration;
-		respawnTime = respawnDuration;
-		spawnedOnce = false;
-		charge = minCharge;
-		hasBoost = false;
-		hasMultiShot = false;
-		hasLockDown = false;
+		// shield
 		shieldHp.x = 0;
-		kills = 0;
-		deaths = 0;
-		items = 0;
-		shots = 0;
-		nodesOwned = 0;
-		nodesCaptured = 0;
-		nodesLost = 0;
-		showItem = false;
-		if (gManager.gameOver) wins = 0;
-		pos.set(startPos);
 	}
 
 	void update() {
