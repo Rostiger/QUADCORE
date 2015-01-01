@@ -46,10 +46,25 @@ class Menu {
 			input.add(in);
 		}
 
-		gridSize = CELL_SIZE;
+		gridSize = 32 * WIN_SCALE;
 	}
 
 	void update() {
+		if (active) {
+
+			// check input
+			for (Input i : input) {
+				input.get(i.id).update();
+				if (i.anyKeyPressed && i.id != userId)  {
+					setUser(i.id);
+					break;
+				}
+			}
+			
+			draw();
+
+		} else selectedItem = 0;
+
 		// handle the pause menu
 		if (gManager.paused) {
 			if (input.get(userId).shootReleased) {
@@ -91,21 +106,7 @@ class Menu {
 					break;
 				}
 			}
-		}
-
-		// draw the menu
-		if (active) {
-			draw();
-			input.get(userId).update();
-		} else selectedItem = 0;
-		
-		// check input
-		for (Input in : input) {
-			if (in.anyKeyPressed && in.id != userId)  {
-				setUser(in.id);
-				break;
-			}
-		}
+		}		
 	}
 
 	void draw() {
@@ -199,12 +200,9 @@ class Menu {
 		float scl = WIN_SCALE;
 		float wght = scl * 3;
 		PVector siz = new PVector(528 * scl, 256 * scl);
-		PVector pos = new PVector(-VIEW_WIDTH / 2 + gridSize * 2, -VIEW_HEIGHT / 2 + gridSize * 4);
+		PVector pos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 2,-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 4);
 		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
 		int rgb = colors.player[userId];
-
-		// while (pos.x > gridSize * 4) pos.x--;
-		// while (pos.y % floor(gridSize) != 0) pos.y++;
 
 		// draws a background rect in pause mode
 		// if (gManager.paused) {
@@ -327,19 +325,13 @@ class Menu {
 
 	void keyPressed()  {
 		if (active) {
-			for (Input i : input) {
-				i.keyPressed();
-				i.manageInputStates();
-			}
+			for (Input i : input) i.keyPressed();
 		}
 	}
 
 	void keyReleased() { 
 		if (active) {
-			for (Input i : input) {
-				i.keyReleased();
-				i.manageInputStates();
-			}
+			for (Input i : input) i.keyReleased();
 		}
 	}
 
