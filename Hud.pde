@@ -104,7 +104,7 @@ class Hud {
 					else hudMessage = "PRESS FIRE TO JOIN";
 					
 					// set the text position
-					float textYPos = WIN_HEIGHT / 2 - ARENA_BORDER / 4;
+					float textYPos = WIN_HEIGHT / 2 - ARENA_BORDER / 3;
 
 					// draw the actual text
 					text(hudMessage,0,textYPos);
