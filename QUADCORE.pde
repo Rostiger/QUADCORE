@@ -39,21 +39,20 @@ int WIN_HEIGHT;				// stores the height of the display resolution
 float WIN_SCALE = 1.0;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
-float CELL_SIZE;			// size of a single tile
+int CELL_SIZE;			// size of a single tile
 float dt;					// this value is initialised and update in the GameManager() class
 float dtInSeconds;
-float FONT_SIZE;
-float DEBUG_FONT_SIZE;
+int FONT_SIZE;
+int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
 boolean TOP_VIEW = false;		// playing on the hansG?
-PVector canvasPos;				// canvas position
+PVector canvasPos, canvasCen;
 color bgColor = #000000;
 
 Shake screenShake = new Shake();
 
 //post processing variables
 PShader blur;
-PImage dst, src;
 PGraphics pass1, pass2;
 
 void setup() {
@@ -61,10 +60,9 @@ void setup() {
 	// get the width of the current display and set the height so it's a 4:3 ratio
 	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
 	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
-
-	FONT_SIZE = ceil(WIN_WIDTH * 0.03);
+	ARENA_BORDER = ceil(WIN_HEIGHT * 0.06);
+	FONT_SIZE = ceil(WIN_HEIGHT * 0.04);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
-	ARENA_BORDER = ceil(WIN_WIDTH * 0.04);
 
 	// setup the window and renderer
 	size(WIN_WIDTH,WIN_HEIGHT,P2D);
@@ -78,16 +76,14 @@ void setup() {
 	loadFonts();
 	
 	// reset the game
-	VIEW_WIDTH = WIN_HEIGHT - ARENA_BORDER * 2;
-	VIEW_HEIGHT = VIEW_WIDTH;
 	gManager.reset();
 	menu = new Menu();
 
 	// set up a canvas to draw onto
 	canvas = createGraphics(VIEW_WIDTH,VIEW_HEIGHT);
 	canvasPos = new PVector(WIN_WIDTH / 2 - VIEW_WIDTH / 2, ARENA_BORDER);
-	canvasPos2 = new PVector(WIN_WIDTH / 2, WIN_HEIGHT / 2);
-	
+	canvasCen = new PVector(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+
 	// initialise the debugger
 	debugger = new Debugger();
 	
@@ -113,7 +109,7 @@ void draw() {
 		canvasPos.add(screenShake.offset);
 	}
 	imageMode(CENTER);
-  	image( canvas, canvasPos2.x, canvasPos2.y	);
+  	image( canvas, canvasCen.x, canvasCen.y	);
 	
 	canvas.beginDraw();
 	canvas.background(colors.bg);
@@ -133,7 +129,7 @@ void draw() {
 }
 
 void postProcessing() {
-	dst = get();
+	PImage dst = get();
 
 	// Applying the blur shader along the vertical direction   
 	blur.set("verticalPass", 0);
