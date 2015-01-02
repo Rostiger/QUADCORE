@@ -49,6 +49,10 @@ class Menu {
 		gridSize = 32 * WIN_SCALE;
 	}
 
+	void setUser(int _id) {
+		userId = _id;
+	}
+	
 	void update() {
 		if (active) {
 
@@ -120,6 +124,13 @@ class Menu {
 		rectMode(CENTER);
 		rect(0,0,WIN_HEIGHT,WIN_HEIGHT);
 
+		if (gManager.paused) {
+			imageMode(CENTER);
+			tint(255,100);
+			image(bg,0,0);
+			noTint();
+		}
+
 		pushMatrix();
 		//rotate the canvas to the winner
 		switch (userId) {
@@ -128,22 +139,21 @@ class Menu {
 			case 2: rotate(radians(270)); break;
 			case 3: rotate(radians(90)); break;
 		}
+		drawLogo();
 
 		if (gManager.paused) drawMenu(pauseMenu);
 		else drawMenu(mainMenu);
 		if (tutorial) drawTutorial();
 
-		drawLogo();
+		noFill();
+		PVector gridPos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER,-WIN_HEIGHT / 2 + ARENA_BORDER);
+		PVector gridSiz = new PVector(VIEW_WIDTH + gridSize, VIEW_HEIGHT + gridSize);
+		stroke(colors.player[userId],100);
+		drawGrid(gridPos, gridSiz, gridSize * 4, gridSize ,1);
+		stroke(colors.player[userId],50);
+		drawGrid(gridPos, gridSiz, gridSize / 2, gridSize / 8,1);
 
 		popMatrix();
-		if (gManager.paused) {
-			imageMode(CENTER);
-			tint(255,75);
-			image(bg,0,0);
-			noTint();
-		}
-
-		drawGrid(new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER,-WIN_HEIGHT / 2 + ARENA_BORDER),gridSize);
 
 		popMatrix();
 	}
@@ -157,7 +167,7 @@ class Menu {
 			fill(colors.player[userId],255);
 			textAlign(CENTER);
 			textSize(FONT_SIZE * 3);
-			text("GAME PAUSED",0,-VIEW_HEIGHT / 1.2);
+			text("GAME PAUSED",0,-VIEW_HEIGHT * 0.35);
 		}
 
 		if (input.get(userId).downReleased) {
@@ -170,91 +180,93 @@ class Menu {
 			else selectedItem = _menuName.length - 1;
 		}
 
-		PVector pos = new PVector( 0, 0 );
+		PVector pos = new PVector( WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 2 - 1, WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 5 - 1 );
+		float hSize = -gridSize;
+		int txt = 0;
+		int bg = 0;
+		int st = 0;
 
 		// draws the contents of a spcified menu array
 		for (int i = 0; i < _menuName.length; i++) {
 
-			pos.y = WIN_HEIGHT / 4 + FONT_SIZE * i;
+			float y = pos.y + gridSize * i;
 
 			if (i == selectedItem) {
 				alpha = 255;
-				itemFontScale = 1.3;
+				hSize = -gridSize * 8;
+				bg = colors.player[userId];
+				txt = colors.solid;
+				st = colors.solid;
 			} else {
-				alpha = 100;
-				itemFontScale = 1;
+				alpha = 255;
+				hSize = -gridSize * 7;
+				bg = colors.bg;
+				txt = colors.player[userId];
+				st = colors.solid;
 			}
-
-			textSize(FONT_SIZE * itemFontScale);
-			fill(colors.player[userId],alpha);
-			text( _menuName[i], pos.x, pos.y );
+			rectMode(CORNER);
+			strokeWeight(1);
+			stroke(st,255);
+			fill(bg,255);
+			rect(pos.x,y,hSize, gridSize);
+			textAlign(RIGHT);
+			textSize(FONT_SIZE);
+			fill(txt,255);
+			text( _menuName[i], pos.x - gridSize / 4, y + gridSize / 1.2 );
+			fill(colors.player[userId]);
+			rect(pos.x,y,gridSize,gridSize);
 		}
-	}
-
-	void setUser(int _id) {
-		userId = _id;
 	}
 
 	void drawLogo() {
 		// draws QUADCORE
 		float scl = WIN_SCALE;
-		float wght = scl * 3;
+		float wght = scl * 4;
 		PVector siz = new PVector(528 * scl, 256 * scl);
 		PVector pos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 2,-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 4);
 		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
 		int rgb = colors.player[userId];
-
-		// draws a background rect in pause mode
-		// if (gManager.paused) {
-		// 	fill(0,0,0,255);
-		// 	stroke(0,0,0,255);
-		// 	strokeWeight(CELL_SIZE * 2);
-		// 	rectMode(CORNER);
-		// 	rect(-WIN_WIDTH / 2, pos.y , WIN_WIDTH, siz.y);
-		// }
-
-		// draws the grid inside the logo
-		noFill();
-		stroke(rgb, 50);
-		strokeWeight(wght * 0.4);
-
-		for (float x = pos.x; x < pos.x + siz.x; x += gridSize / 4) {
-			line(x, pos.y, x, pos.y + siz.y);
-		}
-
-		for (float y = pos.y; y < pos.y + siz.y; y += gridSize / 4) {
-			line(pos.x, y, pos.x + siz.x ,y);
-		}
-
-		// stores the coordinates of the letters
 		int[] verts = new int[]{0,0};
 		int[] lines = new int[]{0,0};
 
-		// draw the logo contour
-		fill(colors.solid,255);
-		stroke(colors.solid,255);
-		strokeWeight(wght);
-	
-		beginShape();
-		vertex(pos.x, pos.y);
-		vertex(pos.x + siz.x, pos.y);
-		vertex(pos.x + siz.x, pos.y + siz.y);
-		vertex(pos.x, pos.y + siz.y);
+		if (!gManager.paused) {
+			// draws the grid inside the logo
+			noFill();
+			stroke(rgb, 255);
+			strokeWeight(wght * 0.4);
 
-		for (int i=0; i<8; i++){
-			verts = getLetter(i);
-			beginContour();
-			drawLogoLetter(pos, verts, scl, true);
-			endContour();
+			drawGrid(pos,siz,gridSize / 4,gridSize / 8,1);
+
+
+			// draw the logo contour
+			fill(colors.solid,255);
+			stroke(colors.solid,255);
+			strokeWeight(wght * 2);
+		
+			beginShape();
+			vertex(pos.x, pos.y);
+			vertex(pos.x + siz.x, pos.y);
+			vertex(pos.x + siz.x, pos.y + siz.y);
+			vertex(pos.x, pos.y + siz.y);
+
+			for (int i=0; i<8; i++){
+				verts = getLetterVerts(i);
+				beginContour();
+				drawLogoLetter(pos, verts, scl, true);
+				endContour();
+			}
+			endShape(CLOSE);
+			fill(rgb,30);
+			stroke(rgb, 255);		
+		} else {
+			fill(rgb, 255);		
+			stroke(colors.solid,255);
 		}
-		endShape(CLOSE);
 
-		// draw the letter shapes with outlines
-		fill(rgb,20);
-		stroke(rgb, 255);
 		strokeWeight(wght);
+		// draw the letter shapes with outlines
 		for (int i=0; i<8; i++){
-			verts = getLetter(i);
+			verts = getLetterVerts(i);
 			beginShape();
 			drawLogoLetter(pos, verts, scl, true);
 			endShape();
@@ -276,7 +288,7 @@ class Menu {
 		}
 	}
 
-	int[] getLetter(int _letter) {
+	int[] getLetterVerts(int _letter) {
 		int[] verts = new int[]{0,0};
 			switch(_letter) {
 				case 0: //Q
@@ -305,22 +317,35 @@ class Menu {
 		PVector pos = _pos;
 		int[] coords = _coords;
 
-		if (_contours) for (int i=0; i<coords.length; i+=2) { vertex( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl ); }
-		else for (int i=0; i<coords.length; i+=4){ line( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl, pos.x + coords[i+2] * scl, pos.y + coords[i+3] * scl ); }
+		if (_contours) {
+			strokeCap(PROJECT);
+			for (int i=0; i<coords.length; i+=2) { vertex( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl ); }
+		} else {
+			strokeCap(SQUARE);
+			for (int i=0; i<coords.length; i+=4){ line( pos.x + coords[i] * scl, pos.y + coords[i+1] * scl, pos.x + coords[i+2] * scl, pos.y + coords[i+3] * scl ); }
+		}
 	}
 
-	void drawGrid(PVector _offset, float _gridSize){
-		noFill();
-		strokeWeight(1);
-		stroke(colors.player[userId],50);
-		float gridSize = _gridSize;
-		for (float x=_offset.x; x<WIN_WIDTH; x+=gridSize) {
-			line(x,_offset.y,x,WIN_HEIGHT);
-		}
+	void drawGrid(PVector _pos, PVector _siz, float _cellSize, float _pointSize, float _pointWeight){
+		PVector pos = _pos;
+		PVector siz = _siz;
+		float cellSize = _cellSize;
 
-		for (float y=_offset.y; y<WIN_HEIGHT; y+=gridSize) {
-			line(_offset.x,y,WIN_WIDTH,y);
+		for (float x=0; x<=siz.x; x+=cellSize) {
+
+			for (float y=0; y<=siz.y; y+=cellSize) {
+			  drawGridPoint(pos.x + x, pos.y + y, _pointSize, _pointWeight);
+			}
+
 		}
+	}
+
+	void drawGridPoint(float _x, float _y, float _size, float _weight) {
+		PVector pos = new PVector(_x,_y);
+		float siz = _size;
+		strokeWeight(_weight);
+		line(pos.x - siz / 2, pos.y, pos.x + siz / 2, pos.y);
+		line(pos.x, pos.y - siz / 2, pos.x, pos.y + siz / 2);
 	}
 
 	void keyPressed()  {
