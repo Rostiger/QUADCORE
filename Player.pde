@@ -155,7 +155,7 @@ class Player extends GameObject {
 			//if the player is invincible, count down the timer and start blinking
 			if (INVINCIBLE) {
 				if (invincibleTime > 0) {
-					alpha = blink(0,255,3);
+					alpha = blink.blink(0,255,3);
 					invincibleTime -= 1 * dtInSeconds;
 
 				} else {

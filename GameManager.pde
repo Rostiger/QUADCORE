@@ -9,10 +9,15 @@ class GameManager {
 	int winnerID;
 	int prevLevelID;
 	int nextLevelID;
+	int alpha;
+
+	Grid grid;
 
 	GameManager() {
 	    prevLevelID = 100;
     	prevMillis = millis();
+    	grid = new Grid();
+    	alpha = 0;
    	}
 
 	void reset() {
@@ -53,7 +58,6 @@ class GameManager {
 	    // these come after parsing the level, because they are dependend on the CELL_SIZE value
 		hud = new Hud();
 		collision = new Collision();
-		checkers = new Checkers();
 	}
 
 	void update() {
@@ -70,17 +74,35 @@ class GameManager {
 		// update game objects
 		if (menu.active) menu.update();
 		else {
-		
+
+			// if (matchOver || debugger.drawCheckers) {
+			// 	blink(100,0,5);
+			// 	fill(colors.player[winnerID], alpha);
+			// 	noStroke();
+			// 	rectMode(CENTER);
+			// 	canvas.rect(WIN_WIDTH / 2,WIN_HEIGHT / 2,VIEW_WIDTH, VIEW_HEIGHT);
+			// }
 			oManager.update();
 			hud.update();
-			
+
 			// store a background image when paused
 			if (paused) {
 				menu.bg = canvas.get();
 				menu.active = true;
-			}
-
+			} updateGrid();			
 		}
 	}
 
+	void updateGrid() {
+		// grid (pos, siz, cellSize, pointSize, pointWeight, color, alpha)
+		pushMatrix();
+		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
+		PVector gridPos = new PVector(-VIEW_WIDTH / 2, -VIEW_HEIGHT / 2);
+		PVector gridSiz = new PVector(VIEW_WIDTH , VIEW_HEIGHT);
+		grid.drawGrid(gridPos, gridSiz, CELL_SIZE, CELL_SIZE / 8, 1, colors.item, 50);
+		grid.drawGrid(gridPos, gridSiz, CELL_SIZE * 4, CELL_SIZE / 2, 1, colors.item, 50);
+        // draw a checkerboard for the winner
+		// grid.drawCheckers = matchOver || debugger.drawCheckers ? true : false;
+		popMatrix();
+	}
 }
