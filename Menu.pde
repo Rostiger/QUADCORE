@@ -185,40 +185,55 @@ class Menu {
 			rect(offset.x - gridSize, offset.y - gridSize * 1.5, gridSize * 19, gridSize * 10);
 			fill(colors.player[userId],255);
 			textSize(FONT_SIZE);
-			text("USE     TO MOVE.", offset.x, offset.y);
-			drawDPad(offset);
-			text("PRESS " + " TO SHOOT.", offset.x, offset.y + gridSize);
-			text("HOLD " + " TO CHARGE SHOT.", offset.x, offset.y + (gridSize * 2));
-			text("PRESS " + " TO USE ITEMS.", offset.x, offset.y + (gridSize * 3));
-			text("CAPTURE ALL " + " TO WIN.", offset.x, offset.y + (gridSize * 4));
-			text("PRESS " + " TO RESPAWN.", offset.x, offset.y + (gridSize * 5));
-			text("SPAWN ONTO OTHER PLAYERS TO KILL THEM.", offset.x, offset.y + (gridSize * 6));
-			text("RESPAWN TIME INCREASES WITH EACH DEATH.", offset.x, offset.y + (gridSize * 7));
+
+			text("USE     TO MOVE YOUR QUAD.", offset.x, offset.y);
+			drawDPad(offset.x + gridSize * 2.1, offset.y - gridSize * 0.3, 0.9);
+
+			text("PRESS     TO SHOOT.", offset.x, offset.y + gridSize);
+			drawButtons(offset.x + gridSize * 3.1, offset.y + gridSize - gridSize * 0.3, 0.9, 3);
+
+			text("HOLD     TO CHARGE A SHOT.", offset.x, offset.y + (gridSize * 2));
+			drawButtons(offset.x + gridSize * 2.7, offset.y + gridSize * 2 - gridSize * 0.3, 0.9, 3);
+
+			text("PRESS     TO USE ITEMS.", offset.x, offset.y + (gridSize * 3));
+			drawButtons(offset.x + gridSize * 3.1, offset.y + gridSize * 3 - gridSize * 0.3, 0.9, 1);
+
+			text("PRESS     TO RESPAWN.", offset.x, offset.y + (gridSize * 4));
+			drawButtons(offset.x + gridSize * 3.1, offset.y + gridSize * 4 - gridSize * 0.3, 0.9, 3);
+
+			text("SPAWN ONTO OTHER PLAYERS TO KILL THEM.", offset.x, offset.y + (gridSize * 5));
+			text("RESPAWN TIME INCREASES WITH EACH DEATH.", offset.x, offset.y + (gridSize * 6));
+			text("CAPTURE ALL      TO WIN.", offset.x, offset.y + (gridSize * 7));
+			drawNode(offset.x + gridSize * 6.0, offset.y + gridSize * 7 - gridSize * 0.3, 0.8);
 		} else {
 
 		}
 	}
-	void drawDPad(PVector _pos) {
-		PVector pos = _pos;
-		float siz = gridSize * 0.9;
+	void drawDPad(float _posx, float _posy, float _scale) {
+		PVector pos = new PVector(_posx,_posy);
+		float siz = gridSize * _scale;
 		PGraphics dpad =  createGraphics((int)siz, (int)siz);
 		dpad.beginDraw();
-		dpad.noStroke();
 		dpad.fill(colors.player[userId]);
 		dpad.pushMatrix();
 		dpad.translate(siz / 2, siz / 2);
 		for(int i=0;i<4;i++) {
 			dpad.rotate(radians(90 * i));
-			dpad.triangle(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+			dpad.noStroke();
+			dpad.triangle(0, -siz / 2, -siz / 6, -siz / 4, siz / 6, - siz / 4);
+			dpad.stroke(colors.player[userId]);
+			dpad.strokeWeight(siz / 10);
+
+			dpad.line(0,0,0,-siz / 8);
 		}
 		dpad.popMatrix();
 		dpad.endDraw();
-	  	image( dpad, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );
+	  	image( dpad, pos.x, pos.y );
 	}
 
-	void drawButtons(PVector _pos) {
-		PVector pos = _pos;
-		float siz = gridSize * 0.9;
+	void drawButtons(float _posx, float _posy, float _scale, int _no) {
+		PVector pos = new PVector(_posx,_posy);
+		float siz = gridSize * _scale;
 		PGraphics btn =  createGraphics((int)siz, (int)siz);
 		btn.beginDraw();
 		btn.noStroke();
@@ -226,12 +241,32 @@ class Menu {
 		btn.pushMatrix();
 		btn.translate(siz / 2, siz / 2);
 		for(int i=0;i<4;i++) {
-			btn.rotate(radians(90 * i));
-			btn.ellipse(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+			if (i == _no) btn.fill(colors.player[userId]);
+			else {
+				btn.noFill();
+				btn.stroke(colors.player[userId]);
+			}
+			btn.rotate(radians(-90 * i));
+			btn.ellipse(0, -siz / 4, siz / 4, siz / 4);
 		}
 		btn.popMatrix();
 		btn.endDraw();
-	  	image( btn, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );		
+	  	image( btn, pos.x, pos.y );		
+	}
+
+	void drawNode(float _posx, float _posy, float _scale) {
+		PVector pos = new PVector(_posx,_posy);
+		float siz = gridSize * _scale;
+		PGraphics node =  createGraphics((int)siz, (int)siz);
+		node.beginDraw();
+		node.stroke(colors.player[userId]);
+		node.strokeWeight(siz / 8);
+		node.fill(colors.solid);
+		node.rectMode(CENTER);
+		node.rect(siz / 2, siz / 2, siz - 1, siz - 1);
+		node.rect(siz / 2, siz / 2, siz / 3, siz / 3);
+		node.endDraw();
+	  	image( node, pos.x, pos.y );		
 	}
 
 	void drawMenu(String[] _menuName) {
