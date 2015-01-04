@@ -2,12 +2,12 @@ class Menu {
 	
 	boolean active = true;
 	boolean tutorial = false;
+	boolean credits = false;
 	int alpha;
 	int userId;
 	PImage bg;
 
 	ArrayList < Input > input;
-	float gridSize;
 	// variables for the zamSpielen logo
 	PVector lg1Pos, lg1Siz;
 	float lg1Scl, lg1Rot, lg1Ratio;
@@ -15,11 +15,13 @@ class Menu {
 	// menus
 	String[] pauseMenu = new String[]{"CONTINUE","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","HOW TO PLAY","ABOUT"};
+	String[] backMenu = new String[]{"BACK"};
 	int selectedItem;
 	float itemFontScale;
 
-	// pulser
+	// components
 	Pulser pulser = new Pulser();
+	Grid grid = new Grid();
 
 	Menu() {
 		alpha = 255;
@@ -46,7 +48,6 @@ class Menu {
 			input.add(in);
 		}
 
-		gridSize = 32 * WIN_SCALE;
 	}
 
 	void setUser(int _id) {
@@ -70,47 +71,54 @@ class Menu {
 		} else selectedItem = 0;
 
 		// handle the pause menu
-		if (gManager.paused) {
-			if (input.get(userId).shootReleased) {
-				switch( selectedItem ) {
-					case 0: // CONTINUE 
-						active = false;
-						gManager.paused = false;
-					break;
-					case 1: // RESTART
-						active = false;
-						gManager.paused = false;
-						gManager.gameOver = true;
-						gManager.reset();
-					break;
-					case 2: // HOW TO PLAY
-						tutorial = true;
-					break;
-					case 3: // EXIT
-						gManager.paused = false;
-						selectedItem = 0;
-					break;
+		if (!tutorial && !credits) {
+			if (gManager.paused) {
+				if (input.get(userId).shootReleased) {
+					switch( selectedItem ) {
+						case 0: // CONTINUE 
+							active = false;
+							gManager.paused = false;
+						break;
+						case 1: // RESTART
+							active = false;
+							gManager.paused = false;
+							gManager.gameOver = true;
+							gManager.reset();
+						break;
+						case 2: // HOW TO PLAY
+							tutorial = true;
+						break;
+						case 3: // EXIT
+							gManager.paused = false;
+							selectedItem = 0;
+						break;
+					}
+				}
+			} else {
+			// handle the main menu
+				// set the size and position of the zamSpielen logo
+				lg1Scl = 1;//pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
+				lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
+
+				// 
+				if (input.get(userId).shootReleased) {
+					switch( selectedItem ) {
+						case 0: // START GAME
+							active = false; 
+							gManager.reset();
+						break;
+						case 1: tutorial = true; break;
+						case 2: credits = true; break;
+					}
 				}
 			}
 		} else {
-		// handle the main menu
-			// set the size and position of the zamSpielen logo
-			lg1Scl = pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
-			lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
-
-			// 
+			selectedItem = 0;
 			if (input.get(userId).shootReleased) {
-				switch( selectedItem ) {
-					case 0: // START GAME
-						active = false; 
-						gManager.reset();
-					break;
-					case 1:
-						tutorial = true;
-					break;
-				}
+				tutorial = false;
+				credits = false;
 			}
-		}		
+		}
 	}
 
 	void draw() {
@@ -126,12 +134,11 @@ class Menu {
 
 		if (gManager.paused) {
 			imageMode(CENTER);
-			tint(255,100);
+			tint(255,250);
 			image(bg,0,0);
 			noTint();
 		}
 
-		pushMatrix();
 		//rotate the canvas to the winner
 		switch (userId) {
 			case 0: rotate(radians(180)); break;
@@ -139,35 +146,100 @@ class Menu {
 			case 2: rotate(radians(270)); break;
 			case 3: rotate(radians(90)); break;
 		}
-		drawLogo();
 
-		if (gManager.paused) drawMenu(pauseMenu);
-		else drawMenu(mainMenu);
-		if (tutorial) drawTutorial();
+		if (!tutorial && !credits) {
+			drawLogo();
+			drawVersion();
+			if (gManager.paused) drawMenu(pauseMenu);
+			else drawMenu(mainMenu);
+		}
 
 		noFill();
 		PVector gridPos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER,-WIN_HEIGHT / 2 + ARENA_BORDER);
 		PVector gridSiz = new PVector(VIEW_WIDTH + gridSize, VIEW_HEIGHT + gridSize);
-		stroke(colors.player[userId],100);
-		drawGrid(gridPos, gridSiz, gridSize * 4, gridSize ,1);
-		stroke(colors.player[userId],50);
-		drawGrid(gridPos, gridSiz, gridSize / 2, gridSize / 8,1);
+		// grid (pos, siz, cellSize, pointSize, pointWeight, color, alpha)
+		grid.drawGrid(gridPos, gridSiz, gridSize * 4, gridSize , 1, colors.player[userId], 100);
+		grid.drawGrid(gridPos, gridSiz, gridSize / 2, gridSize / 8, 1, colors.player[userId], 50);
 
-		popMatrix();
+		if (tutorial || credits) drawSubMenu();
 
 		popMatrix();
 	}
 
-	void drawTutorial() {
+	void drawSubMenu() {
+		drawMenu(backMenu);
+		PVector offset = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 2, -WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 5.5);
+		fill(colors.player[userId]);
+		textAlign(LEFT);
 
+		if (tutorial) {
+			rectMode(CORNER);
+			fill(colors.player[userId], 255);
+			stroke(colors.player[userId]);
+			rect(offset.x - gridSize, offset.y - gridSize * 1.5, gridSize * 19, gridSize * 2);
+			textSize(FONT_SIZE * 1.5);
+			fill(colors.solid);
+			text("//QUADCORE - H", offset.x, offset.y);
+			offset.y += gridSize * 2;
+			fill(colors.solid, 200);
+			rect(offset.x - gridSize, offset.y - gridSize * 1.5, gridSize * 19, gridSize * 10);
+			fill(colors.player[userId],255);
+			textSize(FONT_SIZE);
+			text("USE     TO MOVE.", offset.x, offset.y);
+			drawDPad(offset);
+			text("PRESS " + " TO SHOOT.", offset.x, offset.y + gridSize);
+			text("HOLD " + " TO CHARGE SHOT.", offset.x, offset.y + (gridSize * 2));
+			text("PRESS " + " TO USE ITEMS.", offset.x, offset.y + (gridSize * 3));
+			text("CAPTURE ALL " + " TO WIN.", offset.x, offset.y + (gridSize * 4));
+			text("PRESS " + " TO RESPAWN.", offset.x, offset.y + (gridSize * 5));
+			text("SPAWN ONTO OTHER PLAYERS TO KILL THEM.", offset.x, offset.y + (gridSize * 6));
+			text("RESPAWN TIME INCREASES WITH EACH DEATH.", offset.x, offset.y + (gridSize * 7));
+		} else {
+
+		}
+	}
+	void drawDPad(PVector _pos) {
+		PVector pos = _pos;
+		float siz = gridSize * 0.9;
+		PGraphics dpad =  createGraphics((int)siz, (int)siz);
+		dpad.beginDraw();
+		dpad.noStroke();
+		dpad.fill(colors.player[userId]);
+		dpad.pushMatrix();
+		dpad.translate(siz / 2, siz / 2);
+		for(int i=0;i<4;i++) {
+			dpad.rotate(radians(90 * i));
+			dpad.triangle(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+		}
+		dpad.popMatrix();
+		dpad.endDraw();
+	  	image( dpad, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );
+	}
+
+	void drawButtons(PVector _pos) {
+		PVector pos = _pos;
+		float siz = gridSize * 0.9;
+		PGraphics btn =  createGraphics((int)siz, (int)siz);
+		btn.beginDraw();
+		btn.noStroke();
+		btn.fill(colors.player[userId]);
+		btn.pushMatrix();
+		btn.translate(siz / 2, siz / 2);
+		for(int i=0;i<4;i++) {
+			btn.rotate(radians(90 * i));
+			btn.ellipse(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+		}
+		btn.popMatrix();
+		btn.endDraw();
+	  	image( btn, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );		
 	}
 
 	void drawMenu(String[] _menuName) {
 		if (gManager.paused) {
-			fill(colors.player[userId],255);
-			textAlign(CENTER);
-			textSize(FONT_SIZE * 3);
-			text("GAME PAUSED",0,-VIEW_HEIGHT * 0.35);
+			fill(colors.player[userId],blink.blink(255,0,14));
+			textAlign(RIGHT);
+			textSize(FONT_SIZE);
+			text("//GAME PAUSED",VIEW_WIDTH / 2- gridSize, VIEW_HEIGHT * 0.22);
 		}
 
 		if (input.get(userId).downReleased) {
@@ -179,9 +251,9 @@ class Menu {
 			if (selectedItem > 0) selectedItem--;
 			else selectedItem = _menuName.length - 1;
 		}
-
-		PVector pos = new PVector( WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 2 - 1, WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 5 - 1 );
-		float hSize = -gridSize;
+		int yOffset = _menuName.length + 1;
+		PVector pos = new PVector( WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 2 - 1, WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * yOffset - 1 );
+		float hSize = -gridSize * 7;
 		int txt = 0;
 		int bg = 0;
 		int st = 0;
@@ -193,27 +265,26 @@ class Menu {
 
 			if (i == selectedItem) {
 				alpha = 255;
-				hSize = -gridSize * 8;
 				bg = colors.player[userId];
 				txt = colors.solid;
 				st = colors.solid;
 			} else {
 				alpha = 255;
-				hSize = -gridSize * 7;
-				bg = colors.bg;
+				bg = colors.solid;
 				txt = colors.player[userId];
 				st = colors.solid;
 			}
 			rectMode(CORNER);
 			strokeWeight(1);
-			stroke(st,255);
-			fill(bg,255);
+			stroke(st,alpha);
+			fill(bg,alpha);
 			rect(pos.x,y,hSize, gridSize);
 			textAlign(RIGHT);
-			textSize(FONT_SIZE);
+			textSize(FONT_SIZE * 0.8);
 			fill(txt,255);
-			text( _menuName[i], pos.x - gridSize / 4, y + gridSize / 1.2 );
+			text(_menuName[i], pos.x - gridSize / 4, y + gridSize / 1.35 );
 			fill(colors.player[userId]);
+			stroke(st,255);
 			rect(pos.x,y,gridSize,gridSize);
 		}
 	}
@@ -221,7 +292,7 @@ class Menu {
 	void drawLogo() {
 		// draws QUADCORE
 		float scl = WIN_SCALE;
-		float wght = scl * 4;
+		float wght = scl * 4; 
 		PVector siz = new PVector(528 * scl, 256 * scl);
 		PVector pos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 2,-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 4);
 		PVector letterSiz = new PVector(siz.x / 4, siz.y / 2);
@@ -231,13 +302,7 @@ class Menu {
 
 		if (!gManager.paused) {
 			// draws the grid inside the logo
-			noFill();
-			stroke(rgb, 255);
-			strokeWeight(wght * 0.4);
-
-			drawGrid(pos,siz,gridSize / 4,gridSize / 8,1);
-
-
+			grid.drawGrid(pos,siz,gridSize / 4, gridSize / 8, wght * 0.4, colors.player[userId], 255);
 			// draw the logo contour
 			fill(colors.solid,255);
 			stroke(colors.solid,255);
@@ -326,26 +391,11 @@ class Menu {
 		}
 	}
 
-	void drawGrid(PVector _pos, PVector _siz, float _cellSize, float _pointSize, float _pointWeight){
-		PVector pos = _pos;
-		PVector siz = _siz;
-		float cellSize = _cellSize;
-
-		for (float x=0; x<=siz.x; x+=cellSize) {
-
-			for (float y=0; y<=siz.y; y+=cellSize) {
-			  drawGridPoint(pos.x + x, pos.y + y, _pointSize, _pointWeight);
-			}
-
-		}
-	}
-
-	void drawGridPoint(float _x, float _y, float _size, float _weight) {
-		PVector pos = new PVector(_x,_y);
-		float siz = _size;
-		strokeWeight(_weight);
-		line(pos.x - siz / 2, pos.y, pos.x + siz / 2, pos.y);
-		line(pos.x, pos.y - siz / 2, pos.x, pos.y + siz / 2);
+	void drawVersion() {
+		fill(colors.player[userId]);
+		textSize(FONT_SIZE * 0.5);
+		textAlign(RIGHT);
+		text("V." + version, VIEW_WIDTH / 2 - gridSize, VIEW_HEIGHT / 2 - gridSize * 8.5);
 	}
 
 	void keyPressed()  {
