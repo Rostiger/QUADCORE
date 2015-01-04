@@ -7,6 +7,7 @@ class Player extends GameObject {
 	float minCharge, maxCharge, drawScale, initialDrawScale, drawScaleShield;
 	boolean ALIVE, KILLED, INVINCIBLE;
 	boolean hit, knockBack, hasMultiShot, hasShield, hasLockDown;
+	boolean wrapH, wrapV;
 	
 	// stats
 	int bullets, kills, deaths, shots, items, score, nodesOwned, nodesCaptured, nodesLost, wins;
@@ -86,6 +87,8 @@ class Player extends GameObject {
 		initialDrawScale = 5;
 		drawScale = initialDrawScale;
 		drawScaleShield = 1;
+		wrapH = false;
+		wrapV = false;
 
 		//stats
 		bullets = 0;
@@ -130,6 +133,7 @@ class Player extends GameObject {
 		// update the inputs if the debug console isn't open
 		if (!gManager.debug) input.update();
 
+		// pauses the game
 		if (input.startReleased) {
 			if (gManager.matchOver && hud.showEndScreen) gManager.reset();
 			else {
@@ -210,11 +214,9 @@ class Player extends GameObject {
 			}
 
 		}
-
 	}
 
 	void useItem() {
-
 		if (input.useItemPressed) { 
 			if (hasLockDown) {
 				for (Node n : oManager.nodes) {
@@ -245,7 +247,6 @@ class Player extends GameObject {
 				hasMultiShot = false;
 			}
 		}
-
 	}
 
 	void checkNodeCount() {
@@ -524,29 +525,29 @@ class Player extends GameObject {
 
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine vertical speed
-		if (input.upPressed || (boosting && dir.y == -1)) {
+		if (input.upPressed || ((boosting || wrapV) && dir.y == -1)) {
 			if (speed.y > -_maxSpeed) speed.y -= _acc;
 			else speed.y = -_maxSpeed;
-		} else if (input.downPressed || (boosting && dir.y == 1)) {
+		} else if (input.downPressed || ((boosting || wrapV) && dir.y == 1)) {
 			if (speed.y < _maxSpeed) speed.y += _acc;
 			else speed.y = _maxSpeed;
-		} else {
+		} else if (!wrapV) {
 			if (abs(speed.y) > 0.1) speed.y *= _dec;
 			else speed.y = 0;
-		}
+		} 
 		// return the vertical speed
 		return speed.y * dtInSeconds;
 	}
 
 	float getHSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine horizontal speed
-		if (input.leftPressed || (boosting && dir.x == -1)) {
+		if (input.leftPressed || ((boosting || wrapH) && dir.x == -1)) {
 			if (speed.x > -_maxSpeed) speed.x -= _acc;
 			else speed.x = -_maxSpeed;
-		} else if (input.rightPressed || (boosting && dir.x == 1)) {
+		} else if (input.rightPressed || ((boosting || wrapH) && dir.x == 1)) {
 			if (speed.x < _maxSpeed) speed.x += _acc;
 			else speed.x = _maxSpeed;
-		} else {
+		} else if (!wrapH) {
 			if (abs(speed.x) > 0.1) speed.x *= _dec;
 			else speed.x = 0;
 		}	
@@ -599,12 +600,21 @@ class Player extends GameObject {
 
 		}
 
+		// screenwrapping
+		wrapH = checkWrapping("Horizontal");
+		wrapV = checkWrapping("Vertical");
+
 		//check for collisions with solids
 		for (Solid s : oManager.solids) {
-				if (!collisionTop)		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+			if (wrapV) {
+				if (!collisionTop)		collisionTop 		= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionBottom) 	collisionBottom 	= collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+			} else {
+				if (!collisionTop)		collisionTop 	= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
 				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+			}
+			if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+			if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
 		}
 
 		// if there are no collisions set vertical speed
@@ -619,8 +629,18 @@ class Player extends GameObject {
 		if (pos.x > VIEW_WIDTH) pos.x = -siz.x;
 		else if (pos.x + siz.x < 0) pos.x = VIEW_WIDTH;
 
-		if (pos.y > VIEW_HEIGHT) pos.y = -siz.x;
-		else if (pos.y + siz.x < 0) pos.y = VIEW_HEIGHT;
+		if (pos.y > VIEW_HEIGHT) pos.y = -siz.y;
+		else if (pos.y + siz.y < 0) pos.y = VIEW_HEIGHT;
+	}
+
+	boolean checkWrapping(String _direction) {
+		// checks if the player is wrapping around the screen
+		boolean wrapping = false;
+
+		if (_direction == "Horizontal") wrapping = (pos.x + siz.x > VIEW_WIDTH || pos.x < 0) ? true : false;
+		if (_direction == "Vertical") wrapping = (pos.y + siz.y > VIEW_HEIGHT || pos.y < 0) ? true : false;
+
+		return wrapping;
 	}
 
 	void face() {
