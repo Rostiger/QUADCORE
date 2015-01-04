@@ -2,6 +2,7 @@ class Menu {
 	
 	boolean active = true;
 	boolean tutorial = false;
+	boolean credits = false;
 	int alpha;
 	int userId;
 	PImage bg;
@@ -14,6 +15,7 @@ class Menu {
 	// menus
 	String[] pauseMenu = new String[]{"CONTINUE","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","HOW TO PLAY","ABOUT"};
+	String[] backMenu = new String[]{"BACK"};
 	int selectedItem;
 	float itemFontScale;
 
@@ -69,47 +71,54 @@ class Menu {
 		} else selectedItem = 0;
 
 		// handle the pause menu
-		if (gManager.paused) {
-			if (input.get(userId).shootReleased) {
-				switch( selectedItem ) {
-					case 0: // CONTINUE 
-						active = false;
-						gManager.paused = false;
-					break;
-					case 1: // RESTART
-						active = false;
-						gManager.paused = false;
-						gManager.gameOver = true;
-						gManager.reset();
-					break;
-					case 2: // HOW TO PLAY
-						tutorial = true;
-					break;
-					case 3: // EXIT
-						gManager.paused = false;
-						selectedItem = 0;
-					break;
+		if (!tutorial && !credits) {
+			if (gManager.paused) {
+				if (input.get(userId).shootReleased) {
+					switch( selectedItem ) {
+						case 0: // CONTINUE 
+							active = false;
+							gManager.paused = false;
+						break;
+						case 1: // RESTART
+							active = false;
+							gManager.paused = false;
+							gManager.gameOver = true;
+							gManager.reset();
+						break;
+						case 2: // HOW TO PLAY
+							tutorial = true;
+						break;
+						case 3: // EXIT
+							gManager.paused = false;
+							selectedItem = 0;
+						break;
+					}
+				}
+			} else {
+			// handle the main menu
+				// set the size and position of the zamSpielen logo
+				lg1Scl = 1;//pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
+				lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
+
+				// 
+				if (input.get(userId).shootReleased) {
+					switch( selectedItem ) {
+						case 0: // START GAME
+							active = false; 
+							gManager.reset();
+						break;
+						case 1: tutorial = true; break;
+						case 2: credits = true; break;
+					}
 				}
 			}
 		} else {
-		// handle the main menu
-			// set the size and position of the zamSpielen logo
-			lg1Scl = 1;//pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
-			lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
-
-			// 
+			selectedItem = 0;
 			if (input.get(userId).shootReleased) {
-				switch( selectedItem ) {
-					case 0: // START GAME
-						active = false; 
-						gManager.reset();
-					break;
-					case 1:
-						tutorial = true;
-					break;
-				}
+				tutorial = false;
+				credits = false;
 			}
-		}		
+		}
 	}
 
 	void draw() {
@@ -138,12 +147,12 @@ class Menu {
 			case 3: rotate(radians(90)); break;
 		}
 
-		drawLogo();
-		drawVersion();
-
-		if (gManager.paused) drawMenu(pauseMenu);
-		else drawMenu(mainMenu);
-		if (tutorial) drawTutorial();
+		if (!tutorial && !credits) {
+			drawLogo();
+			drawVersion();
+			if (gManager.paused) drawMenu(pauseMenu);
+			else drawMenu(mainMenu);
+		}
 
 		noFill();
 		PVector gridPos = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER,-WIN_HEIGHT / 2 + ARENA_BORDER);
@@ -152,12 +161,77 @@ class Menu {
 		grid.drawGrid(gridPos, gridSiz, gridSize * 4, gridSize , 1, colors.player[userId], 100);
 		grid.drawGrid(gridPos, gridSiz, gridSize / 2, gridSize / 8, 1, colors.player[userId], 50);
 
+		if (tutorial || credits) drawSubMenu();
 
 		popMatrix();
 	}
 
-	void drawTutorial() {
+	void drawSubMenu() {
+		drawMenu(backMenu);
+		PVector offset = new PVector(-WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 2, -WIN_HEIGHT / 2 + ARENA_BORDER + gridSize * 5.5);
+		fill(colors.player[userId]);
+		textAlign(LEFT);
 
+		if (tutorial) {
+			rectMode(CORNER);
+			fill(colors.player[userId], 255);
+			stroke(colors.player[userId]);
+			rect(offset.x - gridSize, offset.y - gridSize * 1.5, gridSize * 19, gridSize * 2);
+			textSize(FONT_SIZE * 1.5);
+			fill(colors.solid);
+			text("//QUADCORE - H", offset.x, offset.y);
+			offset.y += gridSize * 2;
+			fill(colors.solid, 200);
+			rect(offset.x - gridSize, offset.y - gridSize * 1.5, gridSize * 19, gridSize * 10);
+			fill(colors.player[userId],255);
+			textSize(FONT_SIZE);
+			text("USE     TO MOVE.", offset.x, offset.y);
+			drawDPad(offset);
+			text("PRESS " + " TO SHOOT.", offset.x, offset.y + gridSize);
+			text("HOLD " + " TO CHARGE SHOT.", offset.x, offset.y + (gridSize * 2));
+			text("PRESS " + " TO USE ITEMS.", offset.x, offset.y + (gridSize * 3));
+			text("CAPTURE ALL " + " TO WIN.", offset.x, offset.y + (gridSize * 4));
+			text("PRESS " + " TO RESPAWN.", offset.x, offset.y + (gridSize * 5));
+			text("SPAWN ONTO OTHER PLAYERS TO KILL THEM.", offset.x, offset.y + (gridSize * 6));
+			text("RESPAWN TIME INCREASES WITH EACH DEATH.", offset.x, offset.y + (gridSize * 7));
+		} else {
+
+		}
+	}
+	void drawDPad(PVector _pos) {
+		PVector pos = _pos;
+		float siz = gridSize * 0.9;
+		PGraphics dpad =  createGraphics((int)siz, (int)siz);
+		dpad.beginDraw();
+		dpad.noStroke();
+		dpad.fill(colors.player[userId]);
+		dpad.pushMatrix();
+		dpad.translate(siz / 2, siz / 2);
+		for(int i=0;i<4;i++) {
+			dpad.rotate(radians(90 * i));
+			dpad.triangle(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+		}
+		dpad.popMatrix();
+		dpad.endDraw();
+	  	image( dpad, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );
+	}
+
+	void drawButtons(PVector _pos) {
+		PVector pos = _pos;
+		float siz = gridSize * 0.9;
+		PGraphics btn =  createGraphics((int)siz, (int)siz);
+		btn.beginDraw();
+		btn.noStroke();
+		btn.fill(colors.player[userId]);
+		btn.pushMatrix();
+		btn.translate(siz / 2, siz / 2);
+		for(int i=0;i<4;i++) {
+			btn.rotate(radians(90 * i));
+			btn.ellipse(0, -siz / 2, -siz / 6,-siz / 3,siz / 6, - siz / 3);
+		}
+		btn.popMatrix();
+		btn.endDraw();
+	  	image( btn, pos.x + gridSize * 2.1, pos.y - gridSize * 0.3 );		
 	}
 
 	void drawMenu(String[] _menuName) {
@@ -165,7 +239,7 @@ class Menu {
 			fill(colors.player[userId],blink.blink(255,0,14));
 			textAlign(RIGHT);
 			textSize(FONT_SIZE);
-			text("GAME PAUSED",VIEW_WIDTH / 2- gridSize, VIEW_HEIGHT * 0.22);
+			text("//GAME PAUSED",VIEW_WIDTH / 2- gridSize, VIEW_HEIGHT * 0.22);
 		}
 
 		if (input.get(userId).downReleased) {
@@ -177,9 +251,9 @@ class Menu {
 			if (selectedItem > 0) selectedItem--;
 			else selectedItem = _menuName.length - 1;
 		}
-
-		PVector pos = new PVector( WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 2 - 1, WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 5 - 1 );
-		float hSize = -gridSize;
+		int yOffset = _menuName.length + 1;
+		PVector pos = new PVector( WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * 2 - 1, WIN_HEIGHT / 2 - ARENA_BORDER - gridSize * yOffset - 1 );
+		float hSize = -gridSize * 7;
 		int txt = 0;
 		int bg = 0;
 		int st = 0;
@@ -191,14 +265,12 @@ class Menu {
 
 			if (i == selectedItem) {
 				alpha = 255;
-				hSize = -gridSize * 8;
 				bg = colors.player[userId];
 				txt = colors.solid;
 				st = colors.solid;
 			} else {
-				alpha = gManager.paused ? 0 : 255;
-				hSize = -gridSize * 7;
-				bg = colors.bg;
+				alpha = 255;
+				bg = colors.solid;
 				txt = colors.player[userId];
 				st = colors.solid;
 			}
@@ -210,7 +282,7 @@ class Menu {
 			textAlign(RIGHT);
 			textSize(FONT_SIZE * 0.8);
 			fill(txt,255);
-			text( _menuName[i], pos.x - gridSize / 4, y + gridSize / 1.35 );
+			text(_menuName[i], pos.x - gridSize / 4, y + gridSize / 1.35 );
 			fill(colors.player[userId]);
 			stroke(st,255);
 			rect(pos.x,y,gridSize,gridSize);
