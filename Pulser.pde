@@ -1,31 +1,41 @@
 class Pulser {
 
-	float easeControl;
+	float currentValue;
+	int dur;
 	boolean reversed;
 	
 	Pulser() {
-		easeControl = -1;
+		currentValue = -1;
 		reversed = false;
 	}
 
-	float pulse(float _startValue, float _targetValue, float _duration, float _easingFactor, boolean _reverse) {
+	float pulse(float _startValue, float _targetValue, float _speed, float _easingFactor, int _duration) {
 		//pulses stuff
 		float diff = _targetValue - _startValue;
 
-		if (easeControl == -1) easeControl = _startValue;
+		// sets parameters once
+		if (currentValue == -1) {
+			currentValue = _startValue;
+			dur = _duration;
+		}
 
-		if (easeControl < _targetValue && !reversed) {
+		// determines the current value
+		if (currentValue < _targetValue && !reversed && dur != 0) {
 
-			easeControl += dtInSeconds / _duration * diff;
+			currentValue += dtInSeconds / _speed * diff;
+			if (dur != -1) dur--;
 
-		} else if(easeControl > _startValue && _reverse) {
+		} else if(currentValue > _startValue) {
 
 			reversed = true;
-			easeControl -= dtInSeconds / _duration * diff;
+			currentValue -= dtInSeconds / _speed * diff;
 
-		} else reversed = false;
+		} else {
+			reversed = false;
+		}
 
-		return ease(easeControl,_targetValue,_startValue,_easingFactor);
+		return currentValue;
+		// ease(easeControl,_targetValue,_startValue,_easingFactor);
 
 	}
 

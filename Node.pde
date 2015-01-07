@@ -121,7 +121,7 @@ class Node extends GameObject {
 			}
 		}
 
-		if (pulseNode) drawScale = pulser.pulse( 1.0, 1.5, 0.1, 0.5, true);
+		if (pulseNode) drawScale = pulser.pulse( 1.0, 1.5, 0.1, 0.5, -1);
 
 	}
 
