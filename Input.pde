@@ -11,6 +11,7 @@ class Input {
 	boolean useItemPressed, useItemWasPressed, useItemReleased;
 	boolean startPressed, startWasPressed, startReleased;
 	boolean anyKeyPressed, anyKeyWasPressed, anyKeyReleased;
+	boolean north, east, south, west;
 
 	Input(int _id) {
 		id = _id;
@@ -23,6 +24,10 @@ class Input {
 		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
 		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
 		anyKeyPressed 	= 	false;
+		north = false;
+		east = false;
+		south = false;
+		west = false;
 
 		// check if player is using a game pad
 		for ( int i = 0; i < gPads.size(); i++ ) {
@@ -36,103 +41,104 @@ class Input {
 	void update() {
 		manageInputStates();
 		if (hasGamePad) getGamePadInput(id);
+		if (TOP_VIEW) setDirections();
+		else {
+			if (upPressed) north = true;
+			else north = false;
+			if (downPressed) south = true;
+			else south = false;
+			if (leftPressed) west = true;
+			else west = false;
+			if (rightPressed) east = true;
+			else east = false;
+		}
+	}
+
+	void setDirections() {
+		// sets the directions for each player
+		if (upPressed) {
+			switch (id) {
+				case 0: south = true; break;
+				case 1: north = true; break;
+				case 2: west = true; break;
+				case 3: east = true; break;
+			}
+		} else {
+			switch (id) {
+				case 0: south = false; break;
+				case 1: north = false; break;
+				case 2: west = false; break;
+				case 3: east = false; break;
+			}				
+		}
+
+		if (downPressed) {
+			switch (id) {
+				case 0: north = true; break;
+				case 1: south = true; break;
+				case 2: east = true; break;
+				case 3: west = true; break;
+			}
+		}
+		else {
+			switch (id) {
+				case 0: north = false; break;
+				case 1: south = false; break;
+				case 2: east = false; break;
+				case 3: west = false; break;
+			}
+		}
+
+		if (leftPressed) {
+			switch (id) {
+				case 0: east = true; break;
+				case 1: west = true; break;
+				case 2: south = true; break;
+				case 3: north = true; break;
+			}
+		}
+		else {
+			switch (id) {
+				case 0: east = false; break;
+				case 1: west = false; break;
+				case 2: south = false; break;
+				case 3: north = false; break;
+			}
+		}
+
+		if (rightPressed) {
+			switch (id) {
+				case 0: west = true; break;
+				case 1: east = true; break;
+				case 2: north = true; break;
+				case 3: south = true; break;
+			}
+		}
+		else {
+			switch (id) {
+				case 0: west = false; break;
+				case 1: east = false; break;
+				case 2: north = false; break;
+				case 3: south = false; break;
+			}
+		}
 	}
 
 	void getGamePadInput(int _id) {
 		int id = _id;
-		if (gPads.get(id).getSlider("LS_Y").getValue() < -0.2 || gPads.get(id).getButton("DP_UP").pressed()) {
 
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: downPressed = true; break;
-					case 1: upPressed = true; break;
-					case 2: leftPressed = true; break;
-					case 3: rightPressed = true; break;
-				}
-			} else upPressed = true;
-		
-		} else {
+		if (gPads.get(id).getSlider("LS_Y").getValue() < -0.2 || gPads.get(id).getButton("DP_UP").pressed()) upPressed = true;
+		else upPressed = false;
 
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: downPressed = false; break;
-					case 1: upPressed = false; break;
-					case 2: leftPressed = false; break;
-					case 3: rightPressed = false; break;
-				}
-			} else upPressed = false;
-		}
+		if (gPads.get(id).getSlider("LS_Y").getValue() > 0.2 || gPads.get(id).getButton("DP_DOWN").pressed()) downPressed = true;
+		else downPressed = false;
 
-		if (gPads.get(id).getSlider("LS_Y").getValue() > 0.2 || gPads.get(id).getButton("DP_DOWN").pressed()) {
 
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: upPressed = true; break;
-					case 1: downPressed = true; break;
-					case 2: rightPressed = true; break;
-					case 3: leftPressed = true; break;
-				}
-			} else downPressed = true;
+		if (gPads.get(id).getSlider("LS_X").getValue() < -0.2 ||	gPads.get(id).getButton("DP_LEFT").pressed()) leftPressed = true;
+		else leftPressed = false;
 
-		} else {
-
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: upPressed = false; break;
-					case 1: downPressed = false; break;
-					case 2: rightPressed = false; break;
-					case 3: leftPressed = false; break;
-				}
-			} else downPressed = false;
-
-		}
-
-		if (gPads.get(id).getSlider("LS_X").getValue() < -0.2 ||	gPads.get(id).getButton("DP_LEFT").pressed()) {
-
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: rightPressed = true; break;
-					case 1: leftPressed = true; break;
-					case 2: downPressed = true; break;
-					case 3: upPressed = true; break;
-				}
-			} else leftPressed = true;
-
-		} else {
-
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: rightPressed = false; break;
-					case 1: leftPressed = false; break;
-					case 2: downPressed = false; break;
-					case 3: upPressed = false; break;
-				}
-			} else leftPressed = false;
-
-		}
-
-		if (gPads.get(id).getSlider("LS_X").getValue() > 0.2 || gPads.get(id).getButton("DP_RIGHT").pressed()) {
-
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: leftPressed = true; break;
-					case 1: rightPressed = true; break;
-					case 2: upPressed = true; break;
-					case 3: downPressed = true; break;
-				}
-			} else rightPressed = true;
-
-		} else {
-
-			if (TOP_VIEW) {
-				switch (id) {
-					case 0: leftPressed = false; break;
-					case 1: rightPressed = false; break;
-					case 2: upPressed = false; break;
-					case 3: downPressed = false; break;
-				}
-			} else rightPressed = false;
-		}
+		if (gPads.get(id).getSlider("LS_X").getValue() > 0.2 || gPads.get(id).getButton("DP_RIGHT").pressed()) rightPressed = true;
+		else rightPressed = false;
 
 		shootPressed = gPads.get(id).getButton("BT_A").pressed();
 		useItemPressed = gPads.get(id).getButton("BT_B").pressed();

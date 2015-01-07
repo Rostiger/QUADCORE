@@ -278,7 +278,6 @@ class Menu {
 		}
 
 		if (input.get(userId).downReleased) {
-			println("DOWN RELEASED");
 			if (selectedItem < _menuName.length - 1) selectedItem++;
 			else selectedItem = 0;
 		}

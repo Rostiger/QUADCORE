@@ -525,10 +525,10 @@ class Player extends GameObject {
 
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine vertical speed
-		if (input.upPressed || ((boosting || wrapV) && dir.y == -1)) {
+		if (input.north || ((boosting || wrapV) && dir.y == -1)) {
 			if (speed.y > -_maxSpeed) speed.y -= _acc;
 			else speed.y = -_maxSpeed;
-		} else if (input.downPressed || ((boosting || wrapV) && dir.y == 1)) {
+		} else if (input.south || ((boosting || wrapV) && dir.y == 1)) {
 			if (speed.y < _maxSpeed) speed.y += _acc;
 			else speed.y = _maxSpeed;
 		} else if (!wrapV) {
@@ -541,10 +541,10 @@ class Player extends GameObject {
 
 	float getHSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine horizontal speed
-		if (input.leftPressed || ((boosting || wrapH) && dir.x == -1)) {
+		if (input.west || ((boosting || wrapH) && dir.x == -1)) {
 			if (speed.x > -_maxSpeed) speed.x -= _acc;
 			else speed.x = -_maxSpeed;
-		} else if (input.rightPressed || ((boosting || wrapH) && dir.x == 1)) {
+		} else if (input.east || ((boosting || wrapH) && dir.x == 1)) {
 			if (speed.x < _maxSpeed) speed.x += _acc;
 			else speed.x = _maxSpeed;
 		} else if (!wrapH) {
@@ -645,22 +645,22 @@ class Player extends GameObject {
 
 	void face() {
 		// this method determines which direction the player is facing and sets the player cursor appropriately
-		if (input.upPressed) {
+		if (input.north) {
 			dir.y = -1;
-			if (!input.leftPressed && !input.rightPressed) dir.x = 0;
+			if (!input.west && !input.east) dir.x = 0;
 		}
-		else if (input.downPressed) {
+		else if (input.south) {
 			dir.y = 1;
-			if (!input.leftPressed && !input.rightPressed) dir.x = 0;
+			if (!input.west && !input.east) dir.x = 0;
 		}
 		
-		if (input.leftPressed) {
+		if (input.west) {
 			dir.x = -1;
-			if (!input.upPressed && !input.downPressed) dir.y = 0;
+			if (!input.north && !input.south) dir.y = 0;
 		}
-		else if (input.rightPressed) {
+		else if (input.east) {
 			dir.x = 1;
-			if (!input.upPressed && !input.downPressed) dir.y = 0;
+			if (!input.north && !input.south) dir.y = 0;
 		}
 
 		//evaluate the position of the cursor depending on the player direction
