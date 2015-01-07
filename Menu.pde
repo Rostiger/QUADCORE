@@ -20,8 +20,8 @@ class Menu {
 	float itemFontScale;
 
 	// components
-	Pulser pulser = new Pulser();
 	Grid grid = new Grid();
+	Pulser pulser1 = new Pulser();
 
 	Menu() {
 		alpha = 255;
@@ -278,6 +278,7 @@ class Menu {
 		}
 
 		if (input.get(userId).downReleased) {
+			println("DOWN RELEASED");
 			if (selectedItem < _menuName.length - 1) selectedItem++;
 			else selectedItem = 0;
 		}
@@ -337,7 +338,9 @@ class Menu {
 
 		if (!gManager.paused) {
 			// draws the grid inside the logo
-			grid.drawGrid(pos,siz,gridSize / 4, gridSize / 8, wght * 0.4, colors.player[userId], 255);
+			// float weight = pulser1.pulse(wght * 0.2, wght * 0.4, 1.0, 0.5, -1);
+			float weight = wght * 0.4;
+			grid.drawGrid(pos,siz,gridSize / 4, gridSize / 8, weight, colors.player[userId], 255);
 			// draw the logo contour
 			fill(colors.solid,255);
 			stroke(colors.solid,255);
