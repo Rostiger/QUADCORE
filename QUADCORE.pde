@@ -35,7 +35,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 1;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
 int CELL_SIZE;			// size of a single tile
@@ -62,8 +62,9 @@ void setup() {
 
 	// get the width of the current display and set the height so it's a 4:3 ratio
 	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
+	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
 	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
-	ARENA_BORDER = ceil(WIN_HEIGHT * 0.06);
+	ARENA_BORDER = ceil(WIN_HEIGHT * 0.063);
 	FONT_SIZE = ceil(WIN_HEIGHT * 0.04);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
 
