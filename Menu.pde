@@ -133,7 +133,7 @@ class Menu {
 		if (gManager.paused) {
 			imageMode(CENTER);
 			image(bg,0,0);
-			alpha = 100; 
+			alpha = 75; 
 		} else alpha = 255;
 
 		fill(colors.solid,alpha);
@@ -194,11 +194,11 @@ class Menu {
 		}
 
 		// draw pause text
-		if (gManager.paused) {
+		if (gManager.paused && !tutorial) {
 			fill(colors.player[userId],blink.blink(255,0,14));
 			textAlign(RIGHT);
 			textSize(FONT_SIZE);
-			text("//GAME PAUSED",VIEW_WIDTH / 2- gridSize, VIEW_HEIGHT * 0.22);
+			text("//GAME PAUSED", 0, VIEW_HEIGHT * 0.22);
 		}
 
 		PVector pos = new PVector( _pos.x, _pos.y - gridSize * _menuName.length + gridSize / 2 );
@@ -256,6 +256,23 @@ class Menu {
 		fill(colors.player[userId]);
 		textAlign(LEFT);
 
+		rectMode(CORNER);
+		fill(colors.player[userId], 255);
+		stroke(colors.player[userId]);
+		rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y );
+		
+		textSize(FONT_SIZE * 1.5);
+		fill(colors.solid);
+		if (tutorial) text("//QUADCORE - H", offset.x, offset.y);
+		else text("//QUADCORE - C", offset.x, offset.y);
+
+		offset.y += gridSize * 2;
+		fill(colors.solid, 200);
+		rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y * 5);
+
+		fill(colors.player[userId],255);
+		textSize(FONT_SIZE);
+
 		if (tutorial) {
 
 			String[] tutText = new String[]{
@@ -268,22 +285,6 @@ class Menu {
 				"RESPAWN TIME INCREASES WITH EACH DEATH.",
 				"CAPTURE ALL     TO WIN."
 			};
-
-			rectMode(CORNER);
-			fill(colors.player[userId], 255);
-			stroke(colors.player[userId]);
-			rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y );
-			
-			textSize(FONT_SIZE * 1.5);
-			fill(colors.solid);
-			text("//QUADCORE - H", offset.x, offset.y);
-
-			offset.y += gridSize * 2;
-			fill(colors.solid, 200);
-			rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y * 5);
-
-			fill(colors.player[userId],255);
-			textSize(FONT_SIZE);
 
 			for (int i=0; i<tutText.length; i++) {
 

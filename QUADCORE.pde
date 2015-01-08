@@ -35,7 +35,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 1;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
 int CELL_SIZE;			// size of a single tile
