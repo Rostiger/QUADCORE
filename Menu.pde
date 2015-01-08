@@ -58,6 +58,7 @@ class Menu {
 	}
 	
 	void update() {
+
 		if (active) {
 
 			// check input
@@ -250,47 +251,78 @@ class Menu {
 	}
 
 	void drawSubMenu() {
-		PVector offset = new PVector(-WIN_HEIGHT / 2 + borderWeight + gridSize * 2, -WIN_HEIGHT / 2 + borderWeight + gridSize * 5.5);
-		PVector boxSiz = new PVector( WIN_HEIGHT - borderWeight * 2 - gridSize * 2, gridSize * 2);
+		PVector offset = new PVector(-WIN_HEIGHT / 2 + borderWeight + gridSize, -WIN_HEIGHT / 2 + borderWeight + gridSize * 5.5);
+		PVector boxSiz = new PVector( WIN_HEIGHT - borderWeight * 2 - gridSize, gridSize * 2);
 		fill(colors.player[userId]);
 		textAlign(LEFT);
 
 		if (tutorial) {
+
+			String[] tutText = new String[]{
+				"USE     TO MOVE YOUR QUAD.",
+				"PRESS     TO SHOOT.",
+				"HOLD     TO CHARGE A SHOT.",
+				"PRESS     TO USE ITEMS.",
+				"PRESS     TO RESPAWN.",
+				"SPAWN ONTO OTHER PLAYERS TO KILL THEM.",
+				"RESPAWN TIME INCREASES WITH EACH DEATH.",
+				"CAPTURE ALL     TO WIN."
+			};
+
 			rectMode(CORNER);
 			fill(colors.player[userId], 255);
 			stroke(colors.player[userId]);
-			rect(offset.x - gridSize, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y );
+			rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y );
+			
 			textSize(FONT_SIZE * 1.5);
 			fill(colors.solid);
 			text("//QUADCORE - H", offset.x, offset.y);
+
 			offset.y += gridSize * 2;
 			fill(colors.solid, 200);
-			rect(offset.x - gridSize, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y * 5);
+			rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y * 5);
+
 			fill(colors.player[userId],255);
 			textSize(FONT_SIZE);
 
-			text("USE     TO MOVE YOUR QUAD.", offset.x, offset.y);
-			drawDPad(offset.x + gridSize * 2.6, offset.y - gridSize * 0.3, 0.9);
+			for (int i=0; i<tutText.length; i++) {
 
-			text("PRESS     TO SHOOT.", offset.x, offset.y + gridSize);
-			drawButtons(offset.x + gridSize * 3.6, offset.y + gridSize - gridSize * 0.3, 0.9, 3);
+				text(tutText[i],offset.x, offset.y + gridSize * i);
+				float iconPos = getSubStringPosition(tutText[i],"     ");
+				if (iconPos != -1) {
+					String iconType = "";
+					switch(i) {
+						case 0: iconType = "DPAD"; break;
+						case 1: iconType = "BTN3"; break;
+						case 2: iconType = "BTN3"; break;
+						case 3: iconType = "BTN1"; break;
+						case 4: iconType = "BTN3"; break;
+						case 7: iconType = "NODE"; break;
+					}
+					drawIcon(offset.x + iconPos, offset.y + gridSize * i, 1, iconType);
+				}
+				
+			}
 
-			text("HOLD     TO CHARGE A SHOT.", offset.x, offset.y + (gridSize * 2));
-			drawButtons(offset.x + gridSize * 3.2, offset.y + gridSize * 2 - gridSize * 0.3, 0.9, 3);
-
-			text("PRESS     TO USE ITEMS.", offset.x, offset.y + (gridSize * 3));
-			drawButtons(offset.x + gridSize * 3.6, offset.y + gridSize * 3 - gridSize * 0.3, 0.9, 1);
-
-			text("PRESS     TO RESPAWN.", offset.x, offset.y + (gridSize * 4));
-			drawButtons(offset.x + gridSize * 3.6, offset.y + gridSize * 4 - gridSize * 0.3, 0.9, 3);
-
-			text("SPAWN ONTO OTHER PLAYERS TO KILL THEM.", offset.x, offset.y + (gridSize * 5));
-			text("RESPAWN TIME INCREASES WITH EACH DEATH.", offset.x, offset.y + (gridSize * 6));
-			text("CAPTURE ALL      TO WIN.", offset.x, offset.y + (gridSize * 7));
-			drawNode(offset.x + gridSize * 7.0, offset.y + gridSize * 7 - gridSize * 0.3, 0.8);
 		} else {
 
 		}
+	}
+
+	float getSubStringPosition(String _string, String _searchString) {
+		// searches for a given substring within a string and returns its position
+		String subString = "";
+		float pos = 0;
+
+		for (int i=0; i<_string.length(); i++) {
+			if (i == _string.indexOf(_searchString)) {
+				subString = _string.substring(0,i);
+				pos = textWidth(subString);
+				break;
+			} else pos = -1;
+		}
+
+		return pos;
 	}
 
 	void drawLogo(PVector _pos) {
@@ -409,64 +441,61 @@ class Menu {
 		text("V." + version, _pos.x, _pos.y);
 	}
 
-	void drawDPad(float _posx, float _posy, float _scale) {
+	void drawIcon(float _posx, float _posy, float _scale, String _type) {
 		PVector pos = new PVector(_posx,_posy);
-		float siz = gridSize * _scale;
-		PGraphics dpad =  createGraphics((int)siz, (int)siz);
-		dpad.beginDraw();
-		dpad.fill(colors.player[userId]);
-		dpad.pushMatrix();
-		dpad.translate(siz / 2, siz / 2);
-		for(int i=0;i<4;i++) {
-			dpad.rotate(radians(90 * i));
-			dpad.noStroke();
-			dpad.triangle(0, -siz / 2, -siz / 6, -siz / 4, siz / 6, - siz / 4);
-			dpad.stroke(colors.player[userId]);
-			dpad.strokeWeight(siz / 10);
+		float siz = floor(gridSize * _scale);
+		PGraphics icon =  createGraphics((int)siz, (int)siz);
+		icon.beginDraw();
+		icon.fill(colors.player[userId]);
+		icon.stroke(colors.player[userId]);
+		icon.pushMatrix();
+		icon.translate(siz / 2, siz / 2);
 
-			dpad.line(0,0,0,-siz / 8);
-		}
-		dpad.popMatrix();
-		dpad.endDraw();
-	  	image( dpad, pos.x, pos.y );
-	}
+		if (_type == "DPAD") {
 
-	void drawButtons(float _posx, float _posy, float _scale, int _no) {
-		PVector pos = new PVector(_posx,_posy);
-		float siz = gridSize * _scale;
-		PGraphics btn =  createGraphics((int)siz, (int)siz);
-		btn.beginDraw();
-		btn.noStroke();
-		btn.fill(colors.player[userId]);
-		btn.pushMatrix();
-		btn.translate(siz / 2, siz / 2);
-		for(int i=0;i<4;i++) {
-			if (i == _no) btn.fill(colors.player[userId]);
-			else {
-				btn.noFill();
-				btn.stroke(colors.player[userId]);
+			for(int i=0;i<4;i++) {
+				icon.stroke(colors.player[userId]);
+				icon.rotate(radians(90 * i));	
+				icon.strokeWeight(siz / 10);
+				icon.line(0,0,0,-siz / 8);
+				icon.noStroke();
+				icon.triangle(0, -siz / 2, -siz / 6, -siz / 4, siz / 6, - siz / 4);
 			}
-			btn.rotate(radians(-90 * i));
-			btn.ellipse(0, -siz / 4, siz / 4, siz / 4);
-		}
-		btn.popMatrix();
-		btn.endDraw();
-	  	image( btn, pos.x, pos.y );		
-	}
 
-	void drawNode(float _posx, float _posy, float _scale) {
-		PVector pos = new PVector(_posx,_posy);
-		float siz = gridSize * _scale;
-		PGraphics node =  createGraphics((int)siz, (int)siz);
-		node.beginDraw();
-		node.stroke(colors.player[userId]);
-		node.strokeWeight(siz / 8);
-		node.fill(colors.solid);
-		node.rectMode(CENTER);
-		node.rect(siz / 2, siz / 2, siz - 1, siz - 1);
-		node.rect(siz / 2, siz / 2, siz / 3, siz / 3);
-		node.endDraw();
-	  	image( node, pos.x, pos.y );		
+		} else if(_type == "BTN0" || _type == "BTN1" || _type == "BTN2" || _type == "BTN3" ) {
+
+			String no = str(_type.charAt(_type.length() - 1));
+
+			for(int i=0;i<4;i++) {
+				if (str(i).equals(no)) icon.fill(colors.player[userId]);
+				else {
+					icon.noFill();
+					icon.stroke(colors.player[userId]);
+				}
+				icon.rotate(radians(-90 * i));
+				icon.ellipse(0, -siz / 4, siz / 4, siz / 4);
+
+			}
+
+		} else if (_type == "NODE") {
+
+			icon.strokeWeight(floor(siz / 4));
+			icon.fill(colors.solid);
+			icon.rectMode(CENTER);
+			icon.rect(0, 0, siz, siz);
+			icon.strokeWeight(floor(siz / 8));
+			icon.rect(0, 0, siz / 3, siz / 3);
+
+		} else {
+			icon.rectMode(CENTER);
+			icon.fill(colors.player[userId]);
+			icon.noStroke();
+			icon.rect(0, 0, siz, siz);
+		}
+		icon.popMatrix();
+		icon.endDraw();
+		imageMode(CORNER);
+	  	image( icon, pos.x + siz * 0.1, pos.y - siz * 0.8);
 	}
 
 	void keyPressed()  {
