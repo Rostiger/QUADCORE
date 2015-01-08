@@ -272,6 +272,7 @@ class Menu {
 
 		fill(colors.player[userId],255);
 		textSize(FONT_SIZE);
+		textAlign(LEFT);
 
 		if (tutorial) {
 
@@ -307,6 +308,24 @@ class Menu {
 
 		} else {
 
+			String[] credText = new String[]{
+				"A GAME BY CLEMENS SCOTT OF BROKEN RULES",
+				"MADE FOR HANS G. & ZAMSPIELEN",
+				" ",
+				"CO_PRODUCED BY JOSEF WIESNER.",
+				" ",
+				"MADE WITH PROCESSING",
+				"BEN FRY | CASEY REAS | DAN SHIFFMAN",
+				"SOUND LIBRARY BY DAMIEN DI FEDE",
+				"SOUND FX MADE WITH CFXR",
+				"GAME PAD LIBRARY BY PETER LAGER"
+			};
+
+			textSize(FONT_SIZE * 0.8);
+
+			for (int i=0; i<credText.length; i++) {
+				text(credText[i],offset.x, offset.y + gridSize * i * 0.8);
+			}			
 		}
 	}
 
@@ -358,6 +377,7 @@ class Menu {
 				drawLogoLetter(pos, verts, scl, true);
 				endContour();
 			}
+
 			endShape(CLOSE);
 			fill(colors.player[userId],30);
 			stroke(colors.player[userId], 255);		
