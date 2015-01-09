@@ -116,6 +116,7 @@ class Menu {
 			alpha = 75; 
 		} else alpha = 255;
 
+		// draw a background rectangle
 		fill(colors.solid,alpha);
 		stroke(colors.player[userId],255);
 		strokeWeight(borderWeight * borderScale);		
@@ -138,7 +139,7 @@ class Menu {
 		PVector menuPos 	= new PVector( 2, edgePos - gridSize + 5);
 
 		if (!tutorial && !credits) {
-			drawHeadLine(posHeadline, "zamSpielen Presents");
+			drawHeadLine(posHeadline, "ZAMSPIELEN PRESENTS");
 			drawLogo(posLogo);
 			drawVersion(posVersion);
 
@@ -429,6 +430,7 @@ class Menu {
 
 	void drawHeadLine(PVector _pos, String _headline) {
 		fill(colors.player[userId]);
+		noStroke();
 		textSize(FONT_SIZE);
 		textAlign(LEFT);
 		text(_headline, _pos.x, _pos.y);
