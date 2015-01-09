@@ -9,9 +9,6 @@ class Menu {
 	float borderWeight, borderScale;
 
 	ArrayList < Input > input;
-	// variables for the zamSpielen logo
-	PVector lg1Pos, lg1Siz;
-	float lg1Scl, lg1Rot, lg1Ratio;
 
 	// menus
 	String[] pauseMenu = new String[]{"CONTINUE","RESTART","HOW TO PLAY","EXIT"};
@@ -27,18 +24,6 @@ class Menu {
 	Menu() {
 		alpha = 255;
 		userId = (int)floor(random(0,4));
-		
-
-		if (lg1 != null) {
-			lg1Pos = new PVector( 0, -WIN_HEIGHT / 2 );
-			lg1Siz = new PVector( lg1.width, lg1.height );	
-
-			lg1Ratio = lg1Siz.y / lg1Siz.x;
-			lg1Siz.x = WIN_WIDTH * 0.5;
-			lg1Siz.y = lg1Ratio * lg1Siz.x;
-			lg1Scl = 1;	
-			lg1Rot = 0;
-		}
 
 		selectedItem = 0;
 		itemFontScale = 1;
@@ -94,17 +79,12 @@ class Menu {
 						break;
 						case 3: // EXIT
 							gManager.paused = false;
-							selectedItem = 0;
 						break;
 					}
+					selectedItem = 0;
 				}
 			} else {
 			// handle the main menu
-				// set the size and position of the zamSpielen logo
-				lg1Scl = 1;//pulser.pulse( 1.0, 1.05, 0.4, 2.0, true );
-				lg1Pos.x = -lg1Siz.x * lg1Scl / 2;
-
-				// 
 				if (input.get(userId).shootReleased) {
 					switch( selectedItem ) {
 						case 0: // START GAME
@@ -114,10 +94,10 @@ class Menu {
 						case 1: tutorial = true; break;
 						case 2: credits = true; break;
 					}
+					selectedItem = 0;
 				}
 			}
 		} else {
-			selectedItem = 0;
 			if (input.get(userId).shootReleased) {
 				tutorial = false;
 				credits = false;
@@ -166,7 +146,6 @@ class Menu {
 			else drawMenu(mainMenu, menuPos);
 		}
 
-		noFill();
 		PVector gridPos = new PVector(-WIN_HEIGHT / 2 + borderWeight,-WIN_HEIGHT / 2 + borderWeight);
 		PVector gridSiz = new PVector(VIEW_WIDTH + gridSize, VIEW_HEIGHT + gridSize);
 		// grid (pos, siz, cellSize, pointSize, pointWeight, color, alpha)
@@ -192,12 +171,13 @@ class Menu {
 			if (selectedItem > 0) selectedItem--;
 			else selectedItem = _menuName.length - 1;
 		}
-
+		
 		// draw pause text
-		if (gManager.paused && !tutorial) {
+		if (gManager.paused && !tutorial && !credits) {
 			fill(colors.player[userId],blink.blink(255,0,14));
 			textAlign(RIGHT);
 			textSize(FONT_SIZE);
+			noStroke();
 			text("//GAME PAUSED", 0, VIEW_HEIGHT * 0.22);
 		}
 
@@ -210,7 +190,6 @@ class Menu {
 		int st1 = 0;
 		int st2 = 0;
 		int txt = 0;
-		alpha = 255;
 
 		rectMode(CENTER);
 		strokeWeight(1);
@@ -236,16 +215,17 @@ class Menu {
 				txt = colors.player[userId];
 			}
 
-			stroke(st1,alpha);
-			fill(bg1,alpha);
+			stroke(st1,255);
+			fill(bg1,255);
 			rect(pos.x, y, hSize, gridSize);
 
-			fill(bg2,alpha);
-			stroke(st2,alpha);
+			fill(bg2,255);
+			stroke(st2,255);
 			rect(pos.x + hSize / 2, y, gridSize, gridSize);
 			rect(pos.x - hSize / 2, y, gridSize, gridSize);
 
-			fill(txt,alpha);
+			fill(txt,255);
+			noStroke();
 			text(_menuName[i], pos.x, y + gridSize * 0.25);
 		}
 	}
@@ -253,15 +233,14 @@ class Menu {
 	void drawSubMenu() {
 		PVector offset = new PVector(-WIN_HEIGHT / 2 + borderWeight + gridSize, -WIN_HEIGHT / 2 + borderWeight + gridSize * 5.5);
 		PVector boxSiz = new PVector( WIN_HEIGHT - borderWeight * 2 - gridSize, gridSize * 2);
-		fill(colors.player[userId]);
-		textAlign(LEFT);
 
 		rectMode(CORNER);
 		fill(colors.player[userId], 255);
-		stroke(colors.player[userId]);
+		stroke(colors.player[userId], 255);
 		rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y );
 		
 		textSize(FONT_SIZE * 1.5);
+		textAlign(LEFT);
 		fill(colors.solid);
 		if (tutorial) text("//QUADCORE - H", offset.x, offset.y);
 		else text("//QUADCORE - C", offset.x, offset.y);
@@ -271,8 +250,8 @@ class Menu {
 		rect(offset.x - gridSize * 0.5, offset.y - gridSize * 1.5, boxSiz.x, boxSiz.y * 5);
 
 		fill(colors.player[userId],255);
+		noStroke();
 		textSize(FONT_SIZE);
-		textAlign(LEFT);
 
 		if (tutorial) {
 
@@ -456,7 +435,7 @@ class Menu {
 	}
 
 	void drawVersion(PVector _pos) {
-		fill(colors.player[userId]);
+		fill(colors.player[userId], 255);
 		textSize(FONT_SIZE * 0.5);
 		textAlign(RIGHT);
 		text("V." + version, _pos.x, _pos.y);
