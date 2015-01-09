@@ -11,7 +11,7 @@ class Player extends GameObject {
 	
 	// stats
 	int bullets, kills, deaths, shots, items, score, nodesOwned, nodesCaptured, nodesLost, wins;
-	boolean canRespawn, spawnedOnce;
+	boolean spawnedOnce;
 
 	//counters
 	float initialRespawnDuration, respawnDuration, respawnTime, respawnDurationMultiplier;
@@ -112,8 +112,7 @@ class Player extends GameObject {
 		shootDelayTime = 0;
 
 		// respawn timers
-		initialRespawnDuration = 0;
-		respawnDuration = initialRespawnDuration;
+		respawnDuration = 0;
 		respawnTime = respawnDuration;
 		respawnDurationMultiplier = 2;
 		// invicibility
@@ -135,8 +134,9 @@ class Player extends GameObject {
 
 		// pauses the game
 		if (input.startReleased) {
-			if (gManager.matchOver && hud.showEndScreen) gManager.reset();
-			else {
+			if (gManager.matchOver) {
+				if (hud.showEndScreen) gManager.reset();
+			} else {
 				gManager.paused = !gManager.paused;
 				menu.setUser(id);
 			}
@@ -178,7 +178,7 @@ class Player extends GameObject {
 				screenShake.shake(7,1.2);
 				deaths++;
 				if (respawnDuration != 0) respawnDuration *= respawnDurationMultiplier;
-				else respawnDuration = 2;
+				else respawnTime = 2;
 				oManager.activePlayers--;
 			}
 
@@ -196,6 +196,15 @@ class Player extends GameObject {
 			}
 
 		} else if (KILLED) {
+
+			// reset any powerups
+			boosting = false;
+			hasBoost = false;
+			hasMultiShot = false;
+			hasShield = false;
+			hasLockDown = false;
+			showItem = false;		
+			drawScale = initialDrawScale;
 			
 			if (alpha > 0) {
 				alpha -= 10;
@@ -208,16 +217,13 @@ class Player extends GameObject {
 		} else {
 			// count down until respawn is possible
 			if (respawnTime > 0) respawnTime -= 1 * dtInSeconds;
-			else if (input.shootReleased && !gManager.matchOver) {
-				respawnTime = respawnDuration;
-				spawn();
-			}
-
+			else if (input.shootReleased && !gManager.matchOver) spawn();
 		}
 	}
 
 	void useItem() {
-		if (input.useItemPressed) { 
+		if (input.useItemPressed && ALIVE && !KILLED) {
+
 			if (hasLockDown) {
 				for (Node n : oManager.nodes) {
 					n.wasLockedDown = true;
@@ -319,23 +325,7 @@ class Player extends GameObject {
 
 		} else if (!KILLED) drawRespawnIndicator();
 
-		if (debugger.debugDraw) {
-			// canvas.fill(255,255,255,255);
-			// canvas.rect(pos.x,pos.y,siz.x / 4,siz.y / 4);
-			// canvas.rect(cen.x,cen.y,siz.x / 4,siz.y / 4);
-			// canvas.textSize(debugger.fontSize);
-			// canvas.textAlign(CENTER);
-			// canvas.fill(colors.player[id],255);
-			// int playerID = id;
-			// float textPosY = cen.y + siz.x + debugger.fontSize;
-			// canvas.text("ID: " + id,cen.x,textPosY);
-			// canvas.text("ALPHA: " + alpha,cen.x,textPosY+debugger.fontSize);
-			// canvas.text("BOOSTING: " + strokeWidth,cen.x,textPosY+debugger.fontSize*2);
-			// canvas.text("UP: " + upPressed,cen.x,textPosY+debugger.fontSize);
-			// canvas.text("DOWN: " + downPressed,cen.x,textPosY+debugger.fontSize*2);
-			// canvas.text("LEFT: " + leftPressed,cen.x,textPosY+debugger.fontSize*3);
-			// canvas.text("RIGHT: " + rightPressed,cen.x,textPosY+debugger.fontSize*4);
-		}
+		if (debugger.debugDraw) debugDraw();
 	}
 
 	void drawRespawnIndicator() {
@@ -443,7 +433,7 @@ class Player extends GameObject {
 				trailY[trailCount] = cen.y;
 
 				canvas.noFill();
-				canvas.strokeWeight(CELL_SIZE / 32);	
+				canvas.strokeWeight(1);	
 
 				for (int i=0;i<trailCount;i++) {
 					float trailSize = map(i,0,trailCount,CELL_SIZE / 8,CELL_SIZE);
@@ -523,6 +513,24 @@ class Player extends GameObject {
 		canvas.popMatrix();
 	}
 
+	void debugDraw() {
+			// canvas.fill(255,255,255,255);
+			// canvas.rect(pos.x,pos.y,siz.x / 4,siz.y / 4);
+			// canvas.rect(cen.x,cen.y,siz.x / 4,siz.y / 4);
+			// canvas.textSize(debugger.fontSize);
+			// canvas.textAlign(CENTER);
+			// canvas.fill(colors.player[id],255);
+			// int playerID = id;
+			// float textPosY = cen.y + siz.x + debugger.fontSize;
+			// canvas.text("ID: " + id,cen.x,textPosY);
+			// canvas.text("ALPHA: " + alpha,cen.x,textPosY+debugger.fontSize);
+			// canvas.text("BOOSTING: " + strokeWidth,cen.x,textPosY+debugger.fontSize*2);
+			// canvas.text("UP: " + upPressed,cen.x,textPosY+debugger.fontSize);
+			// canvas.text("DOWN: " + downPressed,cen.x,textPosY+debugger.fontSize*2);
+			// canvas.text("LEFT: " + leftPressed,cen.x,textPosY+debugger.fontSize*3);
+			// canvas.text("RIGHT: " + rightPressed,cen.x,textPosY+debugger.fontSize*4);
+	}
+
 	float getVSpeed(float _acc, float _dec, float _maxSpeed) {
 		// determine vertical speed
 		if (input.north || ((boosting || wrapV) && dir.y == -1)) {
@@ -591,7 +599,7 @@ class Player extends GameObject {
 			// when the player isn't in respawn mode
 			// and when there isn't already a collision
 
-			if (id != p.id && p.ALIVE) {
+			if (id != p.id && p.ALIVE && ALIVE) {
 				if (!collisionTop) 		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
 				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
 				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
@@ -746,33 +754,38 @@ class Player extends GameObject {
 	}
 
 	void spawn() {
+		// respawns the player if possible
+		boolean canSpawn = checkSpawnKill();
 
-		// respawn the player and reset it's properties
-		ALIVE = true;
-		INVINCIBLE = true;
-		drawScale = initialDrawScale;
-		spawnedOnce = true;
-		canRespawn = false;
-		hp.x = hp.y;
-		alpha = 255;
-		spawn01.trigger();
-		oManager.activePlayers++;
-		checkSpawnKill();
+		if (canSpawn) {
+			// respawn the player and reset it's properties
+			ALIVE = true;
+			INVINCIBLE = true;
+			spawnedOnce = true;
+			hp.x = hp.y;
+			alpha = 255;
+			spawn01.trigger();
+			oManager.activePlayers++;
+			respawnTime = respawnDuration;
+		}
 	}
 
-	void checkSpawnKill() {
-
+	boolean checkSpawnKill() {
+		boolean canSpawn = true;
 		boolean spawnKill = false;
 
 		//check for collisions with other players and kill them when spawning on top of them
 		for (Player p : oManager.players) {
-			// skip own player id
-			if (id == p.id) continue;
-			// don't check when dead
-			if (p.ALIVE) {
-				spawnKill = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+			// skip own player id and dead players
+			if (id == p.id || !p.ALIVE) continue;
+
+			spawnKill = collision.checkBoxCollision(pos.x,pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+				
+ 			if (spawnKill) {
+ 				if (!p.INVINCIBLE) p.hp.x -= p.hp.x; 					
+ 				else canSpawn = false;
  			}
- 			if (spawnKill) p.hp.x -= p.hp.x;
 		}
+		return canSpawn;
 	}
 }
