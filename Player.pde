@@ -25,12 +25,9 @@ class Player extends GameObject {
 
 	// boosting
 	boolean hasBoost, boosting;
-	int boostTime = 30;
-	int boostDuration = boostTime;
-	int boostTrailDensity = 2;
-	int boostTrailParticleLimiter = boostTrailDensity;
-	float[] trailX = new float[boostTime / boostTrailDensity];
-	float[] trailY = new float[boostTime / boostTrailDensity];
+	int boostDuration = 30;
+	int boostTime = boostDuration;
+	ArrayList <TrailParticle> boostParticles = new ArrayList <TrailParticle>();
 
 	//multishot
 	float msIndicatorSize, msMaxSize;
@@ -147,6 +144,7 @@ class Player extends GameObject {
 		if (!KILLED) move();
 		draw();
 		face();
+		boost();
 		
 		if (ALIVE && !KILLED) {
 
@@ -298,9 +296,6 @@ class Player extends GameObject {
 			// draw the boost indicator
 			if (hasBoost) drawBoostIndicator();
 
-			// draw the boost trail
-			drawBoostTrail();
-
 			// draw shield
 			if (hasShield) {
 				float offset = 1.5;
@@ -425,33 +420,30 @@ class Player extends GameObject {
 		}
 	}
 
-	void drawBoostTrail() {
-		// draw the boost trail
-		if (boosting) {
-			if (trailCount < boostTime) {
-				trailX[trailCount] = cen.x;
-				trailY[trailCount] = cen.y;
+	void boost() {
+		// manages boosting and trail particles
+		if (boosting && boostTime > 0) {
 
-				canvas.noFill();
-				canvas.strokeWeight(1);	
-
-				for (int i=0;i<trailCount;i++) {
-					float trailSize = map(i,0,trailCount,CELL_SIZE / 8,CELL_SIZE);
-					float trailAlpha = map(i,0,trailCount,0,255);
-					canvas.stroke(colors.player[id],trailAlpha);
-					canvas.rect(trailX[i],trailY[i],trailSize,trailSize);
-				}
-
-				if (boostTrailParticleLimiter > 1) boostTrailParticleLimiter--;
-				else {
-					trailCount++;
-					boostTrailParticleLimiter = boostTrailDensity;
-				}
+			boostTime -= 1 * dtInSeconds;
+			
+			// adds particles
+			boolean createParticle = repeat(2);
+			if (createParticle) {
+				TrailParticle p = new TrailParticle(new PVector(cen.x,cen.y),siz.x,colors.player[id]);
+				boostParticles.add(p);
 			}
+
 		} else {
-			float[] trailX = new float[boostTime / boostTrailDensity];
-			float[] trailY = new float[boostTime / boostTrailDensity];
-			trailCount = 0;
+			boosting = false;
+			boostTime = boostDuration;
+		}
+
+		// update particles
+		for (TrailParticle p : boostParticles) {
+			if (p.remove) {
+				boostParticles.remove(p);
+				break;
+			} else p.update();
 		}
 	}
 
@@ -571,14 +563,13 @@ class Player extends GameObject {
 
 		// change movement properties when boosting
 		if (boosting) {
+			maxSpeed = CELL_SIZE / 2;
+			acceleration = 1.0;
+		}
+
+		if (boosting) {
 			maxSpeed = 8.0;
 			acceleration = 1.0;
-
-			if (boostDuration > 0) boostDuration -= 1 * dtInSeconds;
-			else {
-				boosting = false;
-				boostDuration = boostTime;
-			}
 		}
 
 		getVSpeed(acceleration, deceleration, maxSpeed);
