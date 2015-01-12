@@ -292,7 +292,8 @@ class Menu {
 				"A GAME BY CLEMENS SCOTT OF BROKEN RULES",
 				"MADE FOR HANS G. & ZAMSPIELEN",
 				" ",
-				"CO_PRODUCED BY JOSEF WIESNER.",
+				"CO_PRODUCED BY JOSEF WIESNER",
+				"ADDITIONAL LEVELS BY TANJA SCHANTL",
 				" ",
 				"MADE WITH PROCESSING",
 				"BEN FRY | CASEY REAS | DAN SHIFFMAN",
@@ -304,7 +305,7 @@ class Menu {
 			textSize(FONT_SIZE * 0.8);
 
 			for (int i=0; i<credText.length; i++) {
-				text(credText[i],offset.x, offset.y + gridSize * i * 0.8);
+				text(credText[i],offset.x, offset.y + gridSize * i * 0.8 - gridSize / 2);
 			}			
 		}
 	}
