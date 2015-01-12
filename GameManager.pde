@@ -12,11 +12,13 @@ class GameManager {
 	int alpha;
 
 	Grid grid;
+	Pulser gridPulser;
 
 	GameManager() {
 	    prevLevelID = 100;
     	prevMillis = millis();
     	grid = new Grid();
+    	gridPulser = new Pulser();
     	alpha = 0;
    	}
 
@@ -99,10 +101,18 @@ class GameManager {
 		translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 		PVector gridPos = new PVector(-VIEW_WIDTH / 2, -VIEW_HEIGHT / 2);
 		PVector gridSiz = new PVector(VIEW_WIDTH , VIEW_HEIGHT);
-		grid.drawGrid(gridPos, gridSiz, CELL_SIZE, CELL_SIZE / 8, 1, colors.item, 50);
-		grid.drawGrid(gridPos, gridSiz, CELL_SIZE * 4, CELL_SIZE / 2, 1, colors.item, 50);
-        // draw a checkerboard for the winner
-		// grid.drawCheckers = matchOver || debugger.drawCheckers ? true : false;
+
+        // change the grid color to the winner
+        float drawScale = 1;
+        int gridColor = colors.item;
+        int alp = 50;
+		// if (matchOver || debugger.drawWinnerGrid) {
+		// 	gridColor = colors.player[winnerID];
+		// 	drawScale = gridPulser.pulse(1,8,0.5,1,-1);
+		// 	alp = 150;
+		// }
+		grid.drawGrid(gridPos, gridSiz, CELL_SIZE, CELL_SIZE / 8 * drawScale, 1 * drawScale, gridColor, alp);
+		grid.drawGrid(gridPos, gridSiz, CELL_SIZE * 4, CELL_SIZE / 2 * drawScale, 1 * drawScale, gridColor, alp);
 		popMatrix();
 	}
 }
