@@ -1,7 +1,7 @@
 class Pulser {
 
-	float currentValue;
-	int dur;
+	float currentValue, currentTarget, previousTarget;
+	int repeats;
 	boolean reversed;
 	
 	Pulser() {
@@ -9,34 +9,39 @@ class Pulser {
 		reversed = false;
 	}
 
-	float pulse(float _startValue, float _targetValue, float _speed, float _easingFactor, int _duration) {
-		//pulses stuff
-		float diff = _targetValue - _startValue;
-
+	float pulse(float _startValue, float _targetValue, float _speed, float _easingFactor, int _repeats) {
 		// sets parameters once
 		if (currentValue == -1) {
 			currentValue = _startValue;
-			dur = _duration;
+			currentTarget = _targetValue;
+			previousTarget = _startValue;
+			repeats = _repeats;
 		}
 
-		// determines the current value
-		if (currentValue < _targetValue && !reversed && dur != 0) {
+		float diff = currentTarget - previousTarget;
+		float step = dtInSeconds / _speed * diff;
 
-			currentValue += dtInSeconds / _speed * diff;
-			if (dur != -1) dur--;
+		// checks which is the smaller or larger value - needed for the constrain function below
+		float smallerValue = previousTarget < currentTarget ? previousTarget : currentTarget;
+		float largerValue  = previousTarget > currentTarget ? previousTarget : currentTarget;
 
-		} else if(currentValue > _startValue) {
+		// approaches the current target value
+		currentValue = constrain(currentValue + step, smallerValue, largerValue);
 
-			reversed = true;
-			currentValue -= dtInSeconds / _speed * diff;
+		// reverses the direction
+		if (currentValue == currentTarget && repeats != 1) {
 
-		} else {
-			reversed = false;
+			if (currentTarget == _startValue) {
+				currentTarget = _targetValue;
+				previousTarget = _startValue;
+			} else {
+				currentTarget = _startValue;
+				previousTarget = _targetValue;
+			}
+			if (repeats != -1) repeats--;
 		}
 
-		return currentValue;
-		// ease(easeControl,_targetValue,_startValue,_easingFactor);
-
+		return ease(currentValue,currentTarget,previousTarget,_easingFactor);
 	}
 
 	float ease(float _currentValue, float _startValue, float _targetValue, float _easingFactor) {
