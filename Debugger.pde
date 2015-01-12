@@ -7,7 +7,7 @@ class Debugger {
 	int 	consoleAlpha;
 	boolean consoleActive;
 
-	boolean debugDraw, invincibility, autoShoot, drawCheckers;
+	boolean debugDraw, invincibility, autoShoot, drawWinnerGrid;
 	int autoShootInterval, autoShootCount;
 
 	DebugOption[] debugOptions = new DebugOption[5];
@@ -24,7 +24,7 @@ class Debugger {
 		debugDraw 		= false;
 		invincibility 	= false;
 		autoShoot 		= false;
-		drawCheckers 	= false;
+		drawWinnerGrid 	= true;
 
 		autoShootInterval = 20;
 		autoShootCount = autoShootInterval;
@@ -32,7 +32,7 @@ class Debugger {
 		debugOptions[0] = new DebugOption("DEBUG DRAW",false);
 		debugOptions[1] = new DebugOption("INVINCIBILITY",false);
 		debugOptions[2] = new DebugOption("AUTO FIRE",false);
-		debugOptions[3] = new DebugOption("SHOW CHECKERS",false);
+		debugOptions[3] = new DebugOption("DRAW WINNER GRID",false);
 		debugOptions[4] = new DebugOption("PAUSE",false);
 
 		selectedOption = 0;
@@ -48,8 +48,8 @@ class Debugger {
 		if (debugOptions[2].active) autoShoot = true;
 		else autoShoot = false;
 
-		if (debugOptions[3].active) drawCheckers = true;
-		else drawCheckers = false;
+		if (debugOptions[3].active) drawWinnerGrid = true;
+		else drawWinnerGrid = false;
 		
 		// set the font size
 		fontSize = DEBUG_FONT_SIZE;
