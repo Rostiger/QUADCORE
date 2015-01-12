@@ -3,7 +3,7 @@ class Hud {
 	int blink;
 	float rotation, statsDistance, easeControl, waitTime, waitDuration;
 	boolean visible, showEndScreen;
-	String[] playerName = new String[]{"RED","YELLOW","GREEN","BLUE"};
+	Pulser score = new Pulser();
 
 	Hud() {
 		blink = 0;
@@ -63,9 +63,7 @@ class Hud {
 				case 3: rotate(radians(90)); break;
 			}
 
-			translate(-WIN_WIDTH / 2, -WIN_HEIGHT /2);
-
-			showEndScreen();
+			drawStats();
 
 			popMatrix();
 
@@ -116,77 +114,8 @@ class Hud {
 		}
 	}
 
-	void showEndScreen() {
-		// set up text variables
-		String subText = "";
-		float fontSizeL = FONT_SIZE * 3;
-		float fontSizeS = FONT_SIZE;
-		int lineNumberCount = 0;
-		int lineNumber = 0;
-
-		float barLSizeFactor = 0.7;
-		PVector barSizeS	=	new PVector(VIEW_WIDTH * 0.4, VIEW_HEIGHT / 6);
-		PVector barSizeL 	= 	new PVector(VIEW_WIDTH + (ARENA_BORDER * 2), barSizeS.y * barLSizeFactor);
-		PVector barPos		=	new PVector(canvasPos.x - ARENA_BORDER,0);
-		float baseOffsetY	= 	VIEW_HEIGHT / 4;
-		float barsOffsetY 	= 	baseOffsetY / 8;
-		float titleOffsetY	=	baseOffsetY * 1.4;
-		int barsAlpha 		= 	200;
-
-		int playerWithMostWins = checkMostWins();
-
-		for (int i=0; i<oManager.players.length; i++) {
-
-			Player player = oManager.players[i];
-
-			lineNumberCount++;
-
-			if (i == playerWithMostWins) {
-				lineNumber = 0;
-				lineNumberCount--;
-			} else lineNumber = lineNumberCount; 
-			
-			barPos.y = baseOffsetY + ((barsOffsetY + barSizeS.y) * lineNumber);
-
-			// draw bars
-			noStroke();
-			fill(colors.solid,barsAlpha);
-			rect(barPos.x, barPos.y + (barSizeL.y / 4), barSizeL.x, barSizeL.y);
-			fill(colors.player[i],barsAlpha);
-			rect(barPos.x, barPos.y, barSizeS.x, barSizeS.y);
-			
-			// check the players stats and choose a fitting text
-			subText = playerName[i] + " " + getDescription(i);
-
-			// set the subtext position
-			PVector subTextPos	= new PVector(barPos.x + barSizeS.x + barSizeL.x / 16, barPos.y + barSizeL.y - (fontSizeS / 3));
-
-			fill(colors.player[i]);
-			textSize(fontSizeS);
-			textAlign(LEFT);			
-			text(subText,subTextPos.x,subTextPos.y);
-
-			// draw the number of wins
-			for (int b=0; b<3; b++) {
-
-				stroke(colors.solid);
-				strokeWeight(barSizeS.y * 0.05);
-
-				if (b < player.wins) fill(colors.player[i],255);
-				else fill(colors.solid,200);
-
-				float boxSize = barSizeS.y * 0.3;
-				float boxSpacing = barSizeS.y * 0.3;
-				float posX = (boxSize + boxSpacing) * b;
-				float offsetX = (barSizeS.x - (boxSize * 3 + boxSpacing * 2)) / 2;
-				PVector pos = new PVector(barPos.x + offsetX + posX , barPos.y + (barSizeS.y / 2 - boxSize / 2));
-
-				rect(pos.x,pos.y,boxSize,boxSize);
-
-			}		
-		}
-
-		translate(WIN_WIDTH / 2, WIN_HEIGHT /2);
+	void drawStats() {
+		drawBars();
 
 		fill(colors.player[gManager.winnerID]);
 		textAlign(CENTER);
@@ -196,20 +125,108 @@ class Hud {
 		String footerText = "";
 
 		if (!gManager.gameOver) {
-			headerText = "MATCH OVER";
+			headerText = "ROUND OVER";
 			footerText = "PRESS START TO CONTINUE";
 		} else {
-			headerText = "GAME OVER";
+			headerText = "MATCH OVER";
 			footerText = "PRESS START TO PLAY AGAIN";
 		}
 
 		// draw header
 		textSize(FONT_SIZE * 4);
-		text(headerText,0,-titleOffsetY);
+		text(headerText,0, -VIEW_HEIGHT / 2 + ARENA_BORDER * 1.5);
 
 		// draw footer
 		textSize(ARENA_BORDER);
-		text(footerText,0,VIEW_HEIGHT / 2 + ARENA_BORDER / 2);
+		text(footerText,0,WIN_HEIGHT / 2 - ARENA_BORDER);
+	}
+
+	void drawBars() {
+		String subText = "";
+		float fontSizeL = FONT_SIZE * 3;
+		float fontSizeS = FONT_SIZE;
+		int playerWithMostWins = checkMostWins();
+		int lineNumberCount = 0;
+		int lineNumber = 0;
+
+		PVector barSizeS	=	new PVector(WIN_HEIGHT * 0.4, VIEW_HEIGHT / 6);
+		PVector barSizeL 	= 	new PVector(WIN_HEIGHT, barSizeS.y * 0.7);
+		PVector barPos		=	new PVector(-WIN_HEIGHT / 2,0);
+		float baseOffsetY	= 	-VIEW_HEIGHT / 4;
+		float barsYSpacing 	= 	VIEW_HEIGHT / 32;
+		int barsAlpha 		= 	200;
+		float drawScale = score.pulse(3,1,0.8,0.5,1);
+		
+		rectMode(CENTER);
+
+		for (int i=0; i<oManager.players.length; i++) {
+
+			Player player = oManager.players[i];
+
+			lineNumberCount++;
+
+			// puts the player with the most wins in the first row
+			if (i == playerWithMostWins) {
+				lineNumber = 0;
+				lineNumberCount--;
+			} else lineNumber = lineNumberCount; 
+			
+			// set the bars y position
+			barPos.y = baseOffsetY + (barsYSpacing + barSizeS.y) * lineNumber;
+
+			// draw bars
+			noStroke();
+			fill(colors.solid,barsAlpha);
+			rect(0, barPos.y, barSizeL.x, barSizeL.y);
+			fill(colors.player[i],barsAlpha);
+			rect(barPos.x + barSizeS.x / 2, barPos.y, barSizeS.x, barSizeS.y);
+			
+			// check the players stats and choose a fitting text
+			String[] playerName = new String[]{"RED","YELLOW","GREEN","BLUE"};
+			subText = playerName[i] + " " + getDescription(i);
+
+			// set the subtext position
+			PVector subTextPos	= new PVector(barPos.x + barSizeS.x + barSizeL.x / 16, barPos.y + fontSizeS * 0.25);
+
+			fill(colors.player[i]);
+			textSize(fontSizeS);
+			textAlign(LEFT);			
+			text(subText,subTextPos.x,subTextPos.y);
+
+			// set up the position and size of the squares to draw
+			float boxSize = barSizeS.y * 0.333;
+			float boxSpacing = barSizeS.y * 0.333;
+			float offsetX = barSizeS.x / 2 - boxSize - boxSpacing;
+			PVector pos = new PVector(barPos.x + offsetX, barPos.y);
+
+			stroke(colors.solid);
+			strokeWeight(barSizeS.y * 0.05);
+
+			// draw the squares
+			for (int b=0; b<3; b++) {
+
+				float alp = 255;
+				float dScale = 1;
+
+				// draw size
+				if (player.id == gManager.winnerID && b == player.wins-1) {
+					dScale = drawScale;
+					alp = map(drawScale,1,3,255,0);
+				}
+
+				//set the color and alpha
+				if (b < player.wins) {
+					fill(colors.player[i],alp);
+					stroke(colors.solid,alp);
+				} else {
+					fill(colors.solid,200);
+					stroke(colors.solid,255);
+				}
+
+				offsetX = b * (boxSize + boxSpacing);
+				rect(pos.x + offsetX, pos.y, boxSize * dScale, boxSize * dScale);
+			}
+		}
 	}
 
 	String getDescription(int _playerID) {
