@@ -15,7 +15,6 @@ class Menu {
 	String[] mainMenu = new String[]{"START GAME","HOW TO PLAY","ABOUT"};
 	String[] backMenu = new String[]{"BACK"};
 	int selectedItem;
-	float itemFontScale;
 
 	// components
 	Grid grid = new Grid();
@@ -26,7 +25,6 @@ class Menu {
 		userId = (int)floor(random(0,4));
 
 		selectedItem = 0;
-		itemFontScale = 1;
 
 		input = new ArrayList();
 		for (int i=0; i<4; i++) {
@@ -34,7 +32,7 @@ class Menu {
 			input.add(in);
 		}
 
-		borderWeight = ARENA_BORDER * 1.35;
+		borderWeight = floor(ARENA_BORDER * 1.35);
 		borderScale = 2;
 	}
 
@@ -136,7 +134,7 @@ class Menu {
 		PVector posHeadline = new PVector(-edgePos + gridSize * 2, -edgePos + gridSize * 3.5);
 		PVector posLogo 	= new PVector(-edgePos + gridSize * 2, -edgePos + gridSize * 4);
 		PVector posVersion 	= new PVector( edgePos - gridSize * 1.5, gridSize * 2.5);
-		PVector menuPos 	= new PVector( 2, edgePos - gridSize + 5);
+		PVector menuPos 	= new PVector( 2, edgePos - gridSize * 3.85);
 
 		if (!tutorial && !credits) {
 			drawHeadLine(posHeadline, "ZAMSPIELEN PRESENTS");
@@ -183,7 +181,7 @@ class Menu {
 		}
 
 		PVector pos = new PVector( _pos.x, _pos.y - gridSize * _menuName.length + gridSize / 2 );
-		float hSize = gridSize * 11;
+		float hSize = gridSize * 15;
 
 		// menu item colors
 		int bg1 = 0;

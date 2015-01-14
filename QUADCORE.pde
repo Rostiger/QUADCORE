@@ -44,12 +44,12 @@ float dtInSeconds;
 int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
-boolean TOP_VIEW = true;		// playing on the hansG?
+boolean TOP_VIEW = false;		// playing on the hansG?
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
 float version = 0.4;
 
-float gridSize = 32 * WIN_SCALE;
+float gridSize;
 
 Shake screenShake = new Shake();
 Blink blink = new Blink();
@@ -61,7 +61,7 @@ PGraphics pass1, pass2;
 void setup() {
 
 	// get the width of the current display and set the height so it's a 4:3 ratio
-	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
+	WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
 	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
 	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
 	ARENA_BORDER = ceil(WIN_HEIGHT * 0.063);
@@ -82,6 +82,7 @@ void setup() {
 	// reset the game
 	gManager.reset();
 	menu = new Menu();
+	gridSize = (WIN_HEIGHT - menu.borderWeight / 2) / 24;
 
 	// set up a canvas to draw onto
 	canvas = createGraphics(VIEW_WIDTH,VIEW_HEIGHT);
@@ -108,6 +109,7 @@ void draw() {
 	background(bgColor);
 	textFont(font);
 
+	// screenshake
 	if (screenShake.isShaking) {
 		screenShake.update();
 		canvasCen.add(screenShake.offset);
@@ -140,7 +142,7 @@ void postProcessing() {
 	blur.set("verticalPass", 0);
 	pass1.beginDraw();            
 	pass1.shader(blur);  
-	pass1.image(dst, 0, 0);
+	pass1.image(dst, canvasCen.x, canvasCen.y);
 	pass1.endDraw();
 
 	// Applying the blur shader along the horizontal direction      
@@ -149,7 +151,7 @@ void postProcessing() {
 	pass2.shader(blur);  
 	pass2.image(pass1, 0, 0);
 	pass2.endDraw();
- 	image(pass2, 0, 0);
+ 	image(pass2, canvasCen.x, canvasCen.y);
 }
 
 void keyPressed() {
