@@ -170,15 +170,7 @@ class Player extends GameObject {
 			} else hit();
 
 			// if hp.x goes under 0, kill the player
-			if (hp.x <= 0) {
-				KILLED = true;
-				die01.trigger();
-				screenShake.shake(7,1.2);
-				deaths++;
-				if (respawnDuration != 0) respawnDuration *= respawnDurationMultiplier;
-				else respawnTime = 2;
-				oManager.activePlayers--;
-			}
+			if (hp.x <= 0) die();
 
 			// maintain the shield status
 			if (shieldHp.x <= 0) hasShield = false;
@@ -194,7 +186,6 @@ class Player extends GameObject {
 			}
 
 		} else if (KILLED) {
-
 			// reset any powerups
 			boosting = false;
 			hasBoost = false;
@@ -202,8 +193,8 @@ class Player extends GameObject {
 			hasShield = false;
 			hasLockDown = false;
 			showItem = false;		
-			drawScale = initialDrawScale;
 			
+			// decrease alpha && increase drawScale
 			if (alpha > 0) {
 				alpha -= 10;
 				drawScale++;
@@ -602,18 +593,35 @@ class Player extends GameObject {
 		// screenwrapping
 		wrapH = checkWrapping("Horizontal");
 		wrapV = checkWrapping("Vertical");
+		if (wrapH) {
+			input.east = false;
+			input.west = false;
+		}
+
+		if (wrapV) {
+			input.north = false;
+			input.south = false;
+		}
 
 		//check for collisions with solids
 		for (Solid s : oManager.solids) {
 			if (wrapV) {
-				if (!collisionTop)		collisionTop 		= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionBottom) 	collisionBottom 	= collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionTop)		collisionTop 		= collision.checkBoxCollision(pos.x,VIEW_HEIGHT - abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionBottom) 	collisionBottom 	= collision.checkBoxCollision(pos.x,-siz.y + abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (collisionTop || collisionBottom) dir.y *= -1;
 			} else {
 				if (!collisionTop)		collisionTop 	= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
 				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
 			}
-			if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-			if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+
+			if (wrapH) {
+				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(VIEW_WIDTH - abs(speed.x),pos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionRight)	collisionRight = collision.checkBoxCollision(0 + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
+				if (collisionLeft || collisionRight) dir.x *= -1;
+			} else {
+				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
+			}
 		}
 
 		// if there are no collisions set vertical speed
@@ -731,6 +739,17 @@ class Player extends GameObject {
 		hit = false;
 	}
 
+	void die() {
+		KILLED = true;
+		die01.trigger();
+		screenShake.shake(7,1.2);
+		deaths++;
+		if (respawnDuration != 0) respawnDuration *= respawnDurationMultiplier;
+		else respawnDuration = respawnDurationMultiplier;
+		respawnTime = respawnDuration;		
+		oManager.activePlayers--;
+	}
+
 	void knockBack(PVector dir) {
 		// knocks the player back when hit
 		int knockBackStrength = 5;
@@ -755,9 +774,9 @@ class Player extends GameObject {
 			spawnedOnce = true;
 			hp.x = hp.y;
 			alpha = 255;
+			drawScale = initialDrawScale;
 			spawn01.trigger();
 			oManager.activePlayers++;
-			respawnTime = respawnDuration;
 		}
 	}
 
