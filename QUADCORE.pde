@@ -35,7 +35,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 1;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
 int CELL_SIZE;			// size of a single tile
@@ -44,7 +44,8 @@ float dtInSeconds;
 int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
-boolean TOP_VIEW = true;		// playing on the hansG?
+boolean TOP_VIEW = false;		// playing on the hansG?
+boolean SHADERS = true;
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
 float version = 0.4;
@@ -60,16 +61,7 @@ PGraphics pass1, pass2;
 
 void setup() {
 
-	// get the width of the current display and set the height so it's a 4:3 ratio
-	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
-	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
-	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
-	ARENA_BORDER = ceil(WIN_HEIGHT * 0.063);
-	FONT_SIZE = ceil(WIN_HEIGHT * 0.04);
-	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
-
-	// setup the window and renderer
-	size(WIN_WIDTH,WIN_HEIGHT,P2D);
+	setupWindow();
 	frameRate(30);
 
 	initGamePads();
@@ -93,8 +85,8 @@ void setup() {
 	
 	// set up the shaders
 	blur = loadShader("blur.glsl");
-	blur.set("blurSize", 20);
-	blur.set("sigma", 2.0f);
+	blur.set("blurSize", 3);
+	blur.set("sigma", 20.f);
 
 	pass1 = createGraphics(width, height, P2D);
 	pass1.noSmooth();  
@@ -112,10 +104,11 @@ void draw() {
 		screenShake.update();
 		canvasCen.add(screenShake.offset);
 	}
-	imageMode(CENTER);
+
 	noStroke();
+	imageMode(CENTER);
   	image( canvas, canvasCen.x, canvasCen.y	);
-	
+
 	canvas.beginDraw();
 	canvas.background(colors.bg);
 	canvas.textFont(font);
@@ -127,7 +120,8 @@ void draw() {
 	rectMode(CORNER);
 	rect(0,0,canvasPos.x - ARENA_BORDER,WIN_HEIGHT);
 	rect(canvasPos.x + VIEW_WIDTH + ARENA_BORDER, 0, canvasPos.x, WIN_HEIGHT);
-	// postProcessing();
+
+	if (SHADERS) postProcessing();
 
 	textFont(debugFont);
 	debugger.update();
@@ -135,9 +129,10 @@ void draw() {
 
 void postProcessing() {
 	PImage dst = get();
+	imageMode(CORNER);
 
 	// Applying the blur shader along the vertical direction   
-	blur.set("verticalPass", 0);
+	blur.set("horizontalPass", 0);
 	pass1.beginDraw();            
 	pass1.shader(blur);  
 	pass1.image(dst, 0, 0);
@@ -149,7 +144,18 @@ void postProcessing() {
 	pass2.shader(blur);  
 	pass2.image(pass1, 0, 0);
 	pass2.endDraw();
+
+	tint(255, 100);
+	blendMode(SCREEN);
  	image(pass2, 0, 0);
+ 	noTint();
+	blendMode(MULTIPLY);
+ 	image(pass2, 0, 0);
+	blendMode(BLEND);
+
+	tint(255, 100);
+	image(pass2, 0, 0);
+	noTint();
 }
 
 void keyPressed() {
@@ -162,6 +168,28 @@ void keyReleased() {
 	debugger.keyReleased();
 	if (!gManager.debug) oManager.keyReleased();
 	if (menu.active) menu.keyReleased();
+	
+	if (key == '[') {
+		if (WIN_SCALE == 1.0) WIN_SCALE = 0.8;
+		else WIN_SCALE = 1.0;
+		setupWindow();
+		sketchFullScreen();
+		gManager.reset();
+		menu = new Menu();
+	}
+}
+
+void setupWindow() {
+	// setup the window and renderer
+	size(ceil(768 * WIN_SCALE * 1.333),ceil(768 * WIN_SCALE),P2D);
+
+	// get the width of the current display and set the height so it's a 4:3 ratio
+	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
+	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
+	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
+	ARENA_BORDER = ceil(WIN_HEIGHT * 0.063);
+	FONT_SIZE = ceil(WIN_HEIGHT * 0.04);
+	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
 }
 
 boolean sketchFullScreen() {
