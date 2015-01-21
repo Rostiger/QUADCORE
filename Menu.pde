@@ -3,18 +3,21 @@ class Menu {
 	boolean active = true;
 	boolean tutorial = false;
 	boolean credits = false;
+	boolean settings = false;
 	int alpha;
 	int userId;
 	PImage bg;
 	float borderWeight, borderScale;
+	float volumeSfx, volumeMsc;
 
 	ArrayList < Input > input;
 
 	// menus
-	String[] pauseMenu = new String[]{"CONTINUE","RESTART","HOW TO PLAY","EXIT"};
-	String[] mainMenu = new String[]{"START GAME","HOW TO PLAY","ABOUT"};
+	String[] pauseMenu = new String[]{"CONTINUE","SETTINGS","RESTART","HOW TO PLAY","EXIT"};
+	String[] mainMenu = new String[]{"START GAME","SETTINGS","HOW TO PLAY","ABOUT"};
 	String[] backMenu = new String[]{"BACK"};
-	int selectedItem;
+	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS"};
+	int selectedItem, selectedSetting;
 	float itemFontScale;
 
 	// components
@@ -26,7 +29,11 @@ class Menu {
 		userId = (int)floor(random(0,4));
 
 		selectedItem = 0;
+		selectedSetting = 0;
 		itemFontScale = 1;
+
+		volumeSfx = 0.8;
+		volumeMsc = 0.8;
 
 		input = new ArrayList();
 		for (int i=0; i<4; i++) {
@@ -43,7 +50,6 @@ class Menu {
 	}
 	
 	void update() {
-
 		if (active) {
 
 			// check input
@@ -60,7 +66,7 @@ class Menu {
 		} else selectedItem = 0;
 
 		// handle the pause menu
-		if (!tutorial && !credits) {
+		if (!tutorial && !credits && !settings) {
 			if (gManager.paused) {
 				if (input.get(userId).shootReleased) {
 					switch( selectedItem ) {
@@ -68,16 +74,17 @@ class Menu {
 							active = false;
 							gManager.paused = false;
 						break;
-						case 1: // RESTART
+						case 1: settings = true; break;
+						case 2: // RESTART
 							active = false;
 							gManager.paused = false;
 							gManager.gameOver = true;
 							gManager.reset();
 						break;
-						case 2: // HOW TO PLAY
+						case 3: // HOW TO PLAY
 							tutorial = true;
 						break;
-						case 3: // EXIT
+						case 4: // EXIT
 							gManager.paused = false;
 						break;
 					}
@@ -91,18 +98,58 @@ class Menu {
 							active = false; 
 							gManager.reset();
 						break;
-						case 1: tutorial = true; break;
-						case 2: credits = true; break;
+						case 1: settings = true; break;
+						case 2: tutorial = true; break;
+						case 3: credits = true; break;
 					}
 					selectedItem = 0;
 				}
 			}
 		} else {
+
+			// handle the settings screen
+			if (settings) {
+				switch (selectedSetting) {
+					case 0: volumeSfx = moveSlider(volumeSfx, 0.0, 1.0, 0.1); break;
+					case 1: volumeMsc = moveSlider(volumeMsc, 0.0, 1.0, 0.1); break;
+					case 2: TOP_VIEW = toggleBool(TOP_VIEW); break;
+					case 3: SHADERS = toggleBool(SHADERS); break;
+				}
+			}
+
+			// exit the submenu
 			if (input.get(userId).shootReleased) {
 				tutorial = false;
 				credits = false;
+				settings = false;
 			}
 		}
+	}
+
+	float moveSlider(float _value, float _minRange, float _maxRange, float _step) {
+		// moves a value between a range
+		float value = _value;
+
+		if (input.get(userId).rightReleased) {
+			if (value < _maxRange) value += _step;
+			else value = _maxRange;
+		}
+		
+		if (input.get(userId).leftReleased) {
+			if (value > _minRange) value -= _step;
+			else value = _minRange;
+		}
+
+		if (value < _minRange) value = _minRange;
+		if (value > _maxRange) value = _maxRange;
+
+		return value;
+	}
+
+	boolean toggleBool(boolean _bool) {
+		boolean b = _bool;
+		if (input.get(userId).rightReleased || input.get(userId).leftReleased) b = !b;
+		return b;
 	}
 
 	void draw() {
@@ -123,7 +170,8 @@ class Menu {
 		rectMode(CENTER);
 		rect(0,0,WIN_HEIGHT,WIN_HEIGHT);
 
-		//rotate the canvas to the winner
+		//rotate the canvas to the player that's using the menu
+		if (TOP_VIEW)
 		switch (userId) {
 			case 0: rotate(radians(180)); break;
 			case 1: rotate(radians(0)); break;
@@ -138,7 +186,7 @@ class Menu {
 		PVector posVersion 	= new PVector( edgePos - gridSize * 1.5, gridSize * 2.5);
 		PVector menuPos 	= new PVector( 2, edgePos - gridSize + 5);
 
-		if (!tutorial && !credits) {
+		if (!tutorial && !credits && !settings) {
 			drawHeadLine(posHeadline, "ZAMSPIELEN PRESENTS");
 			drawLogo(posLogo);
 			drawVersion(posVersion);
@@ -153,7 +201,7 @@ class Menu {
 		grid.drawGrid(gridPos, gridSiz, gridSize * 4, gridSize , 1, colors.player[userId], 100);
 		grid.drawGrid(gridPos, gridSiz, gridSize / 2, gridSize / 8, 1, colors.player[userId], 50);
 
-		if (tutorial || credits) {
+		if (tutorial || credits || settings) {
 			drawSubMenu();
 			drawMenu(backMenu, menuPos);
 		}
@@ -161,20 +209,26 @@ class Menu {
 		popMatrix();
 	}
 
-	void drawMenu(String[] _menuName, PVector _pos) {
+	int navigateMenu(String[] _menuName, int _selectedItem) {
 		// menu navigation
 		if (input.get(userId).downReleased) {
-			if (selectedItem < _menuName.length - 1) selectedItem++;
-			else selectedItem = 0;
+			if (_selectedItem < _menuName.length - 1) _selectedItem++;
+			else _selectedItem = 0;
 		}
 
 		if (input.get(userId).upReleased) {
-			if (selectedItem > 0) selectedItem--;
-			else selectedItem = _menuName.length - 1;
+			if (_selectedItem > 0) _selectedItem--;
+			else _selectedItem = _menuName.length - 1;
 		}
+
+		return _selectedItem;
+	}
+
+	void drawMenu(String[] _menuName, PVector _pos) {
+		selectedItem = navigateMenu(_menuName, selectedItem);
 		
 		// draw pause text
-		if (gManager.paused && !tutorial && !credits) {
+		if (gManager.paused && !tutorial && !credits && !settings) {
 			fill(colors.player[userId],blink.blink(255,0,14));
 			textAlign(RIGHT);
 			textSize(FONT_SIZE);
@@ -243,8 +297,12 @@ class Menu {
 		textSize(FONT_SIZE * 1.5);
 		textAlign(LEFT);
 		fill(colors.solid);
-		if (tutorial) text("//QUADCORE - H", offset.x, offset.y);
-		else text("//QUADCORE - C", offset.x, offset.y);
+		String headline = "";
+		if (tutorial) headline = "H";
+		else if (credits) headline = "C";
+		else headline = "S";
+
+		text("//QUADCORE - " + headline, offset.x, offset.y);
 
 		offset.y += gridSize * 2;
 		fill(colors.solid, 200);
@@ -286,7 +344,7 @@ class Menu {
 				
 			}
 
-		} else {
+		} else if (credits) {
 
 			String[] credText = new String[]{
 				"A GAME BY CLEMENS SCOTT OF BROKEN RULES",
@@ -306,8 +364,65 @@ class Menu {
 
 			for (int i=0; i<credText.length; i++) {
 				text(credText[i],offset.x, offset.y + gridSize * i * 0.8 - gridSize / 2);
-			}			
+			}
+
+		} else {
+			float optionWidth =  gridSize * 8;
+			PVector optionPos = new PVector(offset.x + VIEW_WIDTH / 3, offset.y - FONT_SIZE * 0.8 / 3);
+
+			textSize(FONT_SIZE * 0.8);
+
+			selectedSetting = navigateMenu(settingsMenu, selectedSetting);
+
+			for (int i=0; i<settingsMenu.length; i++) {
+				boolean selected = i == selectedSetting ? true : false;
+				float y = offset.y + gridSize * i;
+
+				alpha = selected ? 255 : 150;
+
+				fill(colors.player[userId], alpha);
+				stroke(colors.player[userId], alpha);
+				textAlign(LEFT);
+				text(settingsMenu[i], offset.x, y);
+
+				switch (i) {
+					case 0: drawSlider	(optionPos.x, optionPos.y, optionWidth, volumeSfx, new PVector(0, 1)); break;
+					case 1: drawSlider	(optionPos.x, optionPos.y + gridSize, optionWidth, volumeMsc, new PVector(0, 1)); break;
+					case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW, selected); break;
+					case 3: drawBool	(optionPos.x, offset.y + gridSize * 3, optionWidth, SHADERS, selected); break;
+				}
+			}
 		}
+	}
+
+	void drawSlider(float _posX, float _posY, float _siz, float _val, PVector _range) {
+		PVector pos = new PVector(_posX, _posY);
+		float siz = _siz;
+		float val = _val;
+
+		strokeWeight(gridSize * 0.15);
+		line(pos.x, pos.y, pos.x + siz, pos.y);
+
+		noStroke();
+		float knobPos = map(val, _range.x, _range.y, 0, siz);
+		rectMode(CENTER);
+		rect(pos.x + knobPos, pos.y, gridSize * 0.7, gridSize * 0.7);
+	}
+
+	void drawBool(float _posX, float _posY, float _siz, boolean _bool, boolean _active) {
+		PVector pos = new PVector(_posX, _posY);
+		String value = _bool ? "TRUE" : "FALSE";
+		textAlign(CENTER);
+		text(value, pos.x + _siz / 2, pos.y);
+
+		float triSiz;
+		if (_active && (input.get(userId).leftReleased || input.get(userId).rightReleased)) triSiz = gridSize * 0.5;
+		else triSiz = gridSize * 0.3;
+
+		noStroke();
+		pos.y -= FONT_SIZE * 0.8 / 3;
+		triangle(pos.x, pos.y, pos.x + triSiz, pos.y - triSiz / 2, pos.x + triSiz, pos.y + triSiz / 2);
+		triangle(pos.x + _siz, pos.y, pos.x + _siz - triSiz, pos.y - triSiz / 2, pos.x + _siz - triSiz, pos.y + triSiz / 2);
 	}
 
 	float getSubStringPosition(String _string, String _searchString) {
