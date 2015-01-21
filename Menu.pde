@@ -16,7 +16,7 @@ class Menu {
 	String[] pauseMenu = new String[]{"CONTINUE","SETTINGS","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","SETTINGS","HOW TO PLAY","ABOUT"};
 	String[] backMenu = new String[]{"BACK"};
-	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW"};
+	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS"};
 	int selectedItem, selectedSetting;
 	float itemFontScale;
 
@@ -50,7 +50,6 @@ class Menu {
 	}
 	
 	void update() {
-		println("volumeMsc: "+volumeMsc);
 		if (active) {
 
 			// check input
@@ -108,23 +107,27 @@ class Menu {
 			}
 		} else {
 
+			// handle the settings screen
+			if (settings) {
+				switch (selectedSetting) {
+					case 0: volumeSfx = moveSlider(volumeSfx, 0.0, 1.0, 0.1); break;
+					case 1: volumeMsc = moveSlider(volumeMsc, 0.0, 1.0, 0.1); break;
+					case 2: TOP_VIEW = toggleBool(TOP_VIEW); break;
+					case 3: SHADERS = toggleBool(SHADERS); break;
+				}
+			}
+
+			// exit the submenu
 			if (input.get(userId).shootReleased) {
 				tutorial = false;
 				credits = false;
 				settings = false;
 			}
-
-			if (settings) {
-				switch (selectedSetting) {
-					case 0: volumeSfx = moveSlider(volumeSfx, 0.0, 1.0, 0.1); break;
-					case 1: volumeMsc = moveSlider(volumeMsc, 0.0, 1.0, 0.1); break;
-					case 2: TOP_VIEW = toggleBool(TOP_VIEW);
-				}
-			}
 		}
 	}
 
 	float moveSlider(float _value, float _minRange, float _maxRange, float _step) {
+		// moves a value between a range
 		float value = _value;
 
 		if (input.get(userId).rightReleased) {
@@ -136,6 +139,9 @@ class Menu {
 			if (value > _minRange) value -= _step;
 			else value = _minRange;
 		}
+
+		if (value < _minRange) value = _minRange;
+		if (value > _maxRange) value = _maxRange;
 
 		return value;
 	}
@@ -365,25 +371,25 @@ class Menu {
 			PVector optionPos = new PVector(offset.x + VIEW_WIDTH / 3, offset.y - FONT_SIZE * 0.8 / 3);
 
 			textSize(FONT_SIZE * 0.8);
-			textAlign(LEFT);
 
 			selectedSetting = navigateMenu(settingsMenu, selectedSetting);
 
 			for (int i=0; i<settingsMenu.length; i++) {
-				boolean selected = false;
+				boolean selected = i == selectedSetting ? true : false;
 				float y = offset.y + gridSize * i;
 
-				selected = i == selectedSetting ? true : false;
 				alpha = selected ? 255 : 150;
 
 				fill(colors.player[userId], alpha);
 				stroke(colors.player[userId], alpha);
+				textAlign(LEFT);
 				text(settingsMenu[i], offset.x, y);
 
 				switch (i) {
 					case 0: drawSlider	(optionPos.x, optionPos.y, optionWidth, volumeSfx, new PVector(0, 1)); break;
 					case 1: drawSlider	(optionPos.x, optionPos.y + gridSize, optionWidth, volumeMsc, new PVector(0, 1)); break;
-					case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW); break;
+					case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW, selected); break;
+					case 3: drawBool	(optionPos.x, offset.y + gridSize * 3, optionWidth, SHADERS, selected); break;
 				}
 			}
 		}
@@ -403,14 +409,14 @@ class Menu {
 		rect(pos.x + knobPos, pos.y, gridSize * 0.7, gridSize * 0.7);
 	}
 
-	void drawBool(float _posX, float _posY, float _siz, boolean _bool) {
+	void drawBool(float _posX, float _posY, float _siz, boolean _bool, boolean _active) {
 		PVector pos = new PVector(_posX, _posY);
 		String value = _bool ? "TRUE" : "FALSE";
 		textAlign(CENTER);
 		text(value, pos.x + _siz / 2, pos.y);
 
 		float triSiz;
-		if (input.get(userId).leftReleased || input.get(userId).rightReleased) triSiz = gridSize * 0.5;
+		if (_active && (input.get(userId).leftReleased || input.get(userId).rightReleased)) triSiz = gridSize * 0.5;
 		else triSiz = gridSize * 0.3;
 
 		noStroke();
