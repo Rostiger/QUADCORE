@@ -56,11 +56,13 @@ class Hud {
 			translate(WIN_WIDTH / 2, WIN_HEIGHT / 2);
 
 			//rotate the canvas to the winner
-			switch (gManager.winnerID) {
-				case 0: rotate(radians(180)); break;
-				case 1: rotate(radians(0)); break;
-				case 2: rotate(radians(270)); break;
-				case 3: rotate(radians(90)); break;
+			if (TOP_VIEW) {
+				switch (gManager.winnerID) {
+					case 0: rotate(radians(180)); break;
+					case 1: rotate(radians(0)); break;
+					case 2: rotate(radians(270)); break;
+					case 3: rotate(radians(90)); break;
+				}
 			}
 
 			drawStats();
