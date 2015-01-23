@@ -8,6 +8,9 @@ class Player extends GameObject {
 	boolean ALIVE, KILLED, INVINCIBLE;
 	boolean hit, knockBack, hasMultiShot, hasShield, hasLockDown;
 	boolean wrapH, wrapV;
+
+	// collisions
+	PVector sav;
 	
 	// stats
 	int bullets, kills, deaths, shots, items, score, nodesOwned, nodesCaptured, nodesLost, wins;
@@ -86,6 +89,9 @@ class Player extends GameObject {
 		drawScaleShield = 1;
 		wrapH = false;
 		wrapV = false;
+
+		// collision
+		sav = new PVector(0, 0);
 
 		//stats
 		bullets = 0;
@@ -573,64 +579,99 @@ class Player extends GameObject {
 		boolean collisionRight = false;
 
 		//check for collisions with other players
-		for (Player p : oManager.players) {
+		// for (Player p : oManager.players) {
 
-			// only check for collisions when:
-			// the id is different from the players id
-			// when the other player isn't dead
-			// when the player isn't in respawn mode
-			// and when there isn't already a collision
+		// 	// only check for collisions when:
+		// 	// the id is different from the players id
+		// 	// when the other player isn't dead
+		// 	// when the player isn't in respawn mode
+		// 	// and when there isn't already a collision
 
-			if (id != p.id && p.ALIVE && ALIVE) {
-				if (!collisionTop) 		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
-				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
- 			}
+		// 	if (id != p.id && p.ALIVE && ALIVE) {
+		// 		if (!collisionTop) 		collisionTop = collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+		// 		if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+		// 		if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+		// 		if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,p.pos.x,p.pos.y,p.siz.x,p.siz.x);
+ 	// 		}
 
-		}
+		// }
 
-		// screenwrapping
-		wrapH = checkWrapping("Horizontal");
-		wrapV = checkWrapping("Vertical");
-		if (wrapH) {
-			input.east = false;
-			input.west = false;
-		}
-
-		if (wrapV) {
-			input.north = false;
-			input.south = false;
-		}
+		// // screenwrapping
+		// wrapH = checkWrapping("Horizontal");
+		// wrapV = checkWrapping("Vertical");
 
 		//check for collisions with solids
-		for (Solid s : oManager.solids) {
-			if (wrapV) {
-				if (!collisionTop)		collisionTop 		= collision.checkBoxCollision(pos.x,VIEW_HEIGHT - abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionBottom) 	collisionBottom 	= collision.checkBoxCollision(pos.x,-siz.y + abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (collisionTop || collisionBottom) dir.y *= -1;
-			} else {
-				if (!collisionTop)		collisionTop 	= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-			}
+		// for (Solid s : oManager.solids) {
+		// 	if (wrapV) {
+		// 		// check vertical collisions while screen wrapping
+		// 		collisionTop = collision.checkBoxCollision(pos.x,VIEW_HEIGHT - abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 		if (collisionTop) { while (pos.y < 0) pos.y += 1; }
 
-			if (wrapH) {
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(VIEW_WIDTH - abs(speed.x),pos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(0 + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
-				if (collisionLeft || collisionRight) dir.x *= -1;
-			} else {
-				if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
-				if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
-			}
-		}
+		// 		collisionBottom = collision.checkBoxCollision(pos.x, abs(speed.y),siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 		if (collisionBottom) { while (pos.y + siz.y > VIEW_HEIGHT) pos.y -= 1; }
+
+		// 		if (collisionTop || collisionBottom) { speed.y = 0; break; }
+			
+		// 	} else {
+
+		// 		if (!collisionTop)		collisionTop 	= collision.checkBoxCollision(pos.x,pos.y - abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 		if (!collisionBottom)	collisionBottom = collision.checkBoxCollision(pos.x,pos.y + abs(speed.y),siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 	}
+
+		// 	if (wrapH) {
+		// 		// check horizontal collisions while screen wrapping
+		// 		collisionLeft = collision.checkBoxCollision(VIEW_WIDTH - abs(speed.x),pos.y,siz.x,siz.y,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 		if (collisionLeft) { while (pos.x < 0) pos.x += 1; break; }
+				
+		// 		collisionRight = collision.checkBoxCollision(0 + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
+		// 		if (collisionRight) { while (pos.x + siz.x > VIEW_WIDTH) pos.x -= 1; break; }
+
+		// 		if (collisionLeft || collisionRight) { speed.x = 0; break; }
+
+		// 	} else {
+		// 		if (!collisionLeft)		collisionLeft = collision.checkBoxCollision(pos.x - abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);
+		// 		if (!collisionRight)	collisionRight = collision.checkBoxCollision(pos.x + abs(speed.x),pos.y,siz.x,siz.x,s.pos.x,s.pos.y,s.siz.x,s.siz.y);				
+		// 	}
+		// }
+
+		PVector rep = new PVector(0, 0);
+		rep.x += floor(abs(speed.x));
+		rep.y += floor(abs(speed.y));
+		sav.x += abs(speed.x) - floor(abs(speed.x));
+		sav.y += abs(speed.y) - floor(abs(speed.y));
+
+		int offsetX = (speed.x < 0) ? 0 : CELL_SIZE - 1;
+		int offsetY = (speed.y < 0) ? 0 : CELL_SIZE - 1;
+
+     	if (sav.x >= 1) {
+     		sav.x -= 1;
+     		rep.x++;
+     	}
+
+     	if (sav.y >= 1) {
+     		sav.y -= 1;
+     		rep.y++;
+     	}
+
+		// check for left & right collisions
+		for (; rep.x > 0; rep.x--) {
+			
+			PVector right = new PVector(pos.x + offsetX+ dir.x, pos.y);
+			PVector left = new PVector(pos.x + offsetX + dir.x, pos.y + CELL_SIZE - 1);
+
+			if (placeFreeSolids(right) && placeFreeSolids(left)) {
+			    pos.x += dir.x;
+			} // else speed.x = 0;
+		
+		}       
 
 		// if there are no collisions set vertical speed
-		if (speed.y <= 0 && !collisionTop) pos.y += speed.y;
-		if (speed.y >= 0 && !collisionBottom) pos.y += speed.y;
+		// if (speed.y <= 0 && !collisionTop) pos.y += speed.y;
+		// if (speed.y >= 0 && !collisionBottom) pos.y += speed.y;
 
 		// if there are no collisions set horizontal speed
-		if (speed.x <= 0 && !collisionLeft) pos.x += speed.x;
-		if (speed.x >= 0 && !collisionRight) pos.x += speed.x;
+		// if (speed.x <= 0 && !collisionLeft) pos.x += speed.x;
+		// if (speed.x >= 0 && !collisionRight) pos.x += speed.x;
 
 		// screenwrapping
 		if (pos.x > VIEW_WIDTH) pos.x = -siz.x;
@@ -640,12 +681,21 @@ class Player extends GameObject {
 		else if (pos.y + siz.y < 0) pos.y = VIEW_HEIGHT;
 	}
 
+	boolean placeFreeSolids(PVector _pos) {
+		//checks if a given point is free (no game object at that point)
+		for (Solid o : oManager.solids) {
+			if (o.pos == _pos) return true;
+		}
+
+		return false;
+	}
+
 	boolean checkWrapping(String _direction) {
 		// checks if the player is wrapping around the screen
 		boolean wrapping = false;
 
-		if (_direction == "Horizontal") wrapping = (pos.x + siz.x > VIEW_WIDTH || pos.x < 0) ? true : false;
-		if (_direction == "Vertical") wrapping = (pos.y + siz.y > VIEW_HEIGHT || pos.y < 0) ? true : false;
+		if (_direction == "Horizontal") wrapping = (pos.x + siz.x >= VIEW_WIDTH || pos.x <= 0) ? true : false;
+		if (_direction == "Vertical") wrapping = (pos.y + siz.y >= VIEW_HEIGHT || pos.y <= 0) ? true : false;
 
 		return wrapping;
 	}

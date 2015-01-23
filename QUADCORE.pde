@@ -45,7 +45,7 @@ int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
 boolean TOP_VIEW = false;		// playing on the hansG?
-boolean SHADERS = true;
+boolean SHADERS = false;
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
 float version = 0.4;
