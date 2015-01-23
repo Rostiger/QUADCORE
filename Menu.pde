@@ -227,17 +227,17 @@ class Menu {
 	void drawMenu(String[] _menuName, PVector _pos) {
 		selectedItem = navigateMenu(_menuName, selectedItem);
 		
+		PVector pos = new PVector( _pos.x, _pos.y - gridSize * _menuName.length + gridSize / 2 );
+		float hSize = gridSize * 11;
+		
 		// draw pause text
 		if (gManager.paused && !tutorial && !credits && !settings) {
 			fill(colors.player[userId],blink.blink(255,0,14));
 			textAlign(RIGHT);
 			textSize(FONT_SIZE);
 			noStroke();
-			text("//GAME PAUSED", 0, VIEW_HEIGHT * 0.22);
+			text("//GAME PAUSED", pos.x, pos.y - gridSize);
 		}
-
-		PVector pos = new PVector( _pos.x, _pos.y - gridSize * _menuName.length + gridSize / 2 );
-		float hSize = gridSize * 11;
 
 		// menu item colors
 		int bg1 = 0;
