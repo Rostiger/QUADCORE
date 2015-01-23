@@ -1,0 +1,7 @@
+PS3WIN
+LS_X	Left Stick X	3	SLIDER	Y Axis	0	1.0	0.0
+LS_Y	Left Stick Y	3	SLIDER	X Axis	0	1.0	0.0
+DPAD	Dpad	2	HAT	cooliehat: Hat Switch	0	1.0	0.0
+BT_A	Button A	1	BUTTON	Button 0	0	0.0	0.0
+BT_B	Button B	1	BUTTON	Button 2	0	0.0	0.0
+BT_C	Button C	1	BUTTON	Button 7	0	0.0	0.0
