@@ -3,6 +3,10 @@ class Input {
 	int id;
 	boolean hasGamePad;
 
+    boolean upSlider, downSlider, leftSlider, rightSlider;
+    boolean upButton, downButton, leftButton, rightButton;
+    boolean upHat, downHat, leftHat, rightHat;
+
 	boolean upPressed, upWasPressed, upReleased;
 	boolean downPressed, downWasPressed, downReleased;
 	boolean leftPressed, leftWasPressed, leftReleased;
@@ -13,8 +17,14 @@ class Input {
 	boolean anyKeyPressed, anyKeyWasPressed, anyKeyReleased;
 	boolean north, east, south, west;
 
+	ControlDevice gamePad;
+
 	Input(int _id) {
 		id = _id;
+
+		upSlider = false; downSlider = false; leftSlider = false; rightSlider = false;
+		upButton = false; downButton = false; leftButton = false; rightButton = false;
+		upHat = false; downHat = false; leftHat = false; rightHat = false;
 
 		upPressed		=	false; upWasPressed 	 	= false; upReleased 		= false;
 		downPressed		=	false; downWasPressed 	 	= false; downReleased 		= false;
@@ -24,6 +34,7 @@ class Input {
 		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
 		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
 		anyKeyPressed 	= 	false;
+		
 		north = false;
 		east = false;
 		south = false;
@@ -36,6 +47,8 @@ class Input {
 				break;
 			} else hasGamePad = false;
 		}
+
+		if (hasGamePad) gamePad = gPads.get(id);
 	}
 
 	void update() {
@@ -127,22 +140,30 @@ class Input {
 	void getGamePadInput(int _id) {
 		int id = _id;
 
-		if (gPads.get(id).getSlider("LS_Y").getValue() < -0.2 || gPads.get(id).getButton("DP_UP").pressed()) upPressed = true;
-		else upPressed = false;
+        if (gamePad.getSlider("LS_Y") != null)          upSlider        = gamePad.getSlider("LS_Y").getValue() < -0.2 ? true : false;
+        if (gamePad.getButton("DP_UP") != null)         upButton        = gamePad.getButton("DP_UP").pressed();
+        if (gamePad.getHat("DPAD") != null)             upHat           = gamePad.getHat("DPAD").up();
 
-		if (gPads.get(id).getSlider("LS_Y").getValue() > 0.2 || gPads.get(id).getButton("DP_DOWN").pressed()) downPressed = true;
-		else downPressed = false;
+        if (gamePad.getSlider("LS_Y") != null)          downSlider      = gamePad.getSlider("LS_Y").getValue() > 0.2 ? true : false;
+        if (gamePad.getButton("DP_UP") != null)         downButton      = gamePad.getButton("DP_DOWN").pressed();
+        if (gamePad.getHat("DPAD") != null)             downHat         = gamePad.getHat("DPAD").down();
 
+        if (gamePad.getSlider("LS_Y") != null)          leftSlider      = gamePad.getSlider("LS_X").getValue() < -0.2 ? true : false;
+        if (gamePad.getButton("DP_LEFT") != null)       leftButton      = gamePad.getButton("DP_LEFT").pressed();
+        if (gamePad.getHat("DPAD") != null)             leftHat         = gamePad.getHat("DPAD").left();
 
-		if (gPads.get(id).getSlider("LS_X").getValue() < -0.2 ||	gPads.get(id).getButton("DP_LEFT").pressed()) leftPressed = true;
-		else leftPressed = false;
+        if (gamePad.getSlider("LS_Y") != null)          rightSlider = gamePad.getSlider("LS_X").getValue() > 0.2 ? true : false;
+        if (gamePad.getButton("DP_RIGHT") != null)      rightButton = gamePad.getButton("DP_RIGHT").pressed();
+        if (gamePad.getHat("DPAD") != null)             rightHat    = gamePad.getHat("DPAD").right();
 
-		if (gPads.get(id).getSlider("LS_X").getValue() > 0.2 || gPads.get(id).getButton("DP_RIGHT").pressed()) rightPressed = true;
-		else rightPressed = false;
+        upPressed       = (upSlider     || upButton     || upHat)       ? true : false;
+        downPressed     = (downSlider   || downButton   || downHat)     ? true : false;
+        leftPressed     = (leftSlider   || leftButton   || leftHat)     ? true : false;
+        rightPressed    = (rightSlider  || rightButton  || rightHat)    ? true : false;
 
-		shootPressed = gPads.get(id).getButton("BT_A").pressed();
-		useItemPressed = gPads.get(id).getButton("BT_B").pressed();
-		startPressed = gPads.get(id).getButton("BT_C").pressed();
+        shootPressed    = gPads.get(id).getButton("BT_A").pressed();
+        useItemPressed  = gPads.get(id).getButton("BT_B").pressed();
+        startPressed    = gPads.get(id).getButton("BT_C").pressed();
 
 		// handle any key boolean
 		if (upPressed || downPressed || leftPressed || rightPressed || shootPressed || useItemPressed || startPressed) anyKeyPressed = true;
