@@ -206,12 +206,13 @@ void initGamePads() {
 	int numberOfDevices = control.getNumberOfDevices();
 	// load configurations for different controllers
 	Configuration ps3 = Configuration.makeConfiguration(this,"ps3");
+	Configuration ps3win = Configuration.makeConfiguration(this,"ps3win");
 	Configuration xBoxWireless = Configuration.makeConfiguration(this,"XBOXWireless");
 	// step through the number of devices and see if any of the devices match one of the configurations
 	for (int i=0;i<numberOfDevices;i++) {
 		ControlDevice device = control.getDevice(i);
 		// if the configuration matches, add the device
-		if (device.matches(ps3) || device.matches(xBoxWireless)) gPads.add(device);
+		if (device.matches(ps3) || device.matches(ps3win) || device.matches(xBoxWireless)) gPads.add(device);
 		else device.close();
 	}
 }
