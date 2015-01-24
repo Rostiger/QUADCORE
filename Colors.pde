@@ -11,9 +11,14 @@ class Colors {
 		int numberOfColorShemes = 4;
 		int colorScheme = 0;
 
-		if (name == "DARK_PURPLE") colorScheme = 1;
-		else if (name == "VIOLET_BLUE") colorScheme = 2;
-		else if (name == "PURPLE_YELLOW") colorScheme = 3;
+		player[0] = #F13687;
+		player[1] = #F1F187;
+		player[2] = #2fff3a;
+		player[3] = #31ccff;
+
+		if (name == "DEFAULT") colorScheme = 1;
+		else if (name == "RUSSIAN") colorScheme = 2;
+		else if (name == "OCEAN") colorScheme = 3;
 		else if (name == "BLUE_ORANGE") colorScheme = 4;
 		else if (name == "RANDOM") {
 			colorScheme = ceil(random(0,numberOfColorShemes));
@@ -29,56 +34,28 @@ class Colors {
 				node1 = #8A80DF;
 				node2 = #574CA5;
 				item = #C082FF;
-				player[0] = #F13687;
-				player[1] = #F1F187;
-				player[2] = #20F187;
-				player[3] = #31ccff;
-				player2[0] = #ff76aa;
-				player2[1] = #ffffbf;
-				player2[2] = #66ffb1;
-				player2[3] = #8be2ff;
 			break;
 			case 2:
-				bg = #69D6C0;
-				solid = #755EA2;
-				node1 = #B2A9CF;
-				node2 = #766C98;
-				player[0] = #C7506B;
-				player[1] = #F0F25E;
-				player[2] = #00960F;
-				player[3] = #0080DB;
-				player2[0] = #ff76aa;
-				player2[1] = #ffffbf;
-				player2[2] = #66ffb1;
-				player2[3] = #8be2ff;
+				bg = #3D3356;
+				solid = #BA365D;
+				node1 = #78475C;
+				node2 = #AB68A3;
+				item = #EDA8C6;
+				item = #C082FF;
 			break;
 			case 3:
-				bg = #DEE07B;
-				solid = #9256B3;
-				node1 = #9553B8;
-				node2 = #AA77C9;
-				player[0] = #BF345F;
-				player[1] = #8A7138;
-				player[2] = #6ABB00;
-				player[3] = #2F8BFF;
-				player2[0] = #ff76aa;
-				player2[1] = #ffffbf;
-				player2[2] = #66ffb1;
-				player2[3] = #8be2ff;
+				bg = #0A3542;
+				solid = #335C64;
+				node1 = #0A3542;
+				node2 = #5C4A56;
+				item = #7895A4;
 			break;
 			case 4:
-				bg = #E0AF7F;
-				solid = #5980B3;
-				node1 = #5680B8;
-				node2 = #7B9FC9;
-				player[0] = #FE2CB1;
-				player[1] = #FFEA29;
-				player[2] = #7BF37C;
-				player[3] = #2452FF;
-				player2[0] = #ff76aa;
-				player2[1] = #ffffbf;
-				player2[2] = #66ffb1;
-				player2[3] = #8be2ff;
+				bg = #6D1B75;
+				solid = #B04DA1;
+				node1 = #AB5BB3;
+				node2 = #AB5BB3;
+				item = #D69DC9;
 			break;
 		}
 	}

@@ -34,7 +34,7 @@ class Input {
 		useItemPressed	=	false; useItemWasPressed 	= false; useItemReleased 	= false;
 		startPressed	=	false; startWasPressed 		= false; startReleased 		= false;
 		anyKeyPressed 	= 	false;
-		
+
 		north = false;
 		east = false;
 		south = false;
