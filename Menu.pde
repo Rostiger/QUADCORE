@@ -4,6 +4,8 @@ class Menu {
 	boolean tutorial = false;
 	boolean credits = false;
 	boolean settings = false;
+	int bgColor = colors.bg;
+	int prevColorScheme = 0;
 	int alpha;
 	int userId;
 	PImage bg;
@@ -16,7 +18,7 @@ class Menu {
 	String[] pauseMenu = new String[]{"CONTINUE","SETTINGS","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","SETTINGS","HOW TO PLAY","ABOUT"};
 	String[] backMenu = new String[]{"BACK"};
-	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS"};
+	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS", "COLOR_SCHEME"};
 	int selectedItem, selectedSetting;
 	float itemFontScale;
 
@@ -114,6 +116,14 @@ class Menu {
 					case 1: volumeMsc = moveSlider(volumeMsc, 0.0, 1.0, 0.1); break;
 					case 2: TOP_VIEW = toggleBool(TOP_VIEW); break;
 					case 3: SHADERS = toggleBool(SHADERS); break;
+					case 4: 
+						COLOR_SCHEME = browseList(colors.colorSchemes, COLOR_SCHEME); 
+						if (COLOR_SCHEME != prevColorScheme) {
+							colors.pickColorScheme(COLOR_SCHEME);
+							prevColorScheme = COLOR_SCHEME;
+							bgColor = colors.bg;
+						}
+					break;
 				}
 			}
 
@@ -152,6 +162,21 @@ class Menu {
 		return b;
 	}
 
+	int browseList(String[] _list, int _listItem) {
+		// browse horizontal lists
+		if (input.get(userId).rightReleased) {
+			if (_listItem < _list.length - 1) _listItem++;
+			else _listItem = 0;
+		}
+
+		if (input.get(userId).leftReleased) {
+			if (_listItem > 0) _listItem--;
+			else _listItem = _list.length - 1;
+		}
+
+		return _listItem;
+	}
+
 	void draw() {
 		// draw the background
 		pushMatrix();
@@ -164,7 +189,7 @@ class Menu {
 		} else alpha = 255;
 
 		// draw a background rectangle
-		fill(colors.solid,alpha);
+		fill(bgColor,alpha);
 		stroke(colors.player[userId],255);
 		strokeWeight(borderWeight * borderScale);		
 		rectMode(CENTER);
@@ -263,7 +288,7 @@ class Menu {
 				st2 = colors.player[userId];
 				txt = colors.player[userId];
 			} else {
-				bg1 = colors.solid;
+				bg1 = colors.node2;
 				bg2 = colors.bg;
 				st1 = colors.player[userId];
 				st2 = colors.player[userId];
@@ -366,31 +391,35 @@ class Menu {
 				text(credText[i],offset.x, offset.y + gridSize * i * 0.8 - gridSize / 2);
 			}
 
-		} else {
-			float optionWidth =  gridSize * 8;
-			PVector optionPos = new PVector(offset.x + VIEW_WIDTH / 3, offset.y - FONT_SIZE * 0.8 / 3);
+		} else drawSettings(offset);
+	}
 
-			textSize(FONT_SIZE * 0.8);
+	void drawSettings(PVector _offset) {
+		PVector offset = _offset;
+		float optionWidth =  gridSize * 8;
+		PVector optionPos = new PVector(offset.x + VIEW_WIDTH / 3, offset.y - FONT_SIZE * 0.8 / 3);
 
-			selectedSetting = navigateMenu(settingsMenu, selectedSetting);
+		textSize(FONT_SIZE * 0.8);
 
-			for (int i=0; i<settingsMenu.length; i++) {
-				boolean selected = i == selectedSetting ? true : false;
-				float y = offset.y + gridSize * i;
+		selectedSetting = navigateMenu(settingsMenu, selectedSetting);
 
-				alpha = selected ? 255 : 150;
+		for (int i=0; i<settingsMenu.length; i++) {
+			boolean selected = i == selectedSetting ? true : false;
+			float y = offset.y + gridSize * i;
 
-				fill(colors.player[userId], alpha);
-				stroke(colors.player[userId], alpha);
-				textAlign(LEFT);
-				text(settingsMenu[i], offset.x, y);
+			alpha = selected ? 255 : 150;
 
-				switch (i) {
-					case 0: drawSlider	(optionPos.x, optionPos.y, optionWidth, volumeSfx, new PVector(0, 1)); break;
-					case 1: drawSlider	(optionPos.x, optionPos.y + gridSize, optionWidth, volumeMsc, new PVector(0, 1)); break;
-					case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW, selected); break;
-					case 3: drawBool	(optionPos.x, offset.y + gridSize * 3, optionWidth, SHADERS, selected); break;
-				}
+			fill(colors.player[userId], alpha);
+			stroke(colors.player[userId], alpha);
+			textAlign(LEFT);
+			text(settingsMenu[i], offset.x, y);
+
+			switch (i) {
+				case 0: drawSlider	(optionPos.x, optionPos.y, optionWidth, volumeSfx, new PVector(0, 1)); break;
+				case 1: drawSlider	(optionPos.x, optionPos.y + gridSize, optionWidth, volumeMsc, new PVector(0, 1)); break;
+				case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW, selected); break;
+				case 3: drawBool	(optionPos.x, offset.y + gridSize * 3, optionWidth, SHADERS, selected); break;
+				case 4: drawList	(optionPos.x, offset.y + gridSize * 4, optionWidth, colors.colorSchemes, COLOR_SCHEME, selected); break;
 			}
 		}
 	}
@@ -414,7 +443,18 @@ class Menu {
 		String value = _bool ? "TRUE" : "FALSE";
 		textAlign(CENTER);
 		text(value, pos.x + _siz / 2, pos.y);
+		drawSelectors(pos, _siz, _active);
+	}
 
+	void drawList(float _posX, float _posY, float _siz, String[] _list, int _listItem, boolean _active) {
+		PVector pos = new PVector(_posX, _posY);
+		textAlign(CENTER);
+		text(_list[_listItem], pos.x + _siz / 2, pos.y);
+		drawSelectors(pos, _siz, _active);
+	}
+
+	void drawSelectors(PVector _pos, float _siz, boolean _active) {
+		PVector pos = _pos;
 		float triSiz;
 		if (_active && (input.get(userId).leftReleased || input.get(userId).rightReleased)) triSiz = gridSize * 0.5;
 		else triSiz = gridSize * 0.3;
@@ -457,8 +497,8 @@ class Menu {
 			float weight = wght * 0.4;
 			grid.drawGrid(pos,siz,gridSize / 4, gridSize / 8, 1, colors.player[userId], 255);
 			// draw the logo contour
-			fill(colors.solid,255);
-			stroke(colors.solid,255);
+			fill(bgColor,255);
+			stroke(bgColor,255);
 			strokeWeight(wght * 2);
 		
 			beginShape();

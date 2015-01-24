@@ -27,7 +27,7 @@ class GameManager {
 		oManager.clearGameObjects();
 
 		// pick a color scheme
-		colors.pickColorScheme("RANDOM");
+		colors.pickColorScheme(COLOR_SCHEME);
 
 		// choose a random new level from the list of available levels
 		nextLevelID = (int)random(0,levelList.size());
