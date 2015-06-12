@@ -44,13 +44,18 @@ float dtInSeconds;
 int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
+<<<<<<< HEAD
 boolean TOP_VIEW = false;		// playing on the hansG?
 boolean SHADERS = true;
 int SHADER_INTENSITY = 150;
 int COLOR_SCHEME = 1;
+=======
+boolean TOP_VIEW = true;		// playing on the hansG?
+boolean SHADERS = false;
+>>>>>>> Release0.5
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
-float version = 0.4;
+float version = 0.5;
 
 float gridSize = 32 * WIN_SCALE;
 
@@ -86,15 +91,17 @@ void setup() {
 	debugger = new Debugger();
 	
 	// set up the shaders
-	blur = loadShader("blur.glsl");
-	blur.set("blurSize", 3);
-	blur.set("sigma", 20.f);
+    if (SHADERS) {
+		blur = loadShader("blur.glsl");
+		blur.set("blurSize", 3);
+		blur.set("sigma", 20.f);
 
-	pass1 = createGraphics(width, height, P2D);
-	pass1.noSmooth();  
+		pass1 = createGraphics(width, height, P2D);
+		pass1.noSmooth();  
 
-	pass2 = createGraphics(width, height, P2D);
-	pass2.noSmooth();
+		pass2 = createGraphics(width, height, P2D);
+		pass2.noSmooth();
+    }
 }
 
 void draw() {
@@ -185,7 +192,6 @@ void keyReleased() {
 void setupWindow() {
 	// setup the window and renderer
 	size(ceil(768 * WIN_SCALE * 1.333),ceil(768 * WIN_SCALE),P2D);
-
 	// get the width of the current display and set the height so it's a 4:3 ratio
 	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
 	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
@@ -200,7 +206,7 @@ boolean sketchFullScreen() {
 	if (WIN_SCALE == 1.0) return true;
 	else return false;
 }
-
+// test
 void initGamePads() {
 	// GAMEPAD
 	// Initialise the ControlIO
@@ -211,11 +217,16 @@ void initGamePads() {
 	Configuration ps3 = Configuration.makeConfiguration(this,"ps3");
 	Configuration ps3win = Configuration.makeConfiguration(this,"ps3win");
 	Configuration xBoxWireless = Configuration.makeConfiguration(this,"XBOXWireless");
+	Configuration nes = Configuration.makeConfiguration(this,"nes");
 	// step through the number of devices and see if any of the devices match one of the configurations
 	for (int i=0;i<numberOfDevices;i++) {
 		ControlDevice device = control.getDevice(i);
 		// if the configuration matches, add the device
+<<<<<<< HEAD
 		if (device.matches(ps3) || device.matches(ps3win) || device.matches(xBoxWireless)) gPads.add(device);
+=======
+		if (device.matches(ps3) || device.matches(xBoxWireless) || device.matches(nes)) gPads.add(device);
+>>>>>>> Release0.5
 		else device.close();
 	}
 }
