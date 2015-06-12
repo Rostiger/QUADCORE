@@ -46,6 +46,7 @@ int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
 boolean TOP_VIEW = false;		// playing on the hansG?
 boolean SHADERS = true;
+int SHADER_INTENSITY = 150;
 int COLOR_SCHEME = 1;
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
@@ -146,15 +147,16 @@ void postProcessing() {
 	pass2.image(pass1, 0, 0);
 	pass2.endDraw();
 
-	tint(255, 100);
+	tint(255, SHADER_INTENSITY);
 	blendMode(SCREEN);
  	image(pass2, 0, 0);
  	noTint();
+
 	blendMode(MULTIPLY);
  	image(pass2, 0, 0);
 	blendMode(BLEND);
 
-	tint(255, 100);
+	tint(255, 255 - SHADER_INTENSITY);
 	image(pass2, 0, 0);
 	noTint();
 }

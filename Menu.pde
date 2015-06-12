@@ -18,7 +18,7 @@ class Menu {
 	String[] pauseMenu = new String[]{"CONTINUE","SETTINGS","RESTART","HOW TO PLAY","EXIT"};
 	String[] mainMenu = new String[]{"START GAME","SETTINGS","HOW TO PLAY","ABOUT"};
 	String[] backMenu = new String[]{"BACK"};
-	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS", "COLOR_SCHEME"};
+	String[] settingsMenu = new String[]{"SFX VOLUME", "MUSIC VOLUME", "TOP_VIEW", "SHADERS", "SHADER_INTENSITY", "COLOR_SCHEME"};
 	int selectedItem, selectedSetting;
 	float itemFontScale;
 
@@ -116,7 +116,8 @@ class Menu {
 					case 1: volumeMsc = moveSlider(volumeMsc, 0.0, 1.0, 0.1); break;
 					case 2: TOP_VIEW = toggleBool(TOP_VIEW); break;
 					case 3: SHADERS = toggleBool(SHADERS); break;
-					case 4: 
+					case 4: SHADER_INTENSITY = (int)moveSlider(SHADER_INTENSITY, 0, 255, 25); break;
+					case 5: 
 						COLOR_SCHEME = browseList(colors.colorSchemes, COLOR_SCHEME); 
 						if (COLOR_SCHEME != prevColorScheme) {
 							colors.pickColorScheme(COLOR_SCHEME);
@@ -419,7 +420,8 @@ class Menu {
 				case 1: drawSlider	(optionPos.x, optionPos.y + gridSize, optionWidth, volumeMsc, new PVector(0, 1)); break;
 				case 2: drawBool	(optionPos.x, offset.y + gridSize * 2, optionWidth, TOP_VIEW, selected); break;
 				case 3: drawBool	(optionPos.x, offset.y + gridSize * 3, optionWidth, SHADERS, selected); break;
-				case 4: drawList	(optionPos.x, offset.y + gridSize * 4, optionWidth, colors.colorSchemes, COLOR_SCHEME, selected); break;
+				case 4: drawSlider	(optionPos.x, optionPos.y + gridSize * 4, optionWidth, SHADER_INTENSITY, new PVector(0, 255)); break;
+				case 5: drawList	(optionPos.x, offset.y + gridSize * 5, optionWidth, colors.colorSchemes, COLOR_SCHEME, selected); break;
 			}
 		}
 	}
