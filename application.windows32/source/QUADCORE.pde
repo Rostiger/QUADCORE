@@ -35,7 +35,7 @@ PImage  lg1, lg2;
 
 int WIN_WIDTH;				// stores the width of the display resolution
 int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+float WIN_SCALE = 0.5;		// window scale factor - set to 1 for non-windows fullscreen
 int VIEW_WIDTH;			// width of the game area
 int VIEW_HEIGHT;			// height of the game area
 int CELL_SIZE;			// size of a single tile
@@ -84,17 +84,15 @@ void setup() {
 	debugger = new Debugger();
 	
 	// set up the shaders
-    if (SHADERS) {
-		blur = loadShader("blur.glsl");
-		blur.set("blurSize", 3);
-		blur.set("sigma", 20.f);
+	blur = loadShader("blur.glsl");
+	blur.set("blurSize", 3);
+	blur.set("sigma", 20.f);
 
-		pass1 = createGraphics(width, height, P2D);
-		pass1.noSmooth();  
+	pass1 = createGraphics(width, height, P2D);
+	pass1.noSmooth();  
 
-		pass2 = createGraphics(width, height, P2D);
-		pass2.noSmooth();
-    }
+	pass2 = createGraphics(width, height, P2D);
+	pass2.noSmooth();
 }
 
 void draw() {
@@ -184,6 +182,7 @@ void keyReleased() {
 void setupWindow() {
 	// setup the window and renderer
 	size(ceil(768 * WIN_SCALE * 1.333),ceil(768 * WIN_SCALE),P2D);
+
 	// get the width of the current display and set the height so it's a 4:3 ratio
 	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
 	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
@@ -208,12 +207,11 @@ void initGamePads() {
 	// load configurations for different controllers
 	Configuration ps3 = Configuration.makeConfiguration(this,"ps3");
 	Configuration xBoxWireless = Configuration.makeConfiguration(this,"XBOXWireless");
-	Configuration nes = Configuration.makeConfiguration(this,"nes");
 	// step through the number of devices and see if any of the devices match one of the configurations
 	for (int i=0;i<numberOfDevices;i++) {
 		ControlDevice device = control.getDevice(i);
 		// if the configuration matches, add the device
-		if (device.matches(ps3) || device.matches(xBoxWireless) || device.matches(nes)) gPads.add(device);
+		if (device.matches(ps3) || device.matches(xBoxWireless)) gPads.add(device);
 		else device.close();
 	}
 }
