@@ -1,3 +1,10 @@
+//  ██████╗ ██╗   ██╗ █████╗ ██████╗  ██████╗ ██████╗ ██████╗ ███████╗
+// ██╔═══██╗██║   ██║██╔══██╗██╔══██╗██╔════╝██╔═══██╗██╔══██╗██╔════╝
+// ██║   ██║██║   ██║███████║██║  ██║██║     ██║   ██║██████╔╝█████╗  
+// ██║▄▄ ██║██║   ██║██╔══██║██║  ██║██║     ██║   ██║██╔══██╗██╔══╝  
+// ╚██████╔╝╚██████╔╝██║  ██║██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗
+//  ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
+ 
 import java.util.Arrays;				// import the java array class for level loading			
 import ddf.minim.*;						// import the sound library
 import org.gamecontrolplus.gui.*;		// import the gui library for configuring the gamepads
@@ -17,14 +24,14 @@ AudioSample
 	powerUpSpawn01, powerUpGet01, lockDown01,lockDownStopAlert01,
 	lockDownStop01;
 
-GameManager gManager = new GameManager();
-ObjectManager oManager = new ObjectManager();
-Colors colors = new Colors();
-LevelParser levelParser = new LevelParser();
-Menu menu;
-Debugger debugger;
-Hud hud;
-Collision collision;
+GameManager 	gManager = new GameManager();		// handles the main game loop
+ObjectManager 	oManager = new ObjectManager();		// updates/resets/deletes/etc. all game objects (players.bullets, etc.)
+Colors 			colors = new Colors();				// color schemes are stored here
+LevelParser 	levelParser = new LevelParser();	// parses levels from gifs!
+Menu menu;											// contains menu logic
+Debugger debugger;									// for debugging stuff!
+Hud hud;											// manages the hud
+Collision collision;								// 'calculates' collisions
 
 PGraphics canvas;
 PFont font;
@@ -33,34 +40,30 @@ PFont debugFont;
 ArrayList < PImage > levelList; 
 PImage  lg1, lg2;
 
-int WIN_WIDTH;				// stores the width of the display resolution
-int WIN_HEIGHT;				// stores the height of the display resolution		
-float WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
-int VIEW_WIDTH;			// width of the game area
-int VIEW_HEIGHT;			// height of the game area
-int CELL_SIZE;			// size of a single tile
-float dt;					// this value is initialised and update in the GameManager() class
-float dtInSeconds;
+// global variables
+int 	WIN_WIDTH;				// stores the width of the display resolution
+int 	WIN_HEIGHT;				// stores the height of the display resolution		
+float 	WIN_SCALE = 0.8;		// window scale factor - set to 1 for non-windows fullscreen
+int 	VIEW_WIDTH;				// width of the game area
+int 	VIEW_HEIGHT;			// height of the game area
+int 	CELL_SIZE;				// size of a single tile
+float dt;						// delta time like the pros do!
+float dtInSeconds;				// actual delta time in seconds
 int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
-<<<<<<< HEAD
-boolean TOP_VIEW = false;		// playing on the hansG?
-boolean SHADERS = true;
+boolean TOP_VIEW = false;		// is the screen on the floor?
+boolean SHADERS = false;			// experimental performance killer
 int SHADER_INTENSITY = 150;
 int COLOR_SCHEME = 1;
-=======
-boolean TOP_VIEW = true;		// playing on the hansG?
-boolean SHADERS = false;
->>>>>>> Release0.5
 PVector canvasPos, canvasCen;
 color bgColor = #000000;
 float version = 0.5;
 
 float gridSize = 32 * WIN_SCALE;
 
-Shake screenShake = new Shake();
-Blink blink = new Blink();
+Shake screenShake = new Shake();	// camera shake!
+Blink blink = new Blink();			// class for blinking stuff
 
 //post processing variables
 PShader blur;
@@ -92,7 +95,7 @@ void setup() {
 	
 	// set up the shaders
     if (SHADERS) {
-		blur = loadShader("blur.glsl");
+		blur = loadShader("data/blur.glsl");
 		blur.set("blurSize", 3);
 		blur.set("sigma", 20.f);
 
@@ -105,10 +108,12 @@ void setup() {
 }
 
 void draw() {
+	// the main draw loop - this is where the magic happens!
 	noCursor();
 	background(bgColor);
 	textFont(font);
 
+	// update the screen shaker class
 	if (screenShake.isShaking) {
 		screenShake.update();
 		canvasCen.add(screenShake.offset);
@@ -118,18 +123,21 @@ void draw() {
 	imageMode(CENTER);
   	image( canvas, canvasCen.x, canvasCen.y	);
 
+  	// the game is drawn onto a new canvas to be able to manipulate the image size and apply shaders
 	canvas.beginDraw();
 	canvas.background(colors.bg);
 	canvas.textFont(font);
 	gManager.update();
 	canvas.endDraw();
 
+	// here the canvas is actually displayed
 	noStroke();
 	fill(0,0,0,255);
 	rectMode(CORNER);
 	rect(0,0,canvasPos.x - ARENA_BORDER,WIN_HEIGHT);
 	rect(canvasPos.x + VIEW_WIDTH + ARENA_BORDER, 0, canvasPos.x, WIN_HEIGHT);
 
+	// now the shaders are applied
 	if (SHADERS) postProcessing();
 
 	textFont(debugFont);
@@ -137,6 +145,8 @@ void draw() {
 }
 
 void postProcessing() {
+	// this is some very experimental code for appliying a bloom like shader
+	// it eats most of the game's performance, so I reccomend using it with caution
 	PImage dst = get();
 	imageMode(CORNER);
 
@@ -169,12 +179,14 @@ void postProcessing() {
 }
 
 void keyPressed() {
+	// update any and all key presses
 	debugger.keyPressed();
 	if (!gManager.debug) oManager.keyPressed();
 	if (menu.active) menu.keyPressed();
 }
 
 void keyReleased() {
+	// update any and all key releases
 	debugger.keyReleased();
 	if (!gManager.debug) oManager.keyReleased();
 	if (menu.active) menu.keyReleased();
@@ -189,24 +201,21 @@ void keyReleased() {
 	}
 }
 
-void setupWindow() {
+void settings() {
 	// setup the window and renderer
-	size(ceil(768 * WIN_SCALE * 1.333),ceil(768 * WIN_SCALE),P2D);
+	if (WIN_SCALE == 1.0) fullScreen();
+	else size(ceil(768 * WIN_SCALE * 1.333),ceil(768 * WIN_SCALE),P2D);	
+}
+
+void setupWindow() {
 	// get the width of the current display and set the height so it's a 4:3 ratio
 	WIN_HEIGHT 	= ceil(768 * WIN_SCALE);	
-	// WIN_HEIGHT 	= ceil(displayHeight * WIN_SCALE);	
 	WIN_WIDTH 	= ceil(WIN_HEIGHT * 1.333);
 	ARENA_BORDER = ceil(WIN_HEIGHT * 0.063);
 	FONT_SIZE = ceil(WIN_HEIGHT * 0.04);
 	DEBUG_FONT_SIZE = ceil(WIN_WIDTH * 0.02);
 }
 
-boolean sketchFullScreen() {
-	// sets the sketch to true fullscreen
-	if (WIN_SCALE == 1.0) return true;
-	else return false;
-}
-// test
 void initGamePads() {
 	// GAMEPAD
 	// Initialise the ControlIO
@@ -222,11 +231,7 @@ void initGamePads() {
 	for (int i=0;i<numberOfDevices;i++) {
 		ControlDevice device = control.getDevice(i);
 		// if the configuration matches, add the device
-<<<<<<< HEAD
-		if (device.matches(ps3) || device.matches(ps3win) || device.matches(xBoxWireless)) gPads.add(device);
-=======
 		if (device.matches(ps3) || device.matches(xBoxWireless) || device.matches(nes)) gPads.add(device);
->>>>>>> Release0.5
 		else device.close();
 	}
 }
@@ -250,23 +255,31 @@ void printDebug() {
 
 void loadLevels() {
 	// LEVELS
-	// go through the levels folder and store the found files in an array list
+	// this method searches the levels folder for .gif files and stores them in
+	// an array list called 'leveLList'
+	// you can easily add new levels by adding new images to the levels folder
+	// make sure the level image is stored as a .gif, otherwise it won't be parsed
+	// the level parser checks the pixel colors and adds according objects, so 
+	// make sure you are using the same colored pixels when adding new levels
+
 	File f = new File(dataPath("levels/")); 
 	ArrayList < String > filesInFolder = new ArrayList < String >(Arrays.asList(f.list()));
 
-	// create a list holding string arrays
+	// create a list holding images
 	levelList = new ArrayList < PImage >();
 	
-	// step through each file on the levels folder
+	// step through each file in the levels folder
 	for (int i=0;i<filesInFolder.size();i++) {
+
 		String currentLevelFile = filesInFolder.get(i);
-		// check if the file ends with .txt
+		
+		// check if the file ends with .gif
 		if (currentLevelFile.toLowerCase().contains(".gif")) {
-			// put together a string that looks like this foldername/levelname.gif
+			// put together a string twith the path and filename (foldername/levelname.gif)
 			String fileName = f.getPath() + "/" + currentLevelFile;
-			// store each line in the file into a string array
+			// load the image
 			PImage level = loadImage(fileName);
-			// now add the string array to the levels list
+			// add the image to the levels list
 			levelList.add(level);
 		}
 	}	
@@ -276,20 +289,20 @@ void loadSounds() {
 	//SOUNDS
 	// initialise sound library
 	minim = new Minim(this);
-	bulletHit01 = minim.loadSample("sounds/bulletHit01.wav",512);
-	capture01 = minim.loadSample("sounds/capture01.wav",512);
-	die01 = minim.loadSample("sounds/die01.wav",512);
-	hurt01 = minim.loadSample("sounds/hurt01.wav",512);
-	shot01 = minim.loadSample("sounds/shot01.wav",512);
-	shot02 = minim.loadSample("sounds/spawn01.wav",512);
-	multiShot01 = minim.loadSample("sounds/multiShot01.wav",512);
-	spawn01 = minim.loadSample("sounds/spawn01.wav",512);
-	boost01 = minim.loadSample("sounds/boost01.wav",512);
-	powerUpSpawn01 = minim.loadSample("sounds/powerUpSpawn01.wav",512);
-	powerUpGet01 = minim.loadSample("sounds/powerUpGet01.wav",512);
-	lockDown01 = minim.loadSample("sounds/lockDown01.wav",512);
+	bulletHit01 		= minim.loadSample("sounds/bulletHit01.wav",512);
+	capture01 			= minim.loadSample("sounds/capture01.wav",512);
+	die01 				= minim.loadSample("sounds/die01.wav",512);
+	hurt01 				= minim.loadSample("sounds/hurt01.wav",512);
+	shot01 				= minim.loadSample("sounds/shot01.wav",512);
+	shot02 				= minim.loadSample("sounds/spawn01.wav",512);
+	multiShot01 		= minim.loadSample("sounds/multiShot01.wav",512);
+	spawn01 			= minim.loadSample("sounds/spawn01.wav",512);
+	boost01 			= minim.loadSample("sounds/boost01.wav",512);
+	powerUpSpawn01 		= minim.loadSample("sounds/powerUpSpawn01.wav",512);
+	powerUpGet01 		= minim.loadSample("sounds/powerUpGet01.wav",512);
+	lockDown01 			= minim.loadSample("sounds/lockDown01.wav",512);
 	lockDownStopAlert01 = minim.loadSample("sounds/lockDownStopAlert01.wav",512);
-	lockDownStop01 = minim.loadSample("sounds/lockDownStop01.wav",512);
+	lockDownStop01 		= minim.loadSample("sounds/lockDownStop01.wav",512);
 }
 
 void loadTextures() {
