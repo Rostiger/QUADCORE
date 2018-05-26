@@ -23,6 +23,9 @@ class GameManager {
    	}
 
 	void reset() {
+		// this method removes all active game objects and loads a new level
+		// since levels can have variable dimensions, the grid and the cellsizes are re-calculated on every level load
+
 		// make sure all game objects (except players) are removed
 		oManager.clearGameObjects();
 
@@ -31,10 +34,10 @@ class GameManager {
 
 		// choose a random new level from the list of available levels
 		nextLevelID = (int)random(0,levelList.size());
-		// never pick the same level again after it has been played
+		// make sure to never pick the same level again after it has just been played
 		while (nextLevelID == prevLevelID) nextLevelID = (int)random(0,levelList.size());
 
-		// determine level proportions depending on the amount of characters in the first line of the level file
+		// determine level proportions depending on the height of the level file (levels always need to be square, so width or height is the same)
 		CELL_SIZE = floor((WIN_HEIGHT - ARENA_BORDER * 2) / levelList.get(nextLevelID).height);
 		VIEW_HEIGHT = CELL_SIZE * levelList.get(nextLevelID).height;
 		VIEW_WIDTH = VIEW_HEIGHT;
@@ -57,7 +60,7 @@ class GameManager {
 		matchOver = false;
 		
 	    // finally add a new hud and collision class
-	    // these come after parsing the level, because they are dependend on the CELL_SIZE value
+	    // these come after parsing the level, because they are dependent on the CELL_SIZE value
 		hud = new Hud();
 		collision = new Collision();
 	}
@@ -75,24 +78,24 @@ class GameManager {
 
 		// update game objects
 		if (menu.active) menu.update();
-		else {
+		// else {
 
-			// if (matchOver || debugger.drawCheckers) {
-			// 	blink(100,0,5);
-			// 	fill(colors.player[winnerID], alpha);
-			// 	noStroke();
-			// 	rectMode(CENTER);
-			// 	canvas.rect(WIN_WIDTH / 2,WIN_HEIGHT / 2,VIEW_WIDTH, VIEW_HEIGHT);
-			// }
-			oManager.update();
-			hud.update();
+		// 	// if (matchOver || debugger.drawCheckers) {
+		// 	// 	blink(100,0,5);
+		// 	// 	fill(colors.player[winnerID], alpha);
+		// 	// 	noStroke();
+		// 	// 	rectMode(CENTER);
+		// 	// 	canvas.rect(WIN_WIDTH / 2,WIN_HEIGHT / 2,VIEW_WIDTH, VIEW_HEIGHT);
+		// 	// }
+		// 	oManager.update();
+		// 	hud.update();
 
-			// store a background image when paused
-			if (paused) {
-				menu.bg = canvas.get();
-				menu.active = true;
-			} updateGrid();			
-		}
+		// 	// // store a background image when paused
+		// 	if (paused) {
+		// 		menu.bg = canvas.get();
+		// 		menu.active = true;
+		// 	} updateGrid();			
+		// }
 	}
 
 	void updateGrid() {
