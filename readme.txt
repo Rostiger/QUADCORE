@@ -5,6 +5,7 @@
 ╚██████╔╝╚██████╔╝██║  ██║██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗
  ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
+Whoa 
  ![](https://media.giphy.com/media/2UDSixdnNWhqpwswvP/giphy.gif)
 
  QUADCORE  is a simple local multi-player game for up to four players made with Processing.
