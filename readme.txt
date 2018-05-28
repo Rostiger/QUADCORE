@@ -40,6 +40,8 @@ https://media.giphy.com/media/2UDSixdnNWhqpwswvP/giphy.gif
  Use Item: 	1
  Start: 	2
 
+ Press ~ to open the debug menu.
+
 This game was initially made back in 2014 to teach myself programming. Later it was extended to showcase a homebrew arcade cabinet called HansG.
 The cabinet was built by Clemens Scott and Josef Who for zamSpielen: http://zamSpielen.tumblr.com/hansg
 
