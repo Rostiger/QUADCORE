@@ -5,7 +5,7 @@
 ╚██████╔╝╚██████╔╝██║  ██║██████╔╝╚██████╗╚██████╔╝██║  ██║███████╗
  ╚══▀▀═╝  ╚═════╝ ╚═╝  ╚═╝╚═════╝  ╚═════╝ ╚═════╝ ╚═╝  ╚═╝╚══════╝
 
- ![Alt Text](http://www.giphy.com/gifs/2UDSixdnNWhqpwswvP)
+ ![](https://media.giphy.com/media/2UDSixdnNWhqpwswvP/giphy.gif)
 
  QUADCORE  is a simple local multi-player game for up to four players made with Processing.
  Capture all bases to win a match. Whoever wins three matches first, wins the tournament.
