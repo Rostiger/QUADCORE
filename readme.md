@@ -40,7 +40,7 @@
  Use Item: 	1
  Start: 	2
 
-This game was initially made to teach myself programming and then extended to showcase a homebrew arcade cabinet called HansG.
+This game was initially made back in 2014 to teach myself programming. Later it was extended to showcase a homebrew arcade cabinet called HansG.
 The cabinet was built by Clemens Scott and Josef Who for zamSpielen: http://zamSpielen.tumblr.com/hansg
 
 To run QUADCORE, you will need the following third party libraries:
