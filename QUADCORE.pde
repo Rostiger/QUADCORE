@@ -31,7 +31,7 @@ LevelParser 	levelParser = new LevelParser();	// parses levels from gifs!
 Menu menu;											// contains menu logic
 Debugger debugger;									// for debugging stuff!
 Hud hud;											// manages the hud
-Collision collision;								// 'calculates' collisions
+Collision collision;								// calculates collisions
 
 PGraphics canvas;
 PFont font;
@@ -53,7 +53,7 @@ int FONT_SIZE;
 int DEBUG_FONT_SIZE;
 int ARENA_BORDER;
 boolean TOP_VIEW = false;		// is the screen on the floor?
-boolean SHADERS = false;			// experimental performance killer
+boolean SHADERS = false;		// experimental performance killer - handle with care!
 int SHADER_INTENSITY = 150;
 int COLOR_SCHEME = 1;
 PVector canvasPos, canvasCen;
@@ -94,17 +94,15 @@ void setup() {
 	debugger = new Debugger();
 	
 	// set up the shaders
-    if (SHADERS) {
-		blur = loadShader("data/blur.glsl");
-		blur.set("blurSize", 3);
-		blur.set("sigma", 20.f);
+	blur = loadShader("data/blur.glsl");
+	blur.set("blurSize", 3);
+	blur.set("sigma", 20.f);
 
-		pass1 = createGraphics(width, height, P2D);
-		pass1.noSmooth();  
+	pass1 = createGraphics(width, height, P2D);
+	pass1.noSmooth();  
 
-		pass2 = createGraphics(width, height, P2D);
-		pass2.noSmooth();
-    }
+	pass2 = createGraphics(width, height, P2D);
+	pass2.noSmooth();
 }
 
 void draw() {
@@ -146,7 +144,7 @@ void draw() {
 
 void postProcessing() {
 	// this is some very experimental code for appliying a bloom like shader
-	// it eats most of the game's performance, so I reccomend using it with caution
+	// it eats most of the game's performance, so I reccommend using it with caution
 	PImage dst = get();
 	imageMode(CORNER);
 

@@ -54,7 +54,7 @@ class Menu {
 	void update() {
 		if (active) {
 
-			// check input
+			// set the user handling the menu by checking the input
 			for (Input i : input) {
 				input.get(i.id).update();
 				if (i.anyKeyPressed && i.id != userId)  {
@@ -62,7 +62,7 @@ class Menu {
 					break;
 				}
 			}
-			
+			// draw the menu
 			draw();
 
 		} else selectedItem = 0;

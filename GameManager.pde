@@ -41,8 +41,6 @@ class GameManager {
 		CELL_SIZE = floor((WIN_HEIGHT - ARENA_BORDER * 2) / levelList.get(nextLevelID).height);
 		VIEW_HEIGHT = CELL_SIZE * levelList.get(nextLevelID).height;
 		VIEW_WIDTH = VIEW_HEIGHT;
-		canvas = createGraphics(VIEW_WIDTH,VIEW_HEIGHT);
-		canvasPos = new PVector(WIN_WIDTH / 2 - VIEW_WIDTH / 2, ARENA_BORDER);
 
 		// parse the level
 		levelParser.parseLevel(nextLevelID);
@@ -78,24 +76,16 @@ class GameManager {
 
 		// update game objects
 		if (menu.active) menu.update();
-		// else {
+		else {
+			oManager.update();
+			hud.update();
 
-		// 	// if (matchOver || debugger.drawCheckers) {
-		// 	// 	blink(100,0,5);
-		// 	// 	fill(colors.player[winnerID], alpha);
-		// 	// 	noStroke();
-		// 	// 	rectMode(CENTER);
-		// 	// 	canvas.rect(WIN_WIDTH / 2,WIN_HEIGHT / 2,VIEW_WIDTH, VIEW_HEIGHT);
-		// 	// }
-		// 	oManager.update();
-		// 	hud.update();
-
-		// 	// // store a background image when paused
-		// 	if (paused) {
-		// 		menu.bg = canvas.get();
-		// 		menu.active = true;
-		// 	} updateGrid();			
-		// }
+			// // store a background image when paused
+			if (paused) {
+				menu.bg = canvas.get();
+				menu.active = true;
+			} updateGrid();			
+		}
 	}
 
 	void updateGrid() {
@@ -109,11 +99,6 @@ class GameManager {
         float drawScale = 1;
         int gridColor = colors.item;
         int alp = 50;
-		// if (matchOver || debugger.drawWinnerGrid) {
-		// 	gridColor = colors.player[winnerID];
-		// 	drawScale = gridPulser.pulse(1,8,0.5,1,-1);
-		// 	alp = 150;
-		// }
 		grid.drawGrid(gridPos, gridSiz, CELL_SIZE, CELL_SIZE / 8 * drawScale, 1 * drawScale, gridColor, alp);
 		grid.drawGrid(gridPos, gridSiz, CELL_SIZE * 4, CELL_SIZE / 2 * drawScale, 1 * drawScale, gridColor, alp);
 		popMatrix();
